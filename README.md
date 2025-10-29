@@ -12,3 +12,21 @@ Software Engineering Group Project Sept 2025
 + Nooha Rahman C.P
 + Taniya Chouhan
 + Vikas Rathore
+
+
+### Tech Stacks and libraries to be used 
+#### Frontend
+---
++ vuejs
++ tailwind - *css and styling*
++ pinia - *for store management as default store management changed from vuex to pinia*
++ vitest, jsdom, test-utils etc - *as unit testing framework* 
+
+#### Backend
+---
++ Fastapi
++ Postgresql + pgvecotor
++ Pinecone
++ LangChain + LangGraph
++ Gemini apis
++ docker
