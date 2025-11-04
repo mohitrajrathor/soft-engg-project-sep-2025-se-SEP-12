@@ -7,9 +7,9 @@ import { PlusCircleIcon, ArrowRightOnRectangleIcon, ClipboardDocumentListIcon, C
 
 
 <template>
-  <div class="flex min-h-screen bg-[#f8fafc]">
-    <TASidebar />
-    <main class="flex-1 p-0">
+  <div class="flex">
+  <TASidebar class="fixed top-0 left-0 h-screen w-[250px]" />
+    <main class="flex-1 flex flex-col min-h-screen ml-[250px] bg-gray-50">
       <TaHeaderBar searchPlaceholder="Search dashboard, queries, resources" />
       <div class="px-8 pt-6 flex flex-col lg:flex-row gap-8">
         <!-- MAIN DASHBOARD SECTION -->
