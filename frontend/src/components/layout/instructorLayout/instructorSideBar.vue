@@ -15,7 +15,7 @@ const mainNav = [
 
 const quickActions = [
   { name: 'New Query', path: '/student/my-query', icon: 'bi-plus-circle' },
-  { name: 'Book Office Hour', path: '/student/office-hour', icon: 'bi-calendar-check' },
+  { name: 'Video Summary', path: '/student/summary', icon: 'bi-calendar-check' },
 ]
 
 function signOut() {
