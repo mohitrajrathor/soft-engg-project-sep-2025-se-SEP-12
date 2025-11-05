@@ -25,6 +25,34 @@ Multi-role dashboard including Admin, Student, Instructor, and TA panels built w
    npm run dev
 - Open the given local URL (often `http://localhost:5173`) to explore in your browser.
 
+## 🌐 How to Access Each Dashboard Page
+
+When running the app (`npm run dev`), use these URLs directly in your browser to view each role’s main page:
+
+1. **Admin Dashboard**  
+   - `/admin/dashboard`  
+   - Shows the full admin overview, metrics, charts, and user management.
+
+2. **Student Home**  
+   - `/student/dashboard`  
+   - Shows the student homepage, header, new query form, and student tools.
+
+3. **Instructor Dashboard**  
+   - `/instructor/dashboard`  
+   - Access the instructor’s analytics, reports, and content creation areas.
+
+4. **TA Dashboard**  
+   - `/ta/dashboard`  
+   - See the TA portal for answering queries, managing sessions, etc.
+
+You can also navigate in-app using the side/navbar, but entering these routes in your browser’s address bar will take you directly where you want to go.
+
+---
+
+**Add this block to the top of your README file.**  
+This will help every new user or reviewer instantly access and test each section of your app—no guessing needed. Adjust route names as per your router setup if needed!
+
+
 ---
 
 ## 🧑‍💻 Project Tour (Where to Look)
