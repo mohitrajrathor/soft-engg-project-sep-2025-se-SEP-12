@@ -1,7 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import TASidebar from '@/components/layout/TaLayout/TASideBar.vue'
-import { FunnelIcon, ArrowDownTrayIcon, ChatBubbleLeftRightIcon, ExclamationTriangleIcon, EnvelopeIcon, ClipboardDocumentListIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
+import { 
+  ArrowDownTrayIcon, 
+  ChatBubbleLeftRightIcon, 
+  ExclamationTriangleIcon, 
+  EnvelopeIcon, 
+  ClipboardDocumentListIcon, 
+  DocumentTextIcon 
+} from '@heroicons/vue/24/outline'
 
 // === FILTERS ===
 const selectedPeriod = ref('weekly')
@@ -65,7 +72,6 @@ const doubtSummary = ref({
 
 // === MOCK API CALL ===
 const fetchSummary = async () => {
-  // Real endpoint: POST /api/doubt-summarizer
   console.log('Fetching AI-powered doubt summary...')
 }
 onMounted(fetchSummary)
@@ -101,7 +107,7 @@ const getTrendText = (trend) => {
 
 <template>
   <div class="flex min-h-screen bg-[#f8fafc]">
-    <!-- Sidebar (from teammates) -->
+    <!-- Sidebar -->
     <TASidebar class="fixed top-0 left-0 h-screen w-[250px]" />
 
     <!-- Main Layout -->
@@ -109,7 +115,7 @@ const getTrendText = (trend) => {
       <!-- Header -->
       <header class="bg-white shadow-sm px-8 py-5 flex items-center justify-between">
         <h1 class="text-2xl font-extrabold text-black">TA Doubt Summarizer</h1>
-        <button @click="exportSummary" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800 flex items-center font-semibold shadow-sm transition-colors">
+        <button @click="exportSummary" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center font-semibold shadow-sm transition-colors">
           <ArrowDownTrayIcon class="w-5 h-5 mr-2" />
           Export Summary
         </button>
@@ -121,30 +127,26 @@ const getTrendText = (trend) => {
         <div class="flex-1 space-y-6">
           <!-- Filter Controls -->
           <div class="bg-white rounded-2xl shadow-2xl p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-6">
+              <!-- Summary Period (Dropdown) -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Summary Period</label>
-                <div class="flex space-x-2">
-                  <button
-                    v-for="period in ['daily', 'weekly', 'monthly']"
-                    :key="period"
-                    @click="selectedPeriod = period"
-                    :class="[
-                      'flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors',
-                      selectedPeriod === period
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                    ]"
-                  >
-                    {{ period.charAt(0).toUpperCase() + period.slice(1) }}
-                  </button>
-                </div>
+                <select
+                  v-model="selectedPeriod"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
               </div>
+
+              <!-- Source -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Source</label>
                 <select
                   v-model="selectedSource"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-blue-50"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
                 >
                   <option value="all">All Sources</option>
                   <option value="forum">Forum Posts</option>
@@ -152,11 +154,13 @@ const getTrendText = (trend) => {
                   <option value="chat">Chat Logs</option>
                 </select>
               </div>
+
+              <!-- Course -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Course</label>
                 <select
                   v-model="selectedCourse"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-blue-50"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
                 >
                   <option value="all">All Courses</option>
                   <option value="bscs3001">BSCS3001 - Software Engineering</option>
@@ -168,22 +172,22 @@ const getTrendText = (trend) => {
 
           <!-- Summary Stats Cards -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-2xl shadow-2xl p-5">
+            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
               <p class="text-sm font-medium text-gray-500 mb-1">Total Queries</p>
               <p class="text-3xl font-bold text-black">{{ summaryStats.totalQueries }}</p>
-              <p class="text-xs text-green-600 mt-1 font-semibold">↑ {{ summaryStats.percentageChange }}% from last week</p>
+              <p class="text-xs text-green-600 mt-1 font-semibold">up {{ summaryStats.percentageChange }}% from last week</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-5">
+            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
               <p class="text-sm font-medium text-gray-500 mb-1">Topic Clusters</p>
               <p class="text-3xl font-bold text-black">{{ summaryStats.topicClusters }}</p>
               <p class="text-xs text-gray-500 mt-1">Major confusion areas</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-5">
+            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
               <p class="text-sm font-medium text-gray-500 mb-1">Recurring Doubts</p>
               <p class="text-3xl font-bold text-black">{{ summaryStats.recurringDoubts }}</p>
               <p class="text-xs text-orange-600 mt-1 font-semibold">Need attention</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-5">
+            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
               <p class="text-sm font-medium text-gray-500 mb-1">Learning Gaps</p>
               <p class="text-3xl font-bold text-black">{{ summaryStats.learningGaps }}</p>
               <p class="text-xs text-red-600 mt-1 font-semibold">Critical issues</p>
@@ -191,7 +195,7 @@ const getTrendText = (trend) => {
           </div>
 
           <!-- AI Summary Brief -->
-          <div class="bg-gradient-to-r from-blue-100 to-purple-100 border-2 border-blue-300 rounded-2xl p-6 shadow-2xl">
+          <div class="bg-white rounded-2xl shadow-2xl p-6 border border-gray-200">
             <div class="flex items-start">
               <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                 <ChatBubbleLeftRightIcon class="text-white w-6 h-6" />
@@ -199,16 +203,14 @@ const getTrendText = (trend) => {
               <div class="flex-1">
                 <h4 class="font-bold text-black mb-2 text-lg">AI Summary Brief (Oct 24 - Oct 31, 2024)</h4>
                 <p class="text-sm text-gray-800 mb-3">
-                  This week, <strong>{{ summaryStats.totalQueries }} student queries</strong> were received across your assigned courses. 
-                  The AI has identified <strong>{{ summaryStats.topicClusters }} major topic clusters</strong> with 
-                  <strong>{{ doubtSummary.topicClusters[0].topic }}</strong> being the most challenging 
-                  ({{ doubtSummary.topicClusters[0].count }} queries). There's a significant increase in questions about 
-                  Factory Pattern implementation and Abstract Classes. <strong>{{ summaryStats.recurringDoubts }} recurring doubts</strong> 
-                  suggest students need additional clarification on these concepts. Forum activity is up 
-                  <strong>{{ summaryStats.percentageChange }}%</strong> compared to last week.
+                  This week, <strong>{{ summaryStats.totalQueries }} student queries</strong> were received. 
+                  The AI identified <strong>{{ summaryStats.topicClusters }} major clusters</strong>, with 
+                  <strong>{{ doubtSummary.topicClusters[0].topic }}</strong> leading at 
+                  {{ doubtSummary.topicClusters[0].count }} queries. Forum activity up 
+                  <strong>{{ summaryStats.percentageChange }}%</strong>.
                 </p>
                 <div class="flex items-center space-x-4 text-sm">
-                  <span class="text-blue-700 font-semibold">Detailed insights below</span>
+                  <span class="text-gray-700 font-semibold">Detailed insights below</span>
                   <span class="text-gray-500">•</span>
                   <span class="text-gray-600">Generated by AI on Nov 4, 2024</span>
                 </div>
@@ -223,7 +225,7 @@ const getTrendText = (trend) => {
               <div
                 v-for="(cluster, index) in doubtSummary.topicClusters"
                 :key="index"
-                class="border-2 border-gray-200 rounded-xl p-5 hover:shadow-lg transition-shadow bg-blue-50"
+                class="border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-shadow bg-gray-50"
               >
                 <div class="flex items-start justify-between mb-3">
                   <div class="flex-1">
@@ -235,7 +237,7 @@ const getTrendText = (trend) => {
                       </span>
                     </div>
                     <p class="text-sm text-gray-700 mb-2">
-                      <strong>{{ cluster.count }} queries</strong> identified from forum posts, emails, and chat logs
+                      <strong>{{ cluster.count }} queries</strong> from forum, email, and chat
                     </p>
                     
                     <!-- Sample Queries -->
@@ -249,14 +251,14 @@ const getTrendText = (trend) => {
                 </div>
                 
                 <div class="flex flex-wrap gap-2 mt-4">
-                  <button @click="viewAllQueries(cluster)" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800 text-sm font-semibold shadow-sm">
+                  <button @click="viewAllQueries(cluster)" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-sm">
                     View All {{ cluster.count }} Queries
                   </button>
-                  <button @click="generateResponseTemplate(cluster)" class="px-4 py-2 border-2 border-blue-600 text-blue-700 rounded-lg hover:bg-blue-50 text-sm font-semibold">
-                    Generate Response Template
+                  <button @click="generateResponseTemplate(cluster)" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-sm">
+                    Generate Template
                   </button>
-                  <button @click="markAsAddressed(cluster)" class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 text-sm font-semibold">
-                    Mark as Addressed
+                  <button @click="markAsAddressed(cluster)" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-sm">
+                    Mark Addressed
                   </button>
                 </div>
               </div>
@@ -270,27 +272,27 @@ const getTrendText = (trend) => {
               Recurring Doubts & Learning Gaps
             </h4>
             <p class="text-sm text-gray-600 mb-4">
-              These issues appear repeatedly across multiple students, indicating fundamental learning gaps
+              Repeated issues across multiple students
             </p>
             <div class="space-y-3">
               <div
                 v-for="(item, index) in doubtSummary.commonIssues"
                 :key="index"
-                class="p-4 bg-orange-50 border-2 border-orange-300 rounded-lg"
+                class="p-4 bg-gray-50 border border-gray-200 rounded-lg"
               >
                 <div class="flex items-start justify-between">
                   <div class="flex items-start flex-1">
-                    <span class="flex items-center justify-center w-7 h-7 bg-orange-600 text-white rounded-full text-sm font-bold mr-3">
+                    <span class="flex items-center justify-center w-7 h-7 bg-blue-600 text-white rounded-full text-sm font-bold mr-3">
                       {{ index + 1 }}
                     </span>
                     <div class="flex-1">
                       <p class="font-bold text-black">{{ item.issue }}</p>
                       <p class="text-sm text-gray-700 mt-1">
-                        Mentioned by <strong>{{ item.students }} students</strong> across forum and emails
+                        Mentioned by <strong>{{ item.students }} students</strong>
                       </p>
                     </div>
                   </div>
-                  <button @click="createFAQ(item.issue)" class="ml-4 px-4 py-2 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 font-semibold shadow-sm">
+                  <button @click="createFAQ(item.issue)" class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-sm">
                     Create FAQ
                   </button>
                 </div>
@@ -300,47 +302,47 @@ const getTrendText = (trend) => {
 
           <!-- Source Breakdown -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white rounded-2xl shadow-2xl p-5">
+            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
               <div class="flex items-center justify-between mb-3">
                 <h5 class="font-bold text-black">Forum Posts</h5>
                 <ChatBubbleLeftRightIcon class="text-blue-600 w-6 h-6" />
               </div>
               <p class="text-3xl font-bold text-black mb-1">{{ doubtSummary.sourceBreakdown.forum.count }}</p>
-              <p class="text-sm text-gray-600">{{ doubtSummary.sourceBreakdown.forum.percentage }}% of total queries</p>
+              <p class="text-sm text-gray-600">{{ doubtSummary.sourceBreakdown.forum.percentage }}% of total</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-5">
+            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
               <div class="flex items-center justify-between mb-3">
                 <h5 class="font-bold text-black">Emails</h5>
-                <EnvelopeIcon class="text-green-600 w-6 h-6" />
+                <EnvelopeIcon class="text-blue-600 w-6 h-6" />
               </div>
               <p class="text-3xl font-bold text-black mb-1">{{ doubtSummary.sourceBreakdown.email.count }}</p>
-              <p class="text-sm text-gray-600">{{ doubtSummary.sourceBreakdown.email.percentage }}% of total queries</p>
+              <p class="text-sm text-gray-600">{{ doubtSummary.sourceBreakdown.email.percentage }}% of total</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-5">
+            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
               <div class="flex items-center justify-between mb-3">
                 <h5 class="font-bold text-black">Chat Logs</h5>
-                <ChatBubbleLeftRightIcon class="text-purple-600 w-6 h-6" />
+                <ChatBubbleLeftRightIcon class="text-blue-600 w-6 h-6" />
               </div>
               <p class="text-3xl font-bold text-black mb-1">{{ doubtSummary.sourceBreakdown.chat.count }}</p>
-              <p class="text-sm text-gray-600">{{ doubtSummary.sourceBreakdown.chat.percentage }}% of total queries</p>
+              <p class="text-sm text-gray-600">{{ doubtSummary.sourceBreakdown.chat.percentage }}% of total</p>
             </div>
           </div>
 
           <!-- Quick Actions -->
-          <div classeaf class="bg-white rounded-2xl shadow-2xl p-6">
+          <div class="bg-white rounded-2xl shadow-2xl p-6">
             <h4 class="font-bold text-black mb-4 text-lg">Quick Actions</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <button @click="sendToInstructor" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-800 font-semibold text-left shadow-sm">
-                Send Summary to Instructor
+              <button @click="sendToInstructor" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-left shadow-sm">
+                Send to Instructor
               </button>
-              <button @click="createOfficeHoursAgenda" class="px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-left shadow-sm">
+              <button @click="createOfficeHoursAgenda" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-left shadow-sm">
                 Create Office Hours Agenda
               </button>
-              <button @click="generateWeeklyReport" class="px-5 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold text-left shadow-sm">
-                Generate Weekly Report (PDF)
+              <button @click="generateWeeklyReport" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-left shadow-sm">
+                Generate Weekly Report
               </button>
-              <button @click="getAIResponseSuggestions" class="px-5 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-semibold text-left shadow-sm">
-                Get AI Response Suggestions
+              <button @click="getAIResponseSuggestions" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-left shadow-sm">
+                AI Response Suggestions
               </button>
             </div>
           </div>
@@ -349,7 +351,7 @@ const getTrendText = (trend) => {
         <!-- Right Side Panel -->
         <aside class="w-[320px] flex flex-col gap-6">
           <!-- Summary Statistics -->
-          <div class="bg-white rounded-2xl shadow-2xl p-5">
+          <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
             <div class="font-bold mb-4 text-base text-black">Summary Statistics</div>
             <div class="space-y-3">
               <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
@@ -360,41 +362,41 @@ const getTrendText = (trend) => {
                 <span class="text-gray-700 text-sm font-medium">Topics Identified</span>
                 <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.topicClusters }}</span>
               </div>
-              <div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+              <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                 <span class="text-gray-700 text-sm font-medium">Recurring Issues</span>
-                <span class="bg-orange-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.recurringDoubts }}</span>
+                <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.recurringDoubts }}</span>
               </div>
-              <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+              <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                 <span class="text-gray-700 text-sm font-medium">Learning Gaps</span>
-                <span class="bg-red-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.learningGaps }}</span>
+                <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.learningGaps }}</span>
               </div>
             </div>
           </div>
 
           <!-- Export Options -->
-          <div class="bg-white rounded-2xl shadow-2xl p-5">
+          <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
             <div class="font-bold mb-4 text-base text-black">Export Options</div>
-            <button class="w-full mb-2 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-800 shadow-sm">
+            <button class="w-full mb-2 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-sm">
               <DocumentTextIcon class="w-5 h-5 inline mr-2" />
               Export as PDF
             </button>
-            <button class="w-full mb-2 px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-medium border-2 border-blue-200 hover:bg-blue-100">
+            <button class="w-full mb-2 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-sm">
               <ClipboardDocumentListIcon class="w-5 h-5 inline mr-2" />
               Export as CSV
             </button>
-            <button class="w-full px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-medium border-2 border-blue-200 hover:bg-blue-100">
+            <button class="w-full px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-sm">
               <EnvelopeIcon class="w-5 h-5 inline mr-2" />
               Email Report
             </button>
           </div>
 
           <!-- AI Insights -->
-          <div class="bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl shadow-2xl p-5 border-2 border-purple-300">
+          <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
             <div class="font-bold mb-3 text-base text-black">AI Insights</div>
             <p class="text-sm text-gray-800 mb-3">
-              Design Patterns queries have increased by 40% this week. Consider scheduling a special session.
+              Design Patterns queries up 40%. Consider a special session.
             </p>
-            <button class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 text-sm shadow-sm">
+            <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 text-sm shadow-sm">
               Get More Insights
             </button>
           </div>
