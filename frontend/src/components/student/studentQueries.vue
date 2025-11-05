@@ -221,8 +221,7 @@ const sendMessage = () => {
         </div>
       </div>
 
-      <!-- ✅ Bottom Bar -->
-      <BottomBar />
+    
     </div>
   </div>
 </template>

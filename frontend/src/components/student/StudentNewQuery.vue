@@ -1,271 +1,273 @@
 <template>
-  <div class="d-flex vh-100">
+  <div class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
-    <Sidebar />
+    <Sidebar class="sticky top-0 h-screen flex-shrink-0" />
 
     <!-- Main Content -->
-    <div class="flex-grow-1 d-flex flex-column bg-light">
-      <HeaderBar />
-
-  <div class="flex justify-center items-start bg-gray-100 min-h-screen py-8 relative">
-    <div class="bg-white w-11/12 max-w-6xl rounded-2xl shadow-lg p-8">
+    <div class="flex-1 flex flex-col bg-gray-50">
       <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-semibold text-gray-800">New Query</h2>
-        <button class="text-gray-500 hover:text-gray-700">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
+      <HeaderBar class="sticky top-0 z-50" searchPlaceholder="Ask a question..." />
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Left Section -->
-        <div class="space-y-4">
-          <!-- Course -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Course</label>
-            <select
-              v-model="course"
-              class="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Select course</option>
-              <option>CS 201 - Data Structures</option>
-              <option>CS 301 - Algorithms</option>
-              <option>CS 101 - Programming Fundamentals</option>
-            </select>
-          </div>
-
-          <!-- Title -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-            <input
-              type="text"
-              v-model="title"
-              placeholder="Segmentation fault when using linked list iterator"
-              class="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <!-- Details -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
-            <textarea
-              v-model="details"
-              rows="4"
-              placeholder="Describe the issue, expected behavior, steps to reproduce..."
-              class="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
-            ></textarea>
-          </div>
-
-          <!-- Attachments -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
-            <div
-              class="flex items-center justify-between border border-gray-300 rounded-lg p-2 text-gray-500 hover:bg-gray-50 cursor-pointer"
-            >
-              <span><i class="bi bi-paperclip"></i> Upload files</span>
-              <i class="bi bi-upload"></i>
-            </div>
-            <div class="flex gap-2 mt-2">
-              <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">C++</span>
-              <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">pointers</span>
-              <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">linked-list</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Section -->
-        <div class="space-y-4">
-          <!-- Visibility -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
-            <select
-              v-model="visibility"
-              class="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option>Visible to course</option>
-              <option>Visible to instructors only</option>
-            </select>
-          </div>
-
-          <!-- Category -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select
-              v-model="category"
-              class="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option>Programming Help</option>
-              <option>Assignment Doubt</option>
-              <option>Conceptual Clarification</option>
-            </select>
-          </div>
-
-          <!-- Priority -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-            <select
-              v-model="priority"
-              class="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option>Normal</option>
-              <option>High</option>
-            </select>
-          </div>
-
-          <!-- Generate Prompt -->
-          <div>
-            <button
-              @click="togglePrompt"
-              class="w-full px-4 py-2 mt-2 bg-blue-50 border border-blue-300 rounded-lg text-blue-700 hover:bg-blue-100 transition flex justify-between items-center"
-            >
-              <span>Generate Prompt</span>
-              <i :class="showPrompt ? 'bi bi-chevron-up' : 'bi bi-chevron-down'"></i>
-            </button>
-
-            <transition name="slide">
-              <div
-                v-if="showPrompt"
-                class="mt-3 border border-gray-300 rounded-lg bg-gray-50 p-3 overflow-hidden"
-              >
-                <textarea
-                  v-model="generatedPrompt"
-                  rows="5"
-                  class="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                ></textarea>
+      <!-- Page content -->
+      <div class="flex flex-1 overflow-hidden">
+        <!-- Center: Chat Area -->
+        <section class="flex-1 flex flex-col relative bg-white">
+          <!-- Scrollable Conversation -->
+          <div class="flex-1 overflow-y-auto p-6 pb-28">
+            <div v-if="messages.length === 0" class="flex flex-col items-center justify-center h-full text-center">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
               </div>
-            </transition>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">Start a New Query</h3>
+              <p class="text-gray-500 max-w-md">
+                Ask a question about your coursework, assignments, or concepts. Our AI assistant and instructors are here to help!
+              </p>
+            </div>
+
+            <!-- Messages -->
+            <div v-else class="space-y-6 max-w-4xl mx-auto">
+              <div
+                v-for="(msg, index) in messages"
+                :key="index"
+                class="flex items-start gap-4"
+                :class="msg.type === 'user' ? 'flex-row-reverse' : ''"
+              >
+                <!-- Avatar -->
+                <div
+                  class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                  :class="msg.type === 'user' ? 'bg-blue-600' : 'bg-gradient-to-br from-purple-500 to-blue-500'"
+                >
+                  <span class="text-white font-semibold text-sm">
+                    {{ msg.type === 'user' ? 'You' : 'AI' }}
+                  </span>
+                </div>
+
+                <!-- Message Content -->
+                <div
+                  class="flex-1 max-w-2xl"
+                  :class="msg.type === 'user' ? 'text-right' : ''"
+                >
+                  <div class="text-xs font-semibold mb-1" :class="msg.type === 'user' ? 'text-blue-900' : 'text-purple-900'">
+                    {{ msg.type === 'user' ? 'You' : 'AI Assistant' }}
+                  </div>
+                  <div
+                    class="inline-block px-4 py-3 rounded-2xl text-base"
+                    :class="msg.type === 'user' 
+                      ? 'bg-blue-600 text-white rounded-tr-sm' 
+                      : 'bg-gray-100 text-gray-800 rounded-tl-sm'"
+                  >
+                    <p class="whitespace-pre-wrap">{{ msg.content }}</p>
+                    <div v-if="msg.file" class="mt-2 pt-2 border-t border-white/20 flex items-center gap-2 text-sm">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                      </svg>
+                      {{ msg.file.name }}
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-400 mt-1">{{ msg.timestamp }}</div>
+                </div>
+              </div>
+
+              <!-- Typing Indicator -->
+              <div v-if="isTyping" class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                  <span class="text-white font-semibold text-sm">AI</span>
+                </div>
+                <div class="flex-1">
+                  <div class="text-xs font-semibold mb-1 text-purple-900">AI Assistant</div>
+                  <div class="inline-block px-4 py-3 rounded-2xl rounded-tl-sm bg-gray-100">
+                    <div class="flex gap-1">
+                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <!-- Right: Recent Chats Panel -->
+        <aside class="w-64 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0">
+          <div class="p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-lg">Recent Chats</h3>
+              <button
+                @click="startNewChat"
+                class="p-1.5 rounded-lg hover:bg-gray-100 transition"
+                title="New Chat"
+              >
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="space-y-2">
+              <div
+                v-for="(chat, index) in recentChats"
+                :key="index"
+                @click="loadChat(chat)"
+                class="p-3 rounded-xl border hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition"
+                :class="currentChatId === chat.id ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200'"
+              >
+                <div class="font-semibold text-sm line-clamp-1 mb-1">{{ chat.title }}</div>
+                <div class="text-xs text-gray-500 line-clamp-2 mb-1">{{ chat.preview }}</div>
+                <div class="flex items-center justify-between text-xs text-gray-400">
+                  <span>{{ chat.time }}</span>
+                  <span class="px-2 py-0.5 rounded-full" :class="chat.status === 'Open' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'">
+                    {{ chat.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
 
-      <!-- Footer -->
-      <div class="flex justify-end items-center gap-3 mt-8">
-        <button
-          class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
-        >
-          Save Draft
-        </button>
-        <button
-          @click="handleAskAI"
-          class="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-        >
-          Ask AI
-        </button>
-      </div>
-    </div>
-
-    <!-- AI Response Overlay -->
-    <transition name="fade">
-      <div
-        v-if="showAIOverlay"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      >
-        <div class="bg-white w-11/12 max-w-4xl p-8 rounded-2xl shadow-2xl relative">
-          <button
-            @click="showAIOverlay = false"
-            class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-          >
-            <i class="bi bi-x-lg"></i>
-          </button>
-          <h2 class="text-2xl font-semibold text-gray-800 mb-4">AI Response</h2>
-
-          <div
-            class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 max-h-[60vh] overflow-y-auto"
-          >
-            <p class="whitespace-pre-line">{{ aiResponse }}</p>
-          </div>
-
-          <div class="text-right mt-6">
-            <button
-              @click="sendToInstructor"
-              class="px-5 py-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
-            >
-              Not satisfied? Ask TA/Instructor →
-            </button>
-          </div>
-        </div>
-      </div>
-      
-    </transition>
-  </div>
+      <!-- Bottom Bar -->
+      <BottomBar
+        @send-message="handleSendMessage"
+        @file-attached="handleFileAttached"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import Sidebar from '@/components/layout/StudentLayout/SideBar.vue'
 import HeaderBar from '@/components/layout/StudentLayout/HeaderBar.vue'
+import BottomBar from '@/components/layout/StudentLayout/BottomBar.vue'
 
-import { ref } from "vue";
+const messages = ref([])
+const isTyping = ref(false)
+const currentChatId = ref(null)
 
-const title = ref("");
-const details = ref("");
-const category = ref("");
-const priority = ref("");
-const visibility = ref("");
-const course = ref("");
-const aiResponse = ref("");
-const showAIOverlay = ref(false);
-const showPrompt = ref(false);
-const generatedPrompt = ref("");
-
-// Build prompt text
-const buildPrompt = () => {
-  return `
-You are an academic assistant.
-Course: ${course.value}
-Category: ${category.value}
-Title: ${title.value}
-Details: ${details.value}
-Priority: ${priority.value}
-Visibility: ${visibility.value}
-Generate a summarized answer for the student's question with clear reasoning.
-  `.trim();
-};
-
-// Toggle prompt visibility and populate
-const togglePrompt = () => {
-  if (!showPrompt.value) {
-    generatedPrompt.value = buildPrompt();
+const recentChats = ref([
+  {
+    id: 1,
+    title: 'Dijkstra complexity help',
+    preview: 'I implemented the algorithm but still see O(n²)...',
+    time: '2h ago',
+    status: 'Open',
+    messages: []
+  },
+  {
+    id: 2,
+    title: 'Docker build error',
+    preview: 'Getting permission denied on ARM machine...',
+    time: 'Yesterday',
+    status: 'Resolved',
+    messages: []
+  },
+  {
+    id: 3,
+    title: 'Binary tree traversal',
+    preview: 'Need help understanding in-order traversal...',
+    time: '2d ago',
+    status: 'Open',
+    messages: []
+  },
+  {
+    id: 4,
+    title: 'SQL join queries',
+    preview: 'Left join vs inner join explanation...',
+    time: '3d ago',
+    status: 'Resolved',
+    messages: []
   }
-  showPrompt.value = !showPrompt.value;
-};
+])
 
-// Simulate AI response
-const handleAskAI = () => {
-  const prompt = generatedPrompt.value || buildPrompt();
-  console.log("Prompt sent to AI:", prompt);
-  aiResponse.value =
-    "It seems your segmentation fault is likely caused by dereferencing a null or invalid iterator in your linked list traversal. Make sure to check if your iterator has reached the end before accessing its value.";
-  showAIOverlay.value = true;
-};
+const handleSendMessage = ({ message, file }) => {
+  if (!message.trim() && !file) return
 
-const sendToInstructor = () => {
-  alert("Your query has been sent to the instructor.");
-  showAIOverlay.value = false;
-};
+  // Add user message
+  const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  messages.value.push({
+    type: 'user',
+    content: message,
+    file: file,
+    timestamp: timestamp
+  })
+
+  // Simulate AI typing
+  isTyping.value = true
+
+  setTimeout(() => {
+    isTyping.value = false
+    messages.value.push({
+      type: 'ai',
+      content: generateAIResponse(message),
+      timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    })
+
+    // Auto-scroll to bottom
+    setTimeout(() => {
+      const chatContainer = document.querySelector('.overflow-y-auto')
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight
+      }
+    }, 100)
+  }, 1500)
+}
+
+const handleFileAttached = (file) => {
+  console.log('File attached:', file)
+}
+
+const generateAIResponse = (question) => {
+  // Simple AI response simulation
+  const responses = [
+    "I understand your question. Let me help you with that. Based on the context you've provided, here's what I suggest...",
+    "Great question! This is a common issue that many students face. Here's a detailed explanation...",
+    "I can help you with this. Let's break down the problem step by step...",
+    "That's an interesting query! Here's what you need to know about this topic..."
+  ]
+  return responses[Math.floor(Math.random() * responses.length)]
+}
+
+const startNewChat = () => {
+  messages.value = []
+  currentChatId.value = null
+}
+
+const loadChat = (chat) => {
+  currentChatId.value = chat.id
+  messages.value = chat.messages || []
+}
 </script>
 
 <style scoped>
-/* Smooth slide transition */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.35s ease;
-  max-height: 500px;
-}
-.slide-enter-from,
-.slide-leave-to {
-  max-height: 0;
-  opacity: 0;
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 1;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
 }
 
-/* Fade overlay */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.5rem);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
 }
 </style>
