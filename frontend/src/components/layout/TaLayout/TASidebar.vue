@@ -13,7 +13,7 @@ const mainNav = [
   {name: 'Onboarding Mentor', path: '/ta/onboarding-mentor', icon: 'bi-people-fill' },
   {name: 'Assessment Generator', path: '/ta/assessment-generator', icon: 'bi-file-earmark-text' },
   {name: 'Slide Deck Creator', path: '/ta/slide-deck-creator', icon: 'bi-file-slides' },
-  { name: 'Profile', path: '/student/profile', icon: 'bi-gear' },
+  { name: 'Profile', path: '/ta/profile', icon: 'bi-gear' },
 ]
 
 const quickActions = [
@@ -60,7 +60,7 @@ function signOut() {
       <button @click="signOut" class="btn btn-outline-light w-100 mt-3">
         <i class="bi bi-box-arrow-right me-2"></i> Sign Out
       </button>
-      <p class="small text-secondary text-center mt-2 mb-0">Logged in as Student</p>
+      <p class="small text-secondary text-center mt-2 mb-0">Logged in as TA</p>
     </div>
   </div>
 </template>
