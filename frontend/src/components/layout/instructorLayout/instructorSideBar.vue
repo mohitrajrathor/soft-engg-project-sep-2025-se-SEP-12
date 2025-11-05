@@ -50,7 +50,7 @@ function signOut() {
         <i class="bi bi-box-arrow-right"></i>
         Sign Out
       </button>
-      <p class="text-xs text-gray-400 text-center mt-3">Logged in as Instructor</p>
+      <p class="small text-secondary text-center mt-2 mb-0">Logged in as Instructor</p>
     </div>
   </aside>
 </template>
