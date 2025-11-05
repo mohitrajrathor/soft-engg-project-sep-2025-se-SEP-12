@@ -71,7 +71,7 @@ git push origin main
 ## 🧐 Reviewer Notes
 
 - No authentication or backend connection required to preview the dashboard UI/features.
-- All changes can be run/tested locally—just follow the steps above!
+- All changes can be run/tested locally, just follow the steps above!
 - For any new component or feature, see the matching subfolder in `src/components/`.
 
 ---
