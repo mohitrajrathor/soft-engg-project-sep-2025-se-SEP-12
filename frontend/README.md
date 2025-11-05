@@ -1,6 +1,6 @@
 # AURA Frontend (Vue + Tailwind)
 
-Multi-role dashboard—including Admin, Student, Instructor, and TA panels—built with Vue 3 and Tailwind CSS.
+Multi-role dashboard including Admin, Student, Instructor, and TA panels built with Vue 3 and Tailwind CSS.
 
 ---
 
