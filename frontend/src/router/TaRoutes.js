@@ -5,6 +5,7 @@ import TaSlideDeckGenerator from '@/components/TA/TaSlideDeckGenerator.vue'
 import DoubtSummarizer from '../components/TA/DoubtSummarizer.vue'
 import OnboardingMentor from '../components/TA/OnboardingMentor.vue'
 import TaResourseshub from '@/components/TA/TaResourses_hub.vue'
+import TaProfile from '../components/TA/TaProfile.vue'
 
 
 export default [
@@ -15,5 +16,6 @@ export default [
     { path: 'doubt-summarizer', name: 'DoubtSummarizer', component: DoubtSummarizer },
     { path: 'onboarding-mentor', name: 'OnboardingMentor', component: OnboardingMentor },
     { path: 'resource', name: 'TaResoursesHub', component: TaResourseshub }, 
+    { path: 'profile', name: 'TaProfile', component: TaProfile },
 
 ]

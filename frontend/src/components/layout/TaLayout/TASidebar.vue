@@ -13,7 +13,7 @@ const mainNav = [
   {name: 'Onboarding Mentor', path: '/ta/onboarding-mentor', icon: 'bi-people-fill' },
   {name: 'Assessment Generator', path: '/ta/assessment-generator', icon: 'bi-file-earmark-text' },
   {name: 'Slide Deck Creator', path: '/ta/slide-deck-creator', icon: 'bi-file-slides' },
-  { name: 'Profile', path: '/student/profile', icon: 'bi-gear' },
+  { name: 'Profile', path: '/ta/profile', icon: 'bi-gear' },
 ]
 
 const quickActions = [
