@@ -11,7 +11,7 @@ import BottomBar from '@/components/layout/StudentLayout/BottomBar.vue'
     <Sidebar class="sticky top-0 h-screen overflow-y-auto flex-shrink-0" />
 
     <!-- Main Content Area -->
-    <div class="flex flex-col flex-1 overflow-hidden">
+    <div class="flex flex-col flex-1 overflow-hidden ml-[250px]">
       <!-- Header -->
       <HeaderBar />
 

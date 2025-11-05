@@ -1,0 +1,138 @@
+[1mdiff --git a/frontend/src/components/layout/StudentLayout/SideBar.vue b/frontend/src/components/layout/StudentLayout/SideBar.vue[m
+[1mindex 583aae7..139af56 100644[m
+[1m--- a/frontend/src/components/layout/StudentLayout/SideBar.vue[m
+[1m+++ b/frontend/src/components/layout/StudentLayout/SideBar.vue[m
+[36m@@ -25,7 +25,7 @@[m [mfunction signOut() {[m
+ </script>[m
+ [m
+ <template>[m
+[31m-  <div class="d-flex flex-column flex-shrink-0 p-3 text-white vh-100" style="width: 250px; background-color: #0d1b2a;">[m
+[32m+[m[32m  <div class="d-flex flex-column flex-shrink-0 p-3 text-white vh-100" style="width: 250px; background-color: #0d1b2a; height: 100vh; position: fixed; top: 0; left: 0; z-index: 100;">[m
+     <RouterLink to="/" class="d-flex align-items-center mb-3 text-white text-decoration-none">[m
+       <span class="fs-4 fw-semibold">AURA</span>[m
+     </RouterLink>[m
+[36m@@ -53,7 +53,7 @@[m [mfunction signOut() {[m
+     </ul>[m
+ [m
+     <!-- Sign Out -->[m
+[31m-    <div class="mt-auto">[m
+[32m+[m[32m    <div class="pb-2 mt-auto">[m
+       <button @click="signOut" class="btn btn-outline-light w-100 mt-3">[m
+         <i class="bi bi-box-arrow-right me-2"></i> Sign Out[m
+       </button>[m
+[1mdiff --git a/frontend/src/components/layout/instructorLayout/instructorSideBar.vue b/frontend/src/components/layout/instructorLayout/instructorSideBar.vue[m
+[1mindex 541c1bf..a50f708 100644[m
+[1m--- a/frontend/src/components/layout/instructorLayout/instructorSideBar.vue[m
+[1m+++ b/frontend/src/components/layout/instructorLayout/instructorSideBar.vue[m
+[36m@@ -1,21 +1,14 @@[m
+ <script setup>[m
+[31m-import { useRouter } from 'vue-router'[m
+[31m-import { RouterLink } from 'vue-router'[m
+[31m-[m
+[32m+[m[32mimport { useRouter, useRoute, RouterLink } from 'vue-router'[m
+ const router = useRouter()[m
+[32m+[m[32mconst route = useRoute()[m
+ [m
+[31m-// Navigation structure for student (you could make this role-based later)[m
+ const mainNav = [[m
+   { name: 'Dashboard', path: '/instructor/dashboard', icon: 'bi-speedometer2' },[m
+   { name: 'Discussion Summaries', path: '/instructor/discussion-summaries', icon: 'bi-robot' },[m
+   { name: 'Slide Generator', path: '/instructor/slide-generator', icon: 'bi-journal-text' },[m
+   { name: 'Question Paper Generator', path: '/instructor/assessment-generator', icon: 'bi-question-circle' },[m
+[31m-  { name: 'Profile', path: '/instructor/profile', icon: 'bi-gear' },[m
+[31m-][m
+[31m-[m
+[31m-const quickActions = [[m
+[31m-  { name: 'New Query', path: '/student/my-query', icon: 'bi-plus-circle' },[m
+[31m-  { name: 'Book Office Hour', path: '/student/office-hour', icon: 'bi-calendar-check' },[m
+[32m+[m[32m  { name: 'Profile', path: '/instructor/profile', icon: 'bi-gear' }[m
+ ][m
+ [m
+ function signOut() {[m
+[36m@@ -25,49 +18,48 @@[m [mfunction signOut() {[m
+ </script>[m
+ [m
+ <template>[m
+[32m+[m[32m  <aside class="fixed top-0 left-0 h-screen w-64 bg-[#0d1b2a] text-white flex flex-col justify-between z-40 shadow-lg">[m
+[32m+[m[32m    <div class="flex flex-col flex-1">[m
+[32m+[m[32m      <RouterLink to="/" class="flex items-center pl-3 pt-9 pb-5 mb-1 text-3xl font-extrabold tracking-tight">[m
+[32m+[m[32m        AURA[m
+[32m+[m[32m      </RouterLink>[m
+[32m+[m[32m      <hr class="border-t border-[#233554] mx-7 my-2 opacity-40" />[m
+ [m
+[31m-  <div class="d-flex flex-column flex-shrink-0 p-3 text-white vh-100" style="width: 250px; background-color: #0d1b2a;">[m
+[31m-    <RouterLink to="/" class="d-flex align-items-center mb-3 text-white text-decoration-none">[m
+[31m-      <span class="fs-4 fw-semibold">AURA</span>[m
+[31m-    </RouterLink>[m
+[31m-    <hr class="border-light opacity-25" />[m
+[31m-[m
+[31m-    <!-- Main nav -->[m
+[31m-    <ul class="nav nav-pills flex-column mb-auto">[m
+[31m-      <li v-for="item in mainNav" :key="item.path">[m
+[31m-        <RouterLink :to="item.path" class="nav-link text-white" active-class="active-link">[m
+[31m-          <i :class="`${item.icon} me-2`"></i> {{ item.name }}[m
+[31m-        </RouterLink>[m
+[31m-      </li>[m
+[31m-    </ul>[m
+[31m-[m
+[31m-    <hr class="border-light opacity-25" />[m
+[31m-[m
+[31m-    <!-- Quick Actions -->[m
+[31m-    <p class="text-secondary text-uppercase small mb-2">Quick Actions</p>[m
+[31m-    <ul class="nav nav-pills flex-column mb-auto">[m
+[31m-      <li v-for="action in quickActions" :key="action.path">[m
+[31m-        <RouterLink :to="action.path" class="nav-link text-white" active-class="active-link">[m
+[31m-          <i :class="`${action.icon} me-2`"></i> {{ action.name }}[m
+[31m-        </RouterLink>[m
+[31m-      </li>[m
+[31m-    </ul>[m
+[31m-[m
+[31m-    <!-- Sign Out -->[m
+[31m-    <div class="mt-auto">[m
+[31m-      <button @click="signOut" class="btn btn-outline-light w-100 mt-3">[m
+[31m-        <i class="bi bi-box-arrow-right me-2"></i> Sign Out[m
+[32m+[m[32m      <nav class="flex-1">[m
+[32m+[m[32m        <ul class="flex flex-col gap-2 mt-2 px-2">[m
+[32m+[m[32m          <li v-for="item in mainNav" :key="item.path">[m
+[32m+[m[32m            <RouterLink :to="item.path"[m
+[32m+[m[32m              class="flex items-center gap-3 px-2 py-2 rounded-lg font-medium text-base transition group"[m
+[32m+[m[32m              :class="{[m
+[32m+[m[32m                'bg-[#1b263b] font-semibold shadow-sm': route.path === item.path,[m
+[32m+[m[32m                'hover:bg-[#16213a]': route.path !== item.path[m
+[32m+[m[32m              }"[m
+[32m+[m[32m            >[m
+[32m+[m[32m              <i :class="`${item.icon} text-lg`"></i>[m
+[32m+[m[32m              <span class="leading-tight">{{ item.name }}</span>[m
+[32m+[m[32m            </RouterLink>[m
+[32m+[m[32m          </li>[m
+[32m+[m[32m        </ul>[m
+[32m+[m[32m      </nav>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m    <div class="px-2 pb-2 mt-auto">[m
+[32m+[m[32m      <button[m
+[32m+[m[32m        @click="signOut"[m
+[32m+[m[32m        class="w-full flex items-center justify-center gap-2 px-2 py-2 border border-blue-100 rounded-lg font-semibold text-blue-100 shadow transition hover:bg-white hover:text-[#0d1b2a] duration-150"[m
+[32m+[m[32m      >[m
+[32m+[m[32m        <i class="bi bi-box-arrow-right"></i>[m
+[32m+[m[32m        Sign Out[m
+       </button>[m
+[31m-      <p class="small text-secondary text-center mt-2 mb-0">Logged in as Student</p>[m
+[32m+[m[32m      <p class="text-xs text-gray-400 text-center mt-3">Logged in as Instructor</p>[m
+     </div>[m
+[31m-  </div>[m
+[32m+[m[32m  </aside>[m
+ </template>[m
+ [m
+ <style scoped>[m
+[31m-.nav-link:hover {[m
+[31m-  background-color: #1b263b !important;[m
+[31m-}[m
+[31m-.active-link {[m
+[31m-  background-color: #1b263b !important;[m
+[32m+[m[32ma,[m
+[32m+[m[32m.router-link-active,[m
+[32m+[m[32m.router-link-exact-active {[m
+[32m+[m[32m  text-decoration: none !important;[m
+[32m+[m[32m  color: inherit;[m
+ }[m
+ </style>[m
