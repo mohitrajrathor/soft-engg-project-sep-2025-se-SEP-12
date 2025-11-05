@@ -32,7 +32,7 @@ function nextSlide() { if (currentIndex.value < orderedSlides.value.length - 1) 
     <instructorSidebar />
 
     <!-- Main Content -->
-    <main class="flex-1 p-10">
+    <main class="flex-1 p-10 ml-64">
       <!-- Header -->
       <instructorSideBar/>
       <!-- <div class="flex items-center justify-between mb-9">
