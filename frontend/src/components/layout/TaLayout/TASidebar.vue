@@ -16,10 +16,10 @@ const mainNav = [
   { name: 'Profile', path: '/ta/profile', icon: 'bi-gear' },
 ]
 
-// const quickActions = [
-//   { name: 'New Query', path: '/student/my-query', icon: 'bi-plus-circle' },
-//   { name: 'Book Office Hour', path: '/student/office-hour', icon: 'bi-calendar-check' },
-// ]
+const quickActions = [
+  { name: 'New Query', path: '/student/my-query', icon: 'bi-plus-circle' },
+  { name: 'Book Office Hour', path: '/student/office-hour', icon: 'bi-calendar-check' },
+]
 
 function signOut() {
   alert('Signed out successfully!')

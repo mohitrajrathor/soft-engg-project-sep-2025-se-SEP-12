@@ -1,6 +1,5 @@
 <script setup>
 import Sidebar from '@/components/layout/TaLayout/TASideBar.vue'
-import HeaderBar from '@/components/layout/TaLayout/TaHeaderBar.vue'
 
 import {
   CheckCircleIcon,
