@@ -31,7 +31,7 @@
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
             <img :src="profileImage" alt="Profile" class="rounded-circle me-2" width="36" height="36" />
-            <span class="fw-semibold text-dark">Taniya</span>
+            <span class="fw-semibold text-dark">Student</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle me-2"></i>Profile</a></li>
