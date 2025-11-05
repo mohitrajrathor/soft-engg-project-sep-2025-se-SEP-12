@@ -4,11 +4,11 @@
     <Sidebar />
 
     <!-- Main Section -->
-    <div class="flex flex-col flex-grow bg-gray-50">
+    <div class="flex flex-col flex-grow bg-gray-50 ml-[250px]">
       <HeaderBar v-if="!isOnBreak" />
 
       <!-- Main Body -->
-      <div class="flex flex-grow overflow-hidden">
+      <div class="flex flex-grow overflow-hidden ">
         <!-- Course Section -->
         <div class="p-6 flex-grow overflow-y-auto">
           <div class="flex flex-wrap justify-between items-center mb-6 gap-3">

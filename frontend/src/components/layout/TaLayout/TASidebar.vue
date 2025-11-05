@@ -28,7 +28,7 @@ function signOut() {
 </script>
 
 <template>
-  <div class="d-flex flex-column flex-shrink-0 p-3 text-white vh-100" style="width: 250px; background-color: #0d1b2a;">
+  <div class="d-flex flex-column flex-shrink-0 p-3 text-white vh-100" style="width: 250px; background-color: #0d1b2a; height: 100vh; position: fixed; top: 0; left: 0; z-index: 100;">
     <RouterLink to="/" class="d-flex align-items-center mb-3 text-white text-decoration-none">
       <span class="fs-4 fw-semibold">AURA</span>
     </RouterLink>
@@ -43,17 +43,17 @@ function signOut() {
       </li>
     </ul>
 
-    <hr class="border-light opacity-25" />
+    <!-- <hr class="border-light opacity-25" /> -->
 
     <!-- Quick Actions -->
-    <p class="text-secondary text-uppercase small mb-2">Quick Actions</p>
+    <!-- <p class="text-secondary text-uppercase small mb-2">Quick Actions</p>
     <ul class="nav nav-pills flex-column mb-auto">
       <li v-for="action in quickActions" :key="action.path">
         <RouterLink :to="action.path" class="nav-link text-white" active-class="active-link">
           <i :class="`${action.icon} me-2`"></i> {{ action.name }}
         </RouterLink>
       </li>
-    </ul>
+    </ul> -->
 
     <!-- Sign Out -->
     <div class="mt-auto">

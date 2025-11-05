@@ -1,6 +1,5 @@
 <script setup>
 import Sidebar from '@/components/layout/StudentLayout/SideBar.vue'
-import HeaderBar from '@/components/layout/StudentLayout/HeaderBar.vue'
 
 import { UserCircleIcon, EnvelopeIcon, KeyIcon, Cog6ToothIcon, TrashIcon, CheckCircleIcon, ArrowRightOnRectangleIcon } from "@heroicons/vue/24/outline"
 </script>

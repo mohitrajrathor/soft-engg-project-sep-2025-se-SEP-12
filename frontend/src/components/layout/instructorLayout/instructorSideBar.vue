@@ -8,7 +8,12 @@ const mainNav = [
   { name: 'Discussion Summaries', path: '/instructor/discussion-summaries', icon: 'bi-robot' },
   { name: 'Slide Generator', path: '/instructor/slide-generator', icon: 'bi-journal-text' },
   { name: 'Question Paper Generator', path: '/instructor/assessment-generator', icon: 'bi-question-circle' },
-  { name: 'Profile', path: '/instructor/profile', icon: 'bi-gear' }
+  { name: 'Profile', path: '/instructor/profile', icon: 'bi-gear' },
+]
+
+const quickActions = [
+  { name: 'New Query', path: '/student/my-query', icon: 'bi-plus-circle' },
+  { name: 'Book Office Hour', path: '/student/office-hour', icon: 'bi-calendar-check' },
 ]
 
 function signOut() {

@@ -5,6 +5,7 @@ import AIassistant from '../components/student/studentAIAssistance.vue'
 import StudentMyQuery from '../components/student/StudentNewQuery.vue'
 import StudyBreak from '../components/student/StudyBreak.vue'
 import Profile from '../components/student/Profile.vue'
+import StudentSummary from '../components/student/StudentSummary.vue'
 
 export default [
   { path: 'dashboard', name: 'StudentDashboard', component: StudentDashboard },
@@ -15,4 +16,5 @@ export default [
   { path: 'new-query', name: 'StudentNewQuery', component: StudentMyQuery },
   { path: 'study-break', name: 'StudyBreak', component: StudyBreak },
   { path: 'Profile', name: 'StudentProfile', component: Profile },
+  { path: 'summary', name: 'StudentSummary ', component: StudentSummary },
 ]

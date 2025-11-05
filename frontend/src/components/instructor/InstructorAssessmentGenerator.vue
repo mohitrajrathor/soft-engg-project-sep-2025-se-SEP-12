@@ -6,7 +6,7 @@
     </div>
 
     <!-- Main content area -->
-    <main class="flex-1 flex flex-col min-h-screen ml-[250px] bg-gray-50">
+    <main class="flex-1 flex flex-col min-h-screen ml-[250px] bg-gray-50 ml-64">
       <!-- Page Content -->
       <div class="flex justify-center items-start p-8 overflow-auto flex-1">
         <div
