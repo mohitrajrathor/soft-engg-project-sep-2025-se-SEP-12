@@ -1,31 +1,28 @@
 <template>
-  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 py-2 px-8 shadow-sm border-b border-[#e6eaff] flex items-center justify-between">
-    <!-- Left: Brand or logo (optional) -->
-    <!-- <span class="text-xl font-extrabold tracking-tight text-blue-700">AURA</span> -->
-    
-    <!-- Search -->
-    <div class="flex items-center w-full max-w-[430px] bg-[#f3f6fa] rounded-full pl-3 pr-2 py-1 border border-gray-200 focus-within:ring-2 focus-within:ring-blue-100">
-      <i class="bi bi-search text-gray-400 text-base mr-2"></i>
-      <input
-        type="text"
-        placeholder="Search courses, threads, or resources"
-        class="bg-transparent border-none outline-none flex-1 text-gray-700 text-sm placeholder-gray-400 py-2"
-        autocomplete="off"
-      />
-    </div>
+  <div class="header-section">
 
-    <!-- Right: Actions -->
-    <div class="flex items-center gap-4 ml-7">
-      <!-- Ask AI Button -->
-      <button class="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-blue-600 text-blue-600 bg-white font-bold shadow-sm hover:bg-blue-600/95 hover:text-white transition duration-150">
-        <i class="bi bi-stars text-base"></i>
-        Ask AI
-      </button>
-      <!-- Notifications (with animated badge) -->
-      <div class="relative">
-        <button class="relative w-11 h-11 flex items-center justify-center rounded-full bg-white shadow hover:bg-blue-50 border border-gray-200 focus:ring-2 focus:ring-blue-200 transition">
-          <i class="bi bi-bell-fill text-lg text-gray-700"></i>
-          <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center bg-red-500 text-white rounded-full border-2 border-white shadow text-xs font-bold w-5 h-5 animate-pulse">
+    <!-- 🔹 Top Box -->
+    <div class="top-box d-flex justify-content-between align-items-center p-3 bg-white rounded shadow-sm mb-2">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-search text-muted me-2"></i>
+        <input
+          type="text"
+          class="form-control form-control-sm rounded-pill"
+          placeholder="Search courses, threads, or resources"
+          style="width: 320px;"
+        />
+      </div>
+
+      <div class="d-flex align-items-center">
+        <!-- Ask AI button -->
+        <button class="btn btn-outline-primary rounded-pill me-3 px-3 py-1 d-flex align-items-center hover-shadow">
+          <i class="bi bi-stars me-2"></i> Ask AI
+        </button>
+
+        <!-- Notification -->
+        <button class="btn btn-light border rounded-circle p-2 me-3 position-relative hover-shadow">
+          <i class="bi bi-bell-fill"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
             3
           </span>
         </button>
@@ -34,14 +31,63 @@
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
             <img :src="profileImage" alt="Profile" class="rounded-circle me-2" width="36" height="36" />
-            <span class="fw-semibold text-dark">Student</span>
+            <span class="fw-semibold text-dark">TA</span>
           </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
         </div>
       </div>
     </div>
-  </header>
+
+  </div>
 </template>
 
-<script setup>
+<script>
 import profileImage from '@/assets/profile.jpg'
+
+export default {
+  data() {
+    return {
+      profileImage
+    }
+  }
+}
 </script>
+
+<style scoped>
+.header-section {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #f8f9fa;
+  padding-bottom: 0.5rem;
+}
+
+.top-box, .bottom-box {
+  border: 1px solid #e1e5eb;
+}
+
+.shadow-sm {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.hover-shadow:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.active-btn {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+}
+
+.active-btn:hover {
+  background-color: #0b5ed7;
+  color: white;
+}
+</style>
