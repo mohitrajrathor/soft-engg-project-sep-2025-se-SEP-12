@@ -316,4 +316,19 @@ Thumbs.db
 
 
 aura/
+
+# Database files
+*.db
+test.db
 app.db
+
+# Backup files
+*.bak
+*.old
+*_old.*
+*_backup.*
+
+# Test response files
+*_response.json
+signup_response.json
+chat_response.json
