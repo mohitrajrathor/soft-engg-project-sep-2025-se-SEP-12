@@ -1,0 +1,211 @@
+"""
+Application configuration settings.
+
+This module manages all configuration settings using environment variables
+with sensible defaults for development. For production, set proper environment
+variables in your deployment environment.
+"""
+
+import os
+from typing import List
+from pydantic_settings import BaseSettings
+from pydantic import Field
+
+
+class Settings(BaseSettings):
+    """
+    Application settings with environment variable support.
+
+    All settings can be overridden using environment variables.
+    Create a .env file in the backend directory for local development.
+
+    Example .env file:
+        # Application
+        APP_NAME=AURA
+        DEBUG=True
+
+        # Security
+        SECRET_KEY=your-super-secret-key-change-in-production
+        ACCESS_TOKEN_EXPIRE_MINUTES=60
+        REFRESH_TOKEN_EXPIRE_DAYS=7
+
+        # Database
+        DATABASE_URL=sqlite:///./app.db
+    """
+
+    # Application Settings
+    APP_NAME: str = Field(
+        default="AURA",
+        description="Application name"
+    )
+    APP_VERSION: str = Field(
+        default="1.0.0",
+        description="API version"
+    )
+    DEBUG: bool = Field(
+        default=True,
+        description="Debug mode"
+    )
+    API_PREFIX: str = Field(
+        default="/api",
+        description="API route prefix"
+    )
+
+    # Security Settings
+    SECRET_KEY: str = Field(
+        default="09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7",
+        description="Secret key for JWT encoding (CHANGE IN PRODUCTION!)"
+    )
+    ALGORITHM: str = Field(
+        default="HS256",
+        description="JWT algorithm"
+    )
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
+        default=60,
+        description="Access token expiration time in minutes"
+    )
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(
+        default=7,
+        description="Refresh token expiration time in days"
+    )
+
+    # CORS Settings
+    CORS_ORIGINS: List[str] = Field(
+        default=[
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:3000",
+        ],
+        description="Allowed CORS origins"
+    )
+    CORS_ALLOW_CREDENTIALS: bool = Field(
+        default=True,
+        description="Allow credentials in CORS"
+    )
+    CORS_ALLOW_METHODS: List[str] = Field(
+        default=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+        description="Allowed HTTP methods"
+    )
+    CORS_ALLOW_HEADERS: List[str] = Field(
+        default=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+        description="Allowed HTTP headers"
+    )
+
+    # Database Settings
+    DATABASE_URL: str = Field(
+        default="sqlite:///./app.db",
+        description="Database connection URL"
+    )
+    DB_ECHO: bool = Field(
+        default=False,
+        description="Echo SQL queries (for debugging)"
+    )
+
+    # Pagination Settings
+    DEFAULT_PAGE_SIZE: int = Field(
+        default=10,
+        ge=1,
+        le=100,
+        description="Default pagination page size"
+    )
+    MAX_PAGE_SIZE: int = Field(
+        default=100,
+        ge=1,
+        le=1000,
+        description="Maximum pagination page size"
+    )
+
+    # File Upload Settings
+    MAX_UPLOAD_SIZE: int = Field(
+        default=10 * 1024 * 1024,  # 10MB
+        description="Maximum file upload size in bytes"
+    )
+    ALLOWED_UPLOAD_EXTENSIONS: List[str] = Field(
+        default=[".pdf", ".doc", ".docx", ".txt", ".jpg", ".jpeg", ".png", ".mp4", ".zip"],
+        description="Allowed file extensions for upload"
+    )
+    UPLOAD_DIR: str = Field(
+        default="uploads",
+        description="Directory for uploaded files"
+    )
+
+    # Rate Limiting (for future implementation)
+    RATE_LIMIT_PER_MINUTE: int = Field(
+        default=60,
+        description="API rate limit per minute per user"
+    )
+
+    # Email Settings (for future implementation)
+    SMTP_HOST: str = Field(
+        default="smtp.gmail.com",
+        description="SMTP server host"
+    )
+    SMTP_PORT: int = Field(
+        default=587,
+        description="SMTP server port"
+    )
+    SMTP_USER: str = Field(
+        default="",
+        description="SMTP username"
+    )
+    SMTP_PASSWORD: str = Field(
+        default="",
+        description="SMTP password"
+    )
+    EMAILS_FROM_EMAIL: str = Field(
+        default="noreply@aura.edu",
+        description="From email address"
+    )
+
+    # AI/LLM Settings (Gemini)
+    GOOGLE_API_KEY: str = Field(
+        default="AIzaSyCqqg0e35Xvmy2wPtLvMCUHIK4e_nhHBeI",
+        description="Google Gemini API Key (get from https://makersuite.google.com/app/apikey)"
+    )
+    GEMINI_MODEL: str = Field(
+        default="gemini-1.5-flash",
+        description="Gemini model to use (gemini-pro, gemini-1.5-flash, gemini-1.5-pro)"
+    )
+    GEMINI_TEMPERATURE: float = Field(
+        default=0.7,
+        ge=0.0,
+        le=1.0,
+        description="Temperature for response randomness (0.0-1.0)"
+    )
+    GEMINI_MAX_TOKENS: int = Field(
+        default=1024,
+        description="Maximum tokens in response"
+    )
+    CHATBOT_SYSTEM_PROMPT: str = Field(
+        default="""You are AURA (Academic Unified Response Assistant), an AI teaching assistant for students.
+        You help with academic questions, provide explanations, and assist with learning.
+        Be helpful, educational, and encouraging. Keep responses clear and concise.""",
+        description="System prompt for chatbot"
+    )
+
+    class Config:
+        """Pydantic configuration."""
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        case_sensitive = True
+
+
+# Create settings instance
+settings = Settings()
+
+
+# Helper function to get settings
+def get_settings() -> Settings:
+    """
+    Get application settings.
+
+    Returns:
+        Settings: Application settings instance
+
+    Usage:
+        from app.core.config import get_settings
+        settings = get_settings()
+        print(settings.APP_NAME)
+    """
+    return settings

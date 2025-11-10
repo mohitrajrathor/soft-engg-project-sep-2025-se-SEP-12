@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrapper">
     <div class="login-box">
-      
+
       <!-- 🔹 Left Section -->
       <div class="left-section">
         <div class="text-content">
@@ -20,7 +20,7 @@
         <div class="form-content">
           <div class="text-end mb-3">
             <small class="text-muted">
-              New here? 
+              New here?
               <router-link to="/register" class="text-primary fw-semibold text-decoration-none">
                 Sign up
               </router-link>
@@ -30,28 +30,58 @@
           <h2 class="text-primary fw-bold mb-2">Sign in to AURA</h2>
           <p class="text-muted mb-4">Your academic dashboard awaits.</p>
 
-          <form @submit.prevent>
+          <!-- Error Message -->
+          <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ errorMessage }}
+            <button type="button" class="btn-close" @click="errorMessage = ''"></button>
+          </div>
+
+          <!-- Success Message -->
+          <div v-if="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ successMessage }}
+            <button type="button" class="btn-close" @click="successMessage = ''"></button>
+          </div>
+
+          <form @submit.prevent="handleLogin">
             <div class="mb-3">
-              <input type="email" class="form-control rounded-pill" placeholder="IITM email" required />
+              <input
+                type="email"
+                class="form-control rounded-pill"
+                placeholder="IITM email"
+                v-model="email"
+                required
+              />
             </div>
             <div class="mb-4">
-              <input type="password" class="form-control rounded-pill" placeholder="Password" required />
+              <input
+                type="password"
+                class="form-control rounded-pill"
+                placeholder="Password"
+                v-model="password"
+                required
+              />
             </div>
 
-            <button class="btn btn-gradient rounded-pill w-100 mb-3 fw-semibold">
-              Sign in
+            <button
+              type="submit"
+              class="btn btn-gradient rounded-pill w-100 mb-3 fw-semibold"
+              :disabled="loading"
+            >
+              <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+              {{ loading ? 'Signing in...' : 'Sign in' }}
             </button>
 
             <p class="text-center text-muted small mb-3">or continue with</p>
 
             <div class="d-flex justify-content-center gap-2">
-              <button type="button" class="btn btn-outline-primary rounded-pill w-50">
+              <button type="button" class="btn btn-outline-primary rounded-pill w-50" disabled>
                 <i class="bi bi-google me-1"></i> Google
               </button>
-              <button type="button" class="btn btn-outline-primary rounded-pill w-50">
+              <button type="button" class="btn btn-outline-primary rounded-pill w-50" disabled>
                 <i class="bi bi-facebook me-1"></i> Facebook
               </button>
             </div>
+            <p class="text-center text-muted small mt-2">(Social login coming soon)</p>
           </form>
         </div>
       </div>
@@ -59,6 +89,79 @@
     </div>
   </div>
 </template>
+
+<script>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+
+export default {
+  name: 'LoginPage',
+  setup() {
+    const router = useRouter()
+    const userStore = useUserStore()
+
+    const email = ref('')
+    const password = ref('')
+    const loading = ref(false)
+    const errorMessage = ref('')
+    const successMessage = ref('')
+
+    const handleLogin = async () => {
+      // Clear previous messages
+      errorMessage.value = ''
+      successMessage.value = ''
+
+      // Validation
+      if (!email.value || !password.value) {
+        errorMessage.value = 'Please fill in all fields'
+        return
+      }
+
+      loading.value = true
+
+      try {
+        // Call login action from store
+        const result = await userStore.login(email.value, password.value)
+
+        if (result.success) {
+          successMessage.value = 'Login successful! Redirecting...'
+
+          // Redirect based on role
+          setTimeout(() => {
+            const role = userStore.role
+            if (role === 'admin') {
+              router.push('/admin/dashboard')
+            } else if (role === 'instructor') {
+              router.push('/instructor/dashboard')
+            } else if (role === 'ta') {
+              router.push('/ta/dashboard')
+            } else {
+              router.push('/student/dashboard')
+            }
+          }, 1000)
+        } else {
+          errorMessage.value = result.error || 'Login failed. Please try again.'
+        }
+      } catch (error) {
+        errorMessage.value = 'An error occurred. Please check your connection and try again.'
+        console.error('Login error:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+
+    return {
+      email,
+      password,
+      loading,
+      errorMessage,
+      successMessage,
+      handleLogin
+    }
+  }
+}
+</script>
 
 <style scoped>
 /* ✅ Page background */

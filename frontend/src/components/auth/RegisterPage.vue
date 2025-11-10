@@ -27,30 +27,72 @@
             <h3 class="fw-bold mb-2 text-primary text-center">Create your account</h3>
             <p class="text-muted mb-4 text-center">Get started with premium features</p>
 
-            <form>
+            <!-- Error Message -->
+          <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ errorMessage }}
+            <button type="button" class="btn-close" @click="errorMessage = ''"></button>
+          </div>
+
+          <!-- Success Message -->
+          <div v-if="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ successMessage }}
+            <button type="button" class="btn-close" @click="successMessage = ''"></button>
+          </div>
+
+          <form @submit.prevent="handleRegister">
               <div class="mb-3">
-                <input type="text" class="form-control rounded-pill fs-6" placeholder="Your full name" />
+                <input
+                  type="text"
+                  class="form-control rounded-pill fs-6"
+                  placeholder="Your full name"
+                  v-model="fullName"
+                  required
+                />
               </div>
               <div class="mb-3">
-                <input type="email" class="form-control rounded-pill fs-6" placeholder="IITM email" />
+                <input
+                  type="email"
+                  class="form-control rounded-pill fs-6"
+                  placeholder="IITM email"
+                  v-model="email"
+                  required
+                />
               </div>
               <div class="mb-3">
-                <input type="password" class="form-control rounded-pill fs-6" placeholder="Create password" />
+                <input
+                  type="password"
+                  class="form-control rounded-pill fs-6"
+                  placeholder="Create password (min 8 characters)"
+                  v-model="password"
+                  required
+                  minlength="8"
+                />
               </div>
               <div class="mb-4">
-                <input type="password" class="form-control rounded-pill fs-6" placeholder="Confirm password" />
+                <input
+                  type="password"
+                  class="form-control rounded-pill fs-6"
+                  placeholder="Confirm password"
+                  v-model="confirmPassword"
+                  required
+                />
               </div>
               <div class="mb-4">
-                <select class="form-select rounded-pill fs-6">
-                  <option disabled selected>Select your role</option>
+                <select class="form-select rounded-pill fs-6" v-model="role" required>
+                  <option value="" disabled selected>Select your role</option>
                   <option value="student">Student</option>
                   <option value="ta">Teaching Assistant (TA)</option>
                   <option value="instructor">Instructor</option>
                 </select>
               </div>
 
-              <button type="submit" class="btn btn-gradient rounded-pill w-100 mb-3 fw-semibold fs-5 text-white">
-                Sign up
+              <button
+                type="submit"
+                class="btn btn-gradient rounded-pill w-100 mb-3 fw-semibold fs-5 text-white"
+                :disabled="loading"
+              >
+                <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ loading ? 'Creating account...' : 'Sign up' }}
               </button>
             </form>
           </div>
@@ -59,6 +101,100 @@
     </div>
   </div>
 </template>
+
+<script>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+
+export default {
+  name: 'RegisterPage',
+  setup() {
+    const router = useRouter()
+    const userStore = useUserStore()
+
+    const fullName = ref('')
+    const email = ref('')
+    const password = ref('')
+    const confirmPassword = ref('')
+    const role = ref('')
+    const loading = ref(false)
+    const errorMessage = ref('')
+    const successMessage = ref('')
+
+    const handleRegister = async () => {
+      // Clear previous messages
+      errorMessage.value = ''
+      successMessage.value = ''
+
+      // Validation
+      if (!fullName.value || !email.value || !password.value || !confirmPassword.value || !role.value) {
+        errorMessage.value = 'Please fill in all fields'
+        return
+      }
+
+      if (password.value.length < 8) {
+        errorMessage.value = 'Password must be at least 8 characters long'
+        return
+      }
+
+      if (password.value !== confirmPassword.value) {
+        errorMessage.value = 'Passwords do not match'
+        return
+      }
+
+      loading.value = true
+
+      try {
+        // Call register action from store
+        const result = await userStore.register(
+          email.value,
+          password.value,
+          role.value,
+          fullName.value
+        )
+
+        if (result.success) {
+          successMessage.value = 'Registration successful! Redirecting to dashboard...'
+
+          // Redirect based on role after 1 second
+          setTimeout(() => {
+            const userRole = userStore.role
+            if (userRole === 'admin') {
+              router.push('/admin/dashboard')
+            } else if (userRole === 'instructor') {
+              router.push('/instructor/dashboard')
+            } else if (userRole === 'ta') {
+              router.push('/ta/dashboard')
+            } else {
+              router.push('/student/dashboard')
+            }
+          }, 1000)
+        } else {
+          errorMessage.value = result.error || 'Registration failed. Please try again.'
+        }
+      } catch (error) {
+        errorMessage.value = 'An error occurred. Please check your connection and try again.'
+        console.error('Registration error:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+
+    return {
+      fullName,
+      email,
+      password,
+      confirmPassword,
+      role,
+      loading,
+      errorMessage,
+      successMessage,
+      handleRegister
+    }
+  }
+}
+</script>
 
 <style scoped>
 .signup-wrapper {
