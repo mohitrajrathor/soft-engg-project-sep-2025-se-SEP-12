@@ -14,6 +14,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
+from langchain_google_genai import ChatGoogleGenerativeAI
+from dotenv import load_dotenv
 
 from app.core.config import settings
 from app.core.db import init_db
@@ -36,10 +38,17 @@ async def lifespan(app: FastAPI):
     - Shutdown: Cleanup resources (if needed)
     """
     # Startup: Initialize database
-    print("🚀 Starting AURA API...")
-    print(f"📊 Database: {settings.DATABASE_URL}")
+    print("Starting AURA API...")
+    print(f"Database: {settings.DATABASE_URL}")
     init_db()
-    print("✅ Database initialized")
+    print("Database initialized")
+
+
+    # Initialize Google LLM 
+    app.state.llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=0.7
+    )
 
     yield
 
@@ -124,6 +133,9 @@ For issues or questions, please contact the development team.
 **Version:** {settings.APP_VERSION}
 **Environment:** {environment_name}
 """
+
+load_dotenv()
+
 
 app = FastAPI(
     title=settings.APP_NAME,
