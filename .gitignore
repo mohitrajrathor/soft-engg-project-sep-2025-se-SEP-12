@@ -334,3 +334,6 @@ app.db
 *_response.json
 signup_response.json
 chat_response.json
+
+
+notebooks/
