@@ -14,8 +14,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
-from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
+
+# Try to import LangChain (optional dependency)
+try:
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    LANGCHAIN_AVAILABLE = True
+except ImportError:
+    LANGCHAIN_AVAILABLE = False
+    ChatGoogleGenerativeAI = None
 
 from app.core.config import settings
 from app.core.db import init_db
@@ -43,17 +50,31 @@ async def lifespan(app: FastAPI):
     init_db()
     print("Database initialized")
 
-
-    # Initialize Google LLM 
-    app.state.llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        temperature=0.7
-    )
+    # Initialize Google LLM (if available)
+    if LANGCHAIN_AVAILABLE and settings.GOOGLE_API_KEY:
+        try:
+            app.state.llm = ChatGoogleGenerativeAI(
+                model=settings.GEMINI_MODEL,
+                google_api_key=settings.GOOGLE_API_KEY,
+                temperature=settings.GEMINI_TEMPERATURE,
+                max_output_tokens=settings.GEMINI_MAX_TOKENS,
+                convert_system_message_to_human=True
+            )
+            print(f"[OK] Google Gemini LLM initialized - Model: {settings.GEMINI_MODEL}")
+        except Exception as e:
+            print(f"[WARNING] Failed to initialize Gemini LLM: {e}")
+            app.state.llm = None
+    else:
+        app.state.llm = None
+        if not LANGCHAIN_AVAILABLE:
+            print("[WARNING] LangChain not installed. Chatbot features will be limited.")
+        if not settings.GOOGLE_API_KEY:
+            print("[WARNING] GOOGLE_API_KEY not set. Chatbot features will be limited.")
 
     yield
 
     # Shutdown: Cleanup (if needed)
-    print("👋 Shutting down AURA API...")
+    print("Shutting down AURA API...")
 
 
 # ============================================================================
@@ -273,18 +294,18 @@ if __name__ == "__main__":
 
     env_display = "Development" if settings.DEBUG else "Production"
     print(f"""
-    ╔═══════════════════════════════════════════════════════════════╗
-    ║                                                               ║
-    ║   🎓 AURA - Academic Unified Response Assistant 🎓           ║
-    ║                                                               ║
-    ║   Version: {settings.APP_VERSION:<50} ║
-    ║   Environment: {env_display:<44} ║
-    ║                                                               ║
-    ║   📚 API Documentation: http://localhost:8000/docs           ║
-    ║   📖 ReDoc: http://localhost:8000/redoc                      ║
-    ║   🏥 Health Check: http://localhost:8000/health              ║
-    ║                                                               ║
-    ╚═══════════════════════════════════════════════════════════════╝
+    ================================================================
+
+       AURA - Academic Unified Response Assistant
+
+       Version: {settings.APP_VERSION:<50}
+       Environment: {env_display:<44}
+
+       API Documentation: http://localhost:8000/docs
+       ReDoc: http://localhost:8000/redoc
+       Health Check: http://localhost:8000/health
+
+    ================================================================
     """)
 
     uvicorn.run(
