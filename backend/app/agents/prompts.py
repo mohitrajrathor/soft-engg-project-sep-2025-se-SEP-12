@@ -1,7 +1,7 @@
 # prompts module
 
 # imports
-
+from app.schemas.quiz import QuizContent
 
 
 def build_quiz_prompt(user_query: str) -> str:
