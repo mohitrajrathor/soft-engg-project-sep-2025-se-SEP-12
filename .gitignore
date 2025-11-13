@@ -327,6 +327,8 @@ app.db
 *.old
 *_old.*
 *_backup.*
+.claude
+*.txt
 
 # Test response files
 *_response.json
