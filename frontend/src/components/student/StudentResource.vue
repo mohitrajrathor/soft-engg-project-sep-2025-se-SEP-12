@@ -230,7 +230,7 @@ export default {
       this.currentFilter = opt
     },
     saveResource() {
-      alert('✅ Resource saved successfully!')
+      alert('Resource saved successfully!')
       this.showAddResource = false
     },
     startBreak(mins) {
@@ -241,7 +241,7 @@ export default {
         if (this.breakTime > 0) this.breakTime--
         else {
           this.endBreak()
-          alert('⏰ Break over! Time to study again!')
+          alert('Break over! Time to study again!')
         }
       }, 1000)
     },

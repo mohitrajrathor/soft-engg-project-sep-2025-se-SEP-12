@@ -1,6 +1,6 @@
 <template>
   <div class="border-start bg-white p-3" style="width: 300px; min-height: 100vh;">
-    <!-- 📌 Pinned Resources -->
+    <!-- Pinned Resources -->
     <div class="mb-4">
       <h6 class="fw-semibold text-secondary mb-3">
         <i class="bi bi-pin-angle me-2 text-primary"></i>Pinned resources
@@ -36,7 +36,7 @@
       </div>
     </div>
 
-    <!-- ⏳ Continue Section -->
+    <!--  Continue Section -->
     <div>
       <h6 class="fw-semibold text-secondary mb-3">
         <i class="bi bi-clock-history me-2 text-info"></i>Continue where you left
@@ -53,7 +53,7 @@
       </div>
     </div>
 
-    <!-- 📅 Deadlines Modal -->
+    <!-- Deadlines Modal -->
     <div class="modal fade" id="deadlinesModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 shadow">
@@ -72,7 +72,7 @@
       </div>
     </div>
 
-    <!-- 📤 Share Modal -->
+    <!-- Share Modal -->
     <div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 shadow">
@@ -105,13 +105,13 @@ export default {
       modal.show()
     },
     viewPinned() {
-      alert('Viewing all pinned resources 📌')
+      alert('Viewing all pinned resources ')
     },
     continueStudy(topic) {
       alert(`Resuming: ${topic}`)
     },
     shareNow() {
-      alert('Resource shared successfully ✅')
+      alert('Resource shared successfully ')
       const modal = bootstrap.Modal.getInstance(document.getElementById('shareModal'))
       modal.hide()
     }

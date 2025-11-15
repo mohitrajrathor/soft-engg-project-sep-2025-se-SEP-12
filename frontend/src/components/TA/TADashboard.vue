@@ -66,7 +66,7 @@ const announcements = [
         <div class="rounded-2xl w-full py-7 px-7 mb-7 shadow flex flex-col gap-1"
           style="background: linear-gradient(90deg, #9340ff 0%, #5e61ea 100%);">
           <h1 class="text-white font-black text-2xl md:text-3xl mb-2 flex items-center">
-            Welcome back, TA! <span class="ml-3 text-2xl">👋</span>
+            Welcome back, TA! <span class="ml-3 text-2xl"></span>
           </h1>
           <p class="text-white text-lg">Here's your teaching activity overview</p>
         </div>

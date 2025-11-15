@@ -7,7 +7,7 @@
     <div class="flex-1 flex flex-col bg-gray-50 ml-[250px] pt-9 px-6 pb-8 min-h-screen">
       <!-- Welcome/Header -->
       <div class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 rounded-b-2xl shadow px-8 py-7 mb-8">
-        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-1">Welcome back, Instructor! 👋</h2>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-1">Welcome back, Instructor! </h2>
         <p class="text-lg text-indigo-100">Here’s an overview of what’s happening in your courses today.</p>
       </div>
 

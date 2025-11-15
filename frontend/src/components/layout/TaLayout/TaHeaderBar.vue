@@ -1,7 +1,7 @@
 <template>
   <div class="header-section">
 
-    <!-- 🔹 Top Box -->
+    <!-- Top Box -->
     <div class="top-box d-flex justify-content-between align-items-center p-3 bg-white rounded shadow-sm mb-2">
       <div class="d-flex align-items-center">
         <i class="bi bi-search text-muted me-2"></i>
