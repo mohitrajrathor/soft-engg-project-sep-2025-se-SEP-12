@@ -2,7 +2,7 @@
 import { ref, nextTick, onMounted } from 'vue'
 import Sidebar from '@/components/layout/StudentLayout/SideBar.vue'
 import HeaderBar from '@/components/layout/StudentLayout/HeaderBar.vue'
-import { sendChatMessage, getChatbotStatus } from '@/api/chatbot'
+import { sendEnhancedChatMessage, getChatbotStatus } from '@/api/chatbot'
 
 // State
 const messages = ref([])
@@ -73,11 +73,12 @@ const sendMessage = async () => {
   })
 
   try {
-    // Send to backend
-    const response = await sendChatMessage({
+    // Send to backend using enhanced endpoint with query detection
+    const response = await sendEnhancedChatMessage({
       message: messageText,
       mode: chatMode.value,
-      conversation_id: conversationId.value
+      conversation_id: conversationId.value,
+      use_knowledge_base: true
     })
 
     // Store conversation ID
@@ -88,8 +89,10 @@ const sendMessage = async () => {
     // Replace loading message with actual response
     messages.value[loadingMessageIndex] = {
       type: 'assistant',
-      content: response.response || 'I received your message but couldn\'t generate a response.',
-      timestamp: new Date()
+      content: response.answer || 'I received your message but couldn\'t generate a response.',
+      timestamp: new Date(),
+      sources: response.sources || [],
+      knowledgeSourcesUsed: response.knowledge_sources_used || 0
     }
 
   } catch (error) {

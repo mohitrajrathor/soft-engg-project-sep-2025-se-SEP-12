@@ -19,8 +19,8 @@ Enhanced Features (Native SDK):
 import os
 import uuid
 import logging
-from typing import Dict, Optional, AsyncIterator, Any, TYPE_CHECKING
-from datetime import datetime
+from typing import Dict, Optional, AsyncIterator, Any, TYPE_CHECKING, List
+from datetime import datetime, timedelta
 from enum import Enum
 
 if TYPE_CHECKING:
@@ -75,6 +75,26 @@ except ImportError:
 
 from app.core.config import settings
 from app.schemas.chatbot_schema import ChatMode
+
+# SQLAlchemy imports for database integration
+try:
+    from sqlalchemy.orm import Session
+    from app.models.user import User
+    from app.models.knowledge import KnowledgeSource, KnowledgeChunk
+    from app.models.task import Task
+    from app.models.query import Query
+    from app.models.enums import CategoryEnum, TaskStatusEnum
+    SQLALCHEMY_AVAILABLE = True
+except ImportError:
+    SQLALCHEMY_AVAILABLE = False
+    Session = None
+    User = None
+    KnowledgeSource = None
+    KnowledgeChunk = None
+    Task = None
+    Query = None
+    CategoryEnum = None
+    TaskStatusEnum = None
 
 
 # ============================================================================
@@ -787,6 +807,673 @@ Provide clear, educational explanations and help students learn effectively.""",
         if conversation_id in self.conversations:
             return self.conversations[conversation_id]
         return []
+
+    # =========================================================================
+    # Knowledge Base Integration Methods
+    # =========================================================================
+
+    def search_knowledge_base(
+        self,
+        db: Session,
+        query: str,
+        category: Optional[CategoryEnum] = None,
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Search knowledge base for relevant information.
+
+        Args:
+            db: Database session
+            query: Search query
+            category: Optional category filter
+            limit: Maximum number of results
+
+        Returns:
+            List of relevant knowledge sources
+        """
+        if not SQLALCHEMY_AVAILABLE:
+            logging.warning("SQLAlchemy not available for knowledge base search")
+            return []
+
+        try:
+            # Build query
+            db_query = db.query(KnowledgeSource).filter(
+                KnowledgeSource.is_active == True
+            )
+
+            # Apply category filter
+            if category:
+                db_query = db_query.filter(KnowledgeSource.category == category)
+
+            # Search in title, description, and content
+            if query:
+                search_term = f"%{query}%"
+                from sqlalchemy import or_
+                db_query = db_query.filter(
+                    or_(
+                        KnowledgeSource.title.ilike(search_term),
+                        KnowledgeSource.description.ilike(search_term),
+                        KnowledgeSource.content.ilike(search_term)
+                    )
+                )
+
+            # Get results
+            sources = db_query.limit(limit).all()
+
+            return [
+                {
+                    "id": str(source.id),
+                    "title": source.title,
+                    "description": source.description,
+                    "content": source.content[:500] + "..." if len(source.content) > 500 else source.content,
+                    "category": source.category.value,
+                    "relevance": "high"  # TODO: Implement proper relevance scoring
+                }
+                for source in sources
+            ]
+
+        except Exception as e:
+            logging.error(f"Error searching knowledge base: {e}")
+            return []
+
+    def get_relevant_chunks(
+        self,
+        db: Session,
+        source_id: str,
+        limit: int = 3
+    ) -> List[str]:
+        """
+        Get text chunks from a knowledge source.
+
+        Args:
+            db: Database session
+            source_id: Knowledge source ID
+            limit: Maximum number of chunks
+
+        Returns:
+            List of text chunks
+        """
+        if not SQLALCHEMY_AVAILABLE:
+            return []
+
+        try:
+            chunks = db.query(KnowledgeChunk).filter(
+                KnowledgeChunk.source_id == source_id
+            ).order_by(KnowledgeChunk.index).limit(limit).all()
+
+            return [chunk.text for chunk in chunks]
+
+        except Exception as e:
+            logging.error(f"Error getting chunks: {e}")
+            return []
+
+    # =========================================================================
+    # User Context Retrieval Methods
+    # =========================================================================
+
+    def get_user_context(
+        self,
+        db: Session,
+        user: User
+    ) -> Dict[str, Any]:
+        """
+        Get comprehensive user context for personalization.
+
+        Args:
+            db: Database session
+            user: Current user
+
+        Returns:
+            User context dictionary
+        """
+        if not SQLALCHEMY_AVAILABLE:
+            return {
+                "user_id": getattr(user, 'id', 'unknown'),
+                "full_name": getattr(user, 'full_name', 'Unknown'),
+                "role": getattr(user, 'role', 'unknown')
+            }
+
+        try:
+            # Get recent queries
+            recent_queries = db.query(Query).filter(
+                Query.student_id == user.id
+            ).order_by(Query.created_at.desc()).limit(5).all()
+
+            # Get active tasks
+            active_tasks = db.query(Task).filter(
+                Task.status.in_([TaskStatusEnum.PENDING.value, TaskStatusEnum.IN_PROGRESS.value])
+            ).limit(5).all()
+
+            # Get user statistics
+            total_queries = db.query(Query).filter(Query.student_id == user.id).count()
+
+            return {
+                "user_id": user.id,
+                "full_name": user.full_name,
+                "email": user.email,
+                "role": user.role.value if hasattr(user.role, 'value') else user.role,
+                "recent_queries": [
+                    {
+                        "title": q.title,
+                        "status": q.status.value if hasattr(q.status, 'value') else str(q.status),
+                        "created_at": q.created_at.isoformat() if q.created_at else None
+                    }
+                    for q in recent_queries
+                ],
+                "active_tasks_count": len(active_tasks),
+                "total_queries": total_queries,
+                "is_new_user": total_queries == 0
+            }
+
+        except Exception as e:
+            logging.error(f"Error getting user context: {e}")
+            return {
+                "user_id": user.id,
+                "full_name": user.full_name,
+                "role": user.role.value if hasattr(user.role, 'value') else user.role
+            }
+
+    def get_relevant_categories(
+        self,
+        user: User
+    ) -> List[CategoryEnum]:
+        """
+        Get relevant categories based on user role.
+
+        Args:
+            user: Current user
+
+        Returns:
+            List of relevant categories
+        """
+        if not SQLALCHEMY_AVAILABLE or not CategoryEnum:
+            return []
+
+        role = user.role.value if hasattr(user.role, 'value') else user.role
+
+        # Map roles to relevant categories
+        role_categories = {
+            "student": [CategoryEnum.COURSES, CategoryEnum.ASSIGNMENTS, CategoryEnum.QUIZZES],
+            "ta": [CategoryEnum.COURSES, CategoryEnum.QUERIES, CategoryEnum.ASSIGNMENTS],
+            "instructor": [CategoryEnum.COURSES, CategoryEnum.PLACEMENT, CategoryEnum.ADMISSION],
+            "admin": list(CategoryEnum)  # All categories
+        }
+
+        return role_categories.get(role, [CategoryEnum.QUERIES])
+
+    # =========================================================================
+    # Enhanced Chat Methods with Knowledge Base Integration
+    # =========================================================================
+
+    async def chat_with_context(
+        self,
+        db: Session,
+        user: User,
+        message: str,
+        conversation_id: Optional[str] = None,
+        use_knowledge_base: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Chat with knowledge base and user context integration.
+
+        Args:
+            db: Database session
+            user: Current user
+            message: User's message
+            conversation_id: Optional conversation ID
+            use_knowledge_base: Whether to search knowledge base
+
+        Returns:
+            Response dictionary with answer and context
+        """
+        try:
+            # Get user context
+            user_context = self.get_user_context(db, user)
+
+            # Check if user is asking to list ALL queries
+            list_keywords = ['list all', 'show all', 'all queries', 'all my queries', 'what queries']
+            is_asking_for_query_list = any(keyword in message.lower() for keyword in list_keywords)
+
+            # PRIORITY 1: Always search database queries first for relevant matches
+            relevant_queries_info = None
+            all_queries_info = None
+
+            if SQLALCHEMY_AVAILABLE:
+                try:
+                    user_role = user.role.value if hasattr(user.role, 'value') else user.role
+
+                    if is_asking_for_query_list:
+                        # User wants to see ALL queries - fetch complete list
+                        if user_role == "student":
+                            all_queries = db.query(Query).filter(
+                                Query.student_id == user.id
+                            ).order_by(Query.created_at.desc()).all()
+                        else:
+                            all_queries = db.query(Query).order_by(
+                                Query.created_at.desc()
+                            ).all()
+
+                        if all_queries:
+                            all_queries_info = []
+                            for q in all_queries:
+                                query_info = {
+                                    "id": q.id,
+                                    "title": q.title,
+                                    "description": q.description[:100] + "..." if len(q.description) > 100 else q.description,
+                                    "status": q.status.value if hasattr(q.status, 'value') else str(q.status),
+                                    "category": q.category.value if hasattr(q.category, 'value') else str(q.category),
+                                    "priority": q.priority.value if hasattr(q.priority, 'value') else str(q.priority),
+                                    "created_at": q.created_at.isoformat() if q.created_at else None,
+                                    "response_count": len(q.responses) if q.responses else 0
+                                }
+                                if user_role != "student" and q.student:
+                                    query_info["student_name"] = q.student.full_name
+                                all_queries_info.append(query_info)
+                    else:
+                        # Search for relevant queries based on message content (PRIORITY 1)
+                        # Use simple keyword matching from query titles, descriptions, and responses
+                        message_lower = message.lower()
+                        search_words = [w for w in message_lower.split() if len(w) > 3]  # Words longer than 3 chars
+
+                        if search_words:
+                            if user_role == "student":
+                                queries = db.query(Query).filter(
+                                    Query.student_id == user.id
+                                ).all()
+                            else:
+                                queries = db.query(Query).all()
+
+                            # Find queries that match the search words
+                            matching_queries = []
+                            for q in queries:
+                                query_text = f"{q.title} {q.description}".lower()
+
+                                # Add response content to search
+                                if q.responses:
+                                    response_text = " ".join([r.content for r in q.responses[:3]])  # First 3 responses
+                                    query_text += " " + response_text.lower()
+
+                                # Check if any search word appears in query
+                                match_score = sum(1 for word in search_words if word in query_text)
+
+                                if match_score > 0:
+                                    matching_queries.append((q, match_score))
+
+                            # Sort by match score (most relevant first) and take top 3
+                            matching_queries.sort(key=lambda x: x[1], reverse=True)
+                            top_matches = matching_queries[:3]
+
+                            if top_matches:
+                                relevant_queries_info = []
+                                for q, score in top_matches:
+                                    query_info = {
+                                        "id": q.id,
+                                        "title": q.title,
+                                        "description": q.description,
+                                        "status": q.status.value if hasattr(q.status, 'value') else str(q.status),
+                                        "category": q.category.value if hasattr(q.category, 'value') else str(q.category),
+                                        "created_at": q.created_at.isoformat() if q.created_at else None,
+                                        "response_count": len(q.responses) if q.responses else 0,
+                                        "match_score": score
+                                    }
+
+                                    # Include responses for context
+                                    if q.responses:
+                                        query_info["responses"] = []
+                                        for r in q.responses[:2]:  # Include top 2 responses
+                                            query_info["responses"].append({
+                                                "content": r.content,
+                                                "user_name": r.user.full_name if r.user else "Unknown",
+                                                "is_solution": r.is_solution
+                                            })
+
+                                    if user_role != "student" and q.student:
+                                        query_info["student_name"] = q.student.full_name
+
+                                    relevant_queries_info.append(query_info)
+
+                except Exception as e:
+                    logging.error(f"Error searching queries: {e}")
+
+            # PRIORITY 2: Search knowledge base only if no relevant queries found
+            kb_results = []
+            if use_knowledge_base and SQLALCHEMY_AVAILABLE and not is_asking_for_query_list and not relevant_queries_info:
+                relevant_categories = self.get_relevant_categories(user)
+
+                # Search across relevant categories
+                for category in relevant_categories:
+                    results = self.search_knowledge_base(
+                        db=db,
+                        query=message,
+                        category=category,
+                        limit=2
+                    )
+                    kb_results.extend(results)
+
+            # Build enhanced context
+            context_parts = []
+
+            # Add user context
+            context_parts.append(f"User: {user_context['full_name']} (Role: {user_context['role']})")
+
+            if user_context.get('is_new_user'):
+                context_parts.append("Note: This is a new user, provide extra helpful guidance.")
+
+            # PRIORITY 1: Show relevant database queries if found
+            if relevant_queries_info:
+                context_parts.append("\n=== RELEVANT QUERIES FROM DATABASE (Priority 1) ===")
+                context_parts.append(f"Found {len(relevant_queries_info)} relevant queries that may answer your question:\n")
+
+                for idx, q in enumerate(relevant_queries_info, 1):
+                    context_parts.append(f"{idx}. [{q['status'].upper()}] {q['title']}")
+                    context_parts.append(f"   Description: {q['description']}")
+                    context_parts.append(f"   Category: {q['category']} | Responses: {q['response_count']}")
+
+                    # Include existing responses
+                    if q.get('responses'):
+                        context_parts.append("   Existing Responses:")
+                        for ridx, r in enumerate(q['responses'], 1):
+                            solution_tag = " [SOLUTION]" if r.get('is_solution') else ""
+                            context_parts.append(f"     {ridx}. {r['user_name']}: {r['content']}{solution_tag}")
+
+                    context_parts.append("")
+
+            # If user asked to list all queries, provide complete list
+            elif all_queries_info:
+                user_role = user.role.value if hasattr(user.role, 'value') else user.role
+
+                if user_role == "student":
+                    context_parts.append("\n=== YOUR QUERIES (Complete List) ===")
+                    context_parts.append(f"Total queries you've posted: {len(all_queries_info)}")
+                    context_parts.append("\nHere are ALL your queries:\n")
+                else:
+                    context_parts.append("\n=== ALL STUDENT QUERIES (System-Wide) ===")
+                    context_parts.append(f"Total queries in system: {len(all_queries_info)}")
+                    context_parts.append("\nHere are ALL queries from all students:\n")
+
+                for idx, q in enumerate(all_queries_info, 1):
+                    if user_role != "student" and "student_name" in q:
+                        context_parts.append(f"{idx}. [{q['status'].upper()}] {q['title']} (by {q['student_name']})")
+                    else:
+                        context_parts.append(f"{idx}. [{q['status'].upper()}] {q['title']}")
+
+                    context_parts.append(f"   Category: {q['category']} | Priority: {q['priority']}")
+                    context_parts.append(f"   Description: {q['description']}")
+                    context_parts.append(f"   Responses: {q['response_count']} | Created: {q['created_at']}")
+                    context_parts.append("")
+
+            elif user_context.get('recent_queries'):
+                recent_topics = [q['title'] for q in user_context['recent_queries'][:3]]
+                context_parts.append(f"Recent topics: {', '.join(recent_topics)}")
+
+            # PRIORITY 2: Add knowledge base context (only if no relevant queries found)
+            if kb_results:
+                context_parts.append("\n=== RELEVANT INFORMATION FROM KNOWLEDGE BASE (Priority 2) ===")
+                context_parts.append("No existing queries found, but found relevant information in knowledge base:\n")
+                for idx, result in enumerate(kb_results[:3], 1):
+                    context_parts.append(f"\n{idx}. {result['title']} ({result['category']})")
+                    context_parts.append(f"   {result['content']}")
+
+            # Combine message with context based on priority
+            if relevant_queries_info:
+                # PRIORITY 1: Answer from database queries
+                enhanced_message = f"""
+{chr(10).join(context_parts)}
+
+=== User Question ===
+{message}
+
+IMPORTANT INSTRUCTIONS - PRIORITY 1 (Database Queries):
+I found relevant queries from the database that may answer the user's question.
+These queries include existing responses from TAs and instructors.
+
+Please:
+1. Check if the existing responses already answer the user's question
+2. If yes, summarize the solution from the existing responses
+3. Reference which query and response contains the answer
+4. If the existing responses don't fully answer, provide additional context
+5. Be clear, professional, and cite the source queries
+
+Source: Database queries (Priority 1)
+"""
+            elif all_queries_info:
+                # User asked to list all queries
+                enhanced_message = f"""
+{chr(10).join(context_parts)}
+
+=== User Question ===
+{message}
+
+IMPORTANT INSTRUCTIONS:
+The user is asking to see all their queries. I have provided the COMPLETE list above.
+Please format your response as a clear, well-organized list showing:
+- Query number
+- Title
+- Status (OPEN/IN_PROGRESS/RESOLVED)
+- Category and Priority
+- Number of responses
+- Brief summary
+
+These are the user's actual QUERIES from the query system, not conversation history.
+"""
+            elif kb_results:
+                # PRIORITY 2: Answer from knowledge base
+                enhanced_message = f"""
+{chr(10).join(context_parts)}
+
+=== User Question ===
+{message}
+
+IMPORTANT INSTRUCTIONS - PRIORITY 2 (Knowledge Base):
+No existing queries found in database, but found relevant information in the knowledge base.
+Please provide a comprehensive answer based on the knowledge base sources above.
+Reference the specific sources (title and category) when answering.
+
+Source: Knowledge Base (Priority 2)
+"""
+            else:
+                # PRIORITY 3: Use AI's general knowledge
+                enhanced_message = f"""
+{chr(10).join(context_parts)}
+
+=== User Question ===
+{message}
+
+INSTRUCTIONS - PRIORITY 3 (General AI Knowledge):
+No relevant information found in database queries or knowledge base.
+Please answer using your general knowledge, but be clear that this is general information
+and suggest the user may want to ask a TA/instructor for course-specific guidance.
+
+Source: General AI Knowledge (Priority 3)
+"""
+
+            # Get response from base chat method
+            response, conv_id = await self.chat(
+                message=enhanced_message,
+                conversation_id=conversation_id
+            )
+
+            # Determine which priority was used
+            if relevant_queries_info:
+                priority_used = "database_queries"
+                sources = [
+                    {"type": "query", "title": q["title"], "category": q["category"], "query_id": q["id"]}
+                    for q in relevant_queries_info
+                ]
+            elif all_queries_info:
+                priority_used = "query_list"
+                sources = []
+            elif kb_results:
+                priority_used = "knowledge_base"
+                sources = [
+                    {"type": "knowledge", "title": r["title"], "category": r["category"]}
+                    for r in kb_results[:3]
+                ]
+            else:
+                priority_used = "ai_general_knowledge"
+                sources = []
+
+            # Add metadata
+            return {
+                "answer": response,
+                "conversation_id": conv_id,
+                "priority_used": priority_used,
+                "knowledge_sources_used": len(kb_results),
+                "relevant_queries_found": len(relevant_queries_info) if relevant_queries_info else 0,
+                "sources": sources,
+                "user_context": {
+                    "role": user_context["role"],
+                    "is_new_user": user_context.get("is_new_user", False)
+                }
+            }
+
+        except Exception as e:
+            logging.error(f"Error in enhanced chat: {e}")
+            # Fallback to basic chat
+            response, conv_id = await self.chat(
+                message=message,
+                conversation_id=conversation_id
+            )
+            return {
+                "answer": response,
+                "conversation_id": conv_id,
+                "error": "Knowledge base integration failed, using basic response"
+            }
+
+    async def chat_stream_with_context(
+        self,
+        db: Session,
+        user: User,
+        message: str,
+        conversation_id: Optional[str] = None,
+        use_knowledge_base: bool = True
+    ) -> AsyncIterator[str]:
+        """
+        Streaming chat with knowledge base and user context.
+
+        Args:
+            db: Database session
+            user: Current user
+            message: User's message
+            conversation_id: Optional conversation ID
+            use_knowledge_base: Whether to search knowledge base
+
+        Yields:
+            Response chunks
+        """
+        try:
+            # Get user context
+            user_context = self.get_user_context(db, user)
+
+            # Search knowledge base if enabled
+            kb_results = []
+            if use_knowledge_base and SQLALCHEMY_AVAILABLE:
+                relevant_categories = self.get_relevant_categories(user)
+                for category in relevant_categories:
+                    results = self.search_knowledge_base(
+                        db=db,
+                        query=message,
+                        category=category,
+                        limit=2
+                    )
+                    kb_results.extend(results)
+
+            # Build enhanced context
+            context_parts = [f"User: {user_context['full_name']} (Role: {user_context['role']})"]
+
+            if kb_results:
+                context_parts.append("\n=== Relevant Information ===")
+                for idx, result in enumerate(kb_results[:3], 1):
+                    context_parts.append(f"\n{idx}. {result['title']}: {result['content']}")
+
+            # Enhanced message
+            enhanced_message = f"""
+{chr(10).join(context_parts)}
+
+=== Question ===
+{message}
+"""
+
+            # Stream response
+            async for chunk in self.chat_stream(
+                message=enhanced_message,
+                conversation_id=conversation_id
+            ):
+                yield chunk
+
+        except Exception as e:
+            logging.error(f"Error in streaming chat: {e}")
+            yield f"Error: {str(e)}"
+
+    # =========================================================================
+    # Query-Specific Methods
+    # =========================================================================
+
+    async def answer_query(
+        self,
+        db: Session,
+        user: User,
+        query_id: int
+    ) -> Dict[str, Any]:
+        """
+        Answer a specific query from the database.
+
+        Args:
+            db: Database session
+            user: Current user
+            query_id: Query ID
+
+        Returns:
+            Answer dictionary
+        """
+        if not SQLALCHEMY_AVAILABLE:
+            return {"error": "Database not available"}
+
+        try:
+            # Get the query
+            query = db.query(Query).filter(Query.id == query_id).first()
+
+            if not query:
+                return {"error": "Query not found"}
+
+            # Search knowledge base for relevant information
+            kb_results = self.search_knowledge_base(
+                db=db,
+                query=f"{query.title} {query.description}",
+                limit=3
+            )
+
+            # Build context
+            context = f"""
+Query Title: {query.title}
+Description: {query.description}
+Category: {query.category.value if hasattr(query.category, 'value') else query.category}
+"""
+
+            if kb_results:
+                context += "\n=== Relevant Information ===\n"
+                for result in kb_results:
+                    context += f"\n{result['title']}: {result['content']}\n"
+
+            # Get answer
+            full_message = f"{context}\n\nPlease provide a comprehensive answer to this query."
+
+            response, _ = await self.chat(message=full_message)
+
+            return {
+                "query_id": query_id,
+                "answer": response,
+                "sources_used": [r["title"] for r in kb_results],
+                "confidence": "high" if kb_results else "medium"
+            }
+
+        except Exception as e:
+            logging.error(f"Error answering query: {e}")
+            return {"error": str(e)}
+
+    # =========================================================================
+    # Implementation Management Methods
+    # =========================================================================
 
     def switch_implementation(self, implementation: ChatImplementation):
         """

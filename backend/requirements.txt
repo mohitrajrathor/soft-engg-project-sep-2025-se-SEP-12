@@ -54,3 +54,21 @@ chromadb==0.5.23
 
 # Google ADK (Agent Development Kit) - Modern Google Genai SDK
 google-adk==1.18.0
+
+# Optional: Vector Database Support (requires PostgreSQL)
+# Uncomment when ready to use PostgreSQL with pgvector
+# pgvector==0.2.5
+# psycopg[binary,pool]==3.2.1
+
+# Optional: Background Task Processing (requires Redis)
+# Uncomment when ready to use Celery for background tasks
+# celery==5.4.0
+# redis==5.2.0
+
+# Optional: Twilio for Voice Calls
+# Uncomment when ready to enable voice call features
+# twilio>=8.0.0
+
+# Optional: Language Detection
+# Uncomment for multilingual support
+# langdetect==1.0.9
