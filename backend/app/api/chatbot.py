@@ -10,7 +10,7 @@ from app.core.db import get_db
 from app.models.user import User
 from app.schemas.chatbot_schema import ChatRequest, ChatResponse, ChatMode
 from app.api.dependencies import get_current_user
-from app.services.chatbot_service import chatbot_service
+from app.services.chatbot_service_hybrid import hybrid_chatbot_service as chatbot_service
 from datetime import datetime
 
 
@@ -175,9 +175,84 @@ async def get_conversation_history(
 )
 async def get_chatbot_status():
     """Get chatbot configuration status."""
-    return {
-        "configured": chatbot_service.llm is not None,
-        "model": chatbot_service.llm.model if chatbot_service.llm else None,
-        "available_modes": [mode.value for mode in ChatMode],
-        "message": "Chatbot ready" if chatbot_service.llm else "Configure GOOGLE_API_KEY in .env"
+    from app.core.config import settings
+
+    # Check if any implementation is available
+    is_configured = (
+        chatbot_service.llm is not None or
+        chatbot_service.genai_client is not None or
+        chatbot_service.adk_runner is not None
+    )
+
+    # Get model name
+    model_name = None
+    if chatbot_service.llm and hasattr(chatbot_service.llm, 'model'):
+        model_name = chatbot_service.llm.model
+    else:
+        model_name = settings.GEMINI_MODEL
+
+    # Get implementation info
+    impl_info = {
+        "implementation": chatbot_service.implementation.value,
+        "adk_runner": chatbot_service.adk_runner is not None,
+        "session_service": chatbot_service.session_service is not None,
+        "memory_service": chatbot_service.memory_service is not None,
+        "observability": chatbot_service.observability_plugin is not None
     }
+
+    return {
+        "configured": is_configured,
+        "model": model_name,
+        "available_modes": [mode.value for mode in ChatMode],
+        "features": impl_info,
+        "message": "Chatbot ready with enhanced features" if is_configured else "Configure GOOGLE_API_KEY in .env"
+    }
+
+
+@chatbot_router.get(
+    "/metrics",
+    summary="Get chatbot metrics",
+    description="Get observability metrics (agent invocations, LLM requests, etc.)"
+)
+async def get_chatbot_metrics(
+    current_user: User = Depends(get_current_user)
+):
+    """Get chatbot observability metrics."""
+    metrics = chatbot_service.get_metrics()
+
+    if metrics:
+        return {
+            "metrics": metrics,
+            "message": "Metrics retrieved successfully"
+        }
+    else:
+        return {
+            "metrics": None,
+            "message": "Observability not enabled or not available"
+        }
+
+
+@chatbot_router.get(
+    "/conversation/{conversation_id}/state",
+    summary="Get conversation session state",
+    description="Retrieve the session state for a conversation (user context, preferences, etc.)"
+)
+async def get_conversation_state(
+    conversation_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get session state for a conversation."""
+    state = await chatbot_service.get_session_state(conversation_id)
+
+    if state:
+        return {
+            "conversation_id": conversation_id,
+            "state": state,
+            "message": "Session state retrieved successfully"
+        }
+    else:
+        return {
+            "conversation_id": conversation_id,
+            "state": {},
+            "message": "No session state found or session service not available"
+        }
