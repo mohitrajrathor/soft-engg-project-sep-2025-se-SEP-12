@@ -28,6 +28,8 @@ from app.core.config import settings
 from app.core.db import init_db
 from app.api.auth import auth_router
 from app.api.chatbot import chatbot_router
+from app.api.course_router import router as course_router
+
 
 
 # ============================================================================
@@ -184,20 +186,16 @@ app.include_router(
 # Chatbot routes
 app.include_router(
     chatbot_router,
-    prefix=settings.API_PREFIX,
+    prefix=f"{settings.API_PREFIX}/ai/chatbot",
     tags=["Chatbot"]
 )
 
-# TODO: Add more routers as they are implemented
-# from app.api.queries import queries_router
-# from app.api.resources import resources_router
-# from app.api.announcements import announcements_router
-# from app.api.profiles import profiles_router
-#
-# app.include_router(queries_router, prefix=settings.API_PREFIX, tags=["Queries"])
-# app.include_router(resources_router, prefix=settings.API_PREFIX, tags=["Resources"])
-# app.include_router(announcements_router, prefix=settings.API_PREFIX, tags=["Announcements"])
-# app.include_router(profiles_router, prefix=settings.API_PREFIX, tags=["Profiles"])
+# Course routes
+app.include_router(
+    course_router,
+    prefix=f"{settings.API_PREFIX}/courses",
+    tags=["Courses"]
+)
 
 
 # ============================================================================
