@@ -23,6 +23,7 @@ from main import app
 from app.core.db import Base, get_db
 from app.models.user import User
 from app.models.profile import Profile
+from app.models.course import Course
 from app.core.security import create_tokens
 
 
@@ -293,6 +294,22 @@ def sample_chat_stream_request() -> Dict:
         "mode": "academic",
         "conversation_id": None
     }
+
+
+@pytest.fixture
+def test_course(db_session: Session, authenticated_admin: User) -> Course:
+    """
+    Creates a sample course in the database for testing purposes.
+    """
+    course = Course(
+        name="Test Course for API",
+        description="A sample course created by a fixture.",
+        created_by_id=authenticated_admin.id
+    )
+    db_session.add(course)
+    db_session.commit()
+    db_session.refresh(course)
+    return course
 
 
 # ============================================================================
