@@ -205,3 +205,7 @@ class QuizService:
         except Exception as e:
             logger.error(f"Failed to update or parse quiz: {e}")
             return {"error": f"An error occurred while updating the quiz: {str(e)}"}
+
+
+# global instance 
+quiz_service = QuizService()
