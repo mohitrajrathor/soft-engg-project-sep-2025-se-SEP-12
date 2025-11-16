@@ -31,6 +31,7 @@ from app.api.chatbot import chatbot_router
 from app.api.course_router import router as course_router
 from app.api.tag_router import router as tag_router
 from app.api.quiz_router import router as quiz_router
+from app.api.slide_deck_router import router as slide_deck_router
 
 
 
@@ -211,6 +212,13 @@ app.include_router(
     quiz_router,
     prefix=f"{settings.API_PREFIX}/quizzes",
     tags=["Quizzes"]
+)
+
+# Slide Deck routes
+app.include_router(
+    slide_deck_router,
+    prefix=f"{settings.API_PREFIX}/slide-decks",
+    tags=["Slide Decks"]
 )
 
 
