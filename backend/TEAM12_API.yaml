@@ -1,32 +1,58 @@
 openapi: 3.0.3
 info:
   title: AURA
-  description: "\n## AURA - Academic Unified Response Assistant\n\nA comprehensive\
-    \ educational platform API supporting:\n- **Multi-role authentication** (Students,\
-    \ TAs, Instructors, Admins)\n- **Query/Doubt management** system\n- **Resource\
-    \ sharing** and management\n- **Announcements** and notifications\n- **User profiles**\
-    \ with statistics\n- **Role-based access control** (RBAC)\n\n### Authentication\n\
-    \nMost endpoints require authentication using JWT Bearer tokens.\n\n**How to authenticate:**\n\
-    1. Register: `POST /api/auth/signup`\n2. Login: `POST /api/auth/login`\n3. Use\
-    \ the `access_token` in Authorization header: `Bearer <token>`\n\n### User Roles\n\
-    \n- **student**: Regular students - can post queries, view resources\n- **ta**:\
-    \ Teaching assistants - can respond to queries, manage resources\n- **instructor**:\
-    \ Course instructors - full course management\n- **admin**: System administrators\
-    \ - full system access\n\n### Features\n\n#### \U0001F510 Authentication & Authorization\n\
-    - JWT-based authentication with refresh tokens\n- Role-based access control\n\
-    - Secure password hashing with Argon2\n\n#### \u2753 Query Management\n- Students\
-    \ can post doubts/questions\n- TAs/Instructors can respond and resolve queries\n\
-    - Priority levels and status tracking\n- Query analytics and statistics\n\n####\
-    \ \U0001F4DA Resource Management\n- Upload and share educational materials\n-\
-    \ Multiple resource types (videos, PDFs, links, etc.)\n- Access control (public,\
-    \ course-specific, private)\n- Download and view tracking\n\n#### \U0001F4E2 Announcements\n\
-    - Institution-wide and course-specific announcements\n- Target specific user roles\n\
-    - Urgent/deadline notifications\n- Pin important announcements\n\n#### \U0001F464\
-    \ User Profiles\n- Extended user information\n- Academic details and interests\n\
-    - Activity statistics\n- Reputation scoring\n\n### Rate Limiting\n\nAPI rate limit:\
-    \ 60 requests per minute per user (configurable)\n\n### Support\n\nFor issues\
-    \ or questions, please contact the development team.\n\n---\n**Version:** 1.0.0\n\
-    **Environment:** Development\n"
+  description: |
+    ## AURA – Academic Unified Response Assistant (GenAI-Enhanced)
+    
+    AURA is an integrated academic support platform combining traditional backend 
+    systems with advanced GenAI capabilities to enhance learning, teaching, and 
+    administrative workflows. The platform supports role‑based usage for Students, 
+    TAs, Instructors, and Admins, while providing AI‑powered assistance across 
+    academic operations.
+    
+    ### Core GenAI Capabilities
+    
+    - **RAG‑based Academic Assistant** – Answers academic and administrative 
+    questions by retrieving IITM documents, policies, notices, and FAQs.
+    - **Smart Study Assistant** – Produces weekly summaries, deadline reminders,
+    and academic progress hints using LLM summarization and workflow automation.
+    - **AI Content Recommender** – Uses embeddings and semantic search to suggest 
+    relevant videos, articles, PDFs, and external resources.
+    - **TA Doubt Summarizer** – Aggregates and summarizes student doubts from 
+    chat logs and forums to identify common confusion points.
+    - **AI Query Escalation System** – Automatically classifies queries and routes 
+    them to TA/Instructor/Admin based on content and urgency.
+    - **Admin Analytics Dashboard** – Generates insights on frequently asked 
+    questions, unresolved queries, and overall student sentiment.
+    - **AI Discourse Integration** – Summarizes forum threads and links related 
+    discussions using topic modeling and RAG.
+    - **AI Onboarding Mentor** – Provides conversational onboarding for new TAs 
+    using institutional guidelines and best practices.
+    - **Assessment Generator** – Creates quizzes with configurable topics, 
+    difficulty, and marks using LLM‑driven question generation.
+    - **Slide Deck Generator** – Converts structured content into AI‑generated 
+    slide decks for teaching and presentations.
+    
+    ### Technical Foundations
+    
+    - **RAG Pipelines:** Document chunking, embeddings, vector search, grounded LLM output  
+    - **LLM Summarization:** Weekly study summaries, doubt aggregation, discourse digestion  
+    - **Semantic Search:** Resource recommendations and related discussion linking  
+    - **Agents & Workflow Automation:** Query routing, academic reminders  
+    - **Generative Models:** Quiz creation, slide generation, onboarding guidance  
+    
+    ### Purpose
+    
+    AURA enhances the academic ecosystem by:
+    - Reducing student effort in searching information  
+    - Supporting TAs with workload automation  
+    - Equipping instructors with insights and asset generation  
+    - Providing administrators with system‑level analytics  
+    
+    This API specification defines the backend for authentication, role‑based 
+    access control, course management, quiz operations, slide deck generation, 
+    tagging, chatbot interactions, and analytics used across AURA’s GenAI modules.
+    
   contact:
     name: AURA Development Team
     email: support@aura.edu
