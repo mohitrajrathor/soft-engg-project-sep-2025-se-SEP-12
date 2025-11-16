@@ -30,6 +30,7 @@ from app.api.auth import auth_router
 from app.api.chatbot import chatbot_router
 from app.api.course_router import router as course_router
 from app.api.tag_router import router as tag_router
+from app.api.quiz_router import router as quiz_router
 
 
 
@@ -203,6 +204,13 @@ app.include_router(
     tag_router,
     prefix=f"{settings.API_PREFIX}/tags",
     tags=["Tags"]
+)
+
+# Quiz routes
+app.include_router(
+    quiz_router,
+    prefix=f"{settings.API_PREFIX}/quizzes",
+    tags=["Quizzes"]
 )
 
 
