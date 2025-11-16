@@ -86,6 +86,8 @@ class User(Base):
     resources = relationship("Resource", back_populates="created_by", cascade="all, delete-orphan")
     announcements = relationship("Announcement", back_populates="created_by", cascade="all, delete-orphan")
     query_responses = relationship("QueryResponse", back_populates="user", cascade="all, delete-orphan")
+    quizzes_created = relationship("Quiz", back_populates="creator", cascade="all, delete-orphan")
+    quiz_attempts = relationship("QuizAttempt", back_populates="user", cascade="all, delete-orphan")
 
     def set_password(self, password: str) -> None:
         """

@@ -20,3 +20,4 @@ class Course(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     creator = relationship("User")
+    quizzes = relationship("Quiz", back_populates="course", cascade="all, delete-orphan")
