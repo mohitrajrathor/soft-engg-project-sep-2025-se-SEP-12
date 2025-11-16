@@ -1,128 +1,32 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: AURA
-  description: '
-
-    ## AURA - Academic Unified Response Assistant
-
-
-    A comprehensive educational platform API supporting:
-
-    - **Multi-role authentication** (Students, TAs, Instructors, Admins)
-
-    - **Query/Doubt management** system
-
-    - **Resource sharing** and management
-
-    - **Announcements** and notifications
-
-    - **User profiles** with statistics
-
-    - **Role-based access control** (RBAC)
-
-
-    ### Authentication
-
-
-    Most endpoints require authentication using JWT Bearer tokens.
-
-
-    **How to authenticate:**
-
-    1. Register: `POST /api/auth/signup`
-
-    2. Login: `POST /api/auth/login`
-
-    3. Use the `access_token` in Authorization header: `Bearer <token>`
-
-
-    ### User Roles
-
-
-    - **student**: Regular students - can post queries, view resources
-
-    - **ta**: Teaching assistants - can respond to queries, manage resources
-
-    - **instructor**: Course instructors - full course management
-
-    - **admin**: System administrators - full system access
-
-
-    ### Features
-
-
-    #### Authentication & Authorization
-
-    - JWT-based authentication with refresh tokens
-
-    - Role-based access control
-
-    - Secure password hashing with Argon2
-
-
-    #### Query Management
-
-    - Students can post doubts/questions
-
-    - TAs/Instructors can respond and resolve queries
-
-    - Priority levels and status tracking
-
-    - Query analytics and statistics
-
-
-    #### Resource Management
-
-    - Upload and share educational materials
-
-    - Multiple resource types (videos, PDFs, links, etc.)
-
-    - Access control (public, course-specific, private)
-
-    - Download and view tracking
-
-
-    #### Announcements
-
-    - Institution-wide and course-specific announcements
-
-    - Target specific user roles
-
-    - Urgent/deadline notifications
-
-    - Pin important announcements
-
-
-    #### User Profiles
-
-    - Extended user information
-
-    - Academic details and interests
-
-    - Activity statistics
-
-    - Reputation scoring
-
-
-    ### Rate Limiting
-
-
-    API rate limit: 60 requests per minute per user (configurable)
-
-
-    ### Support
-
-
-    For issues or questions, please contact the development team.
-
-
-    ---
-
-    **Version:** 1.0.0
-
-    **Environment:** Development
-
-    '
+  description: "\n## AURA - Academic Unified Response Assistant\n\nA comprehensive\
+    \ educational platform API supporting:\n- **Multi-role authentication** (Students,\
+    \ TAs, Instructors, Admins)\n- **Query/Doubt management** system\n- **Resource\
+    \ sharing** and management\n- **Announcements** and notifications\n- **User profiles**\
+    \ with statistics\n- **Role-based access control** (RBAC)\n\n### Authentication\n\
+    \nMost endpoints require authentication using JWT Bearer tokens.\n\n**How to authenticate:**\n\
+    1. Register: `POST /api/auth/signup`\n2. Login: `POST /api/auth/login`\n3. Use\
+    \ the `access_token` in Authorization header: `Bearer <token>`\n\n### User Roles\n\
+    \n- **student**: Regular students - can post queries, view resources\n- **ta**:\
+    \ Teaching assistants - can respond to queries, manage resources\n- **instructor**:\
+    \ Course instructors - full course management\n- **admin**: System administrators\
+    \ - full system access\n\n### Features\n\n#### \U0001F510 Authentication & Authorization\n\
+    - JWT-based authentication with refresh tokens\n- Role-based access control\n\
+    - Secure password hashing with Argon2\n\n#### \u2753 Query Management\n- Students\
+    \ can post doubts/questions\n- TAs/Instructors can respond and resolve queries\n\
+    - Priority levels and status tracking\n- Query analytics and statistics\n\n####\
+    \ \U0001F4DA Resource Management\n- Upload and share educational materials\n-\
+    \ Multiple resource types (videos, PDFs, links, etc.)\n- Access control (public,\
+    \ course-specific, private)\n- Download and view tracking\n\n#### \U0001F4E2 Announcements\n\
+    - Institution-wide and course-specific announcements\n- Target specific user roles\n\
+    - Urgent/deadline notifications\n- Pin important announcements\n\n#### \U0001F464\
+    \ User Profiles\n- Extended user information\n- Academic details and interests\n\
+    - Activity statistics\n- Reputation scoring\n\n### Rate Limiting\n\nAPI rate limit:\
+    \ 60 requests per minute per user (configurable)\n\n### Support\n\nFor issues\
+    \ or questions, please contact the development team.\n\n---\n**Version:** 1.0.0\n\
+    **Environment:** Development\n"
   contact:
     name: AURA Development Team
     email: support@aura.edu
@@ -133,8 +37,16 @@ paths:
   /api/auth/signup:
     post:
       tags:
-      - Authentication
-      - Authentication
+      - RAG-Assistant
+      - Smart-Study-Assistant
+      - Content-Recommender
+      - TA-Doubt-Summarizer
+      - Query-Escalation
+      - Admin-Analytics
+      - Discourse-Integration
+      - Onboarding-Mentor
+      - Assessment-Generator
+      - Slide-Deck-Generator
       summary: Register a new user
       description: "Register a new user account with email and password.\n\n    **Authentication:**\
         \ Not required (public endpoint)\n\n    **Process:**\n    1. Validates email\
@@ -183,8 +95,16 @@ paths:
   /api/auth/login:
     post:
       tags:
-      - Authentication
-      - Authentication
+      - RAG-Assistant
+      - Smart-Study-Assistant
+      - Content-Recommender
+      - TA-Doubt-Summarizer
+      - Query-Escalation
+      - Admin-Analytics
+      - Discourse-Integration
+      - Onboarding-Mentor
+      - Assessment-Generator
+      - Slide-Deck-Generator
       summary: Login and obtain tokens
       description: "Authenticate user and obtain JWT access and refresh tokens.\n\n\
         \    **Authentication:** Not required (public endpoint)\n\n    **Process:**\n\
@@ -226,8 +146,16 @@ paths:
   /api/auth/refresh:
     post:
       tags:
-      - Authentication
-      - Authentication
+      - RAG-Assistant
+      - Smart-Study-Assistant
+      - Content-Recommender
+      - TA-Doubt-Summarizer
+      - Query-Escalation
+      - Admin-Analytics
+      - Discourse-Integration
+      - Onboarding-Mentor
+      - Assessment-Generator
+      - Slide-Deck-Generator
       summary: Refresh access token
       description: "Obtain a new access token using a refresh token.\n\n    **Authentication:**\
         \ Requires valid refresh token\n\n    **Process:**\n    1. Validates refresh\
@@ -265,9 +193,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/auth/me:
     get:
-      tags:
-      - Authentication
-      - Authentication
+      tags: &id001
+      - Query-Escalation
       summary: Get current user profile
       description: "Retrieve the currently authenticated user's profile information.\n\
         \n    **Authentication:** Required (Bearer token)\n\n    **Returns:**\n  \
@@ -288,9 +215,7 @@ paths:
       security:
       - HTTPBearer: []
     put:
-      tags:
-      - Authentication
-      - Authentication
+      tags: *id001
       summary: Update current user profile
       description: "Update the currently authenticated user's profile information.\n\
         \n    **Authentication:** Required (Bearer token)\n\n    **Updatable Fields:**\n\
@@ -330,8 +255,12 @@ paths:
   /api/ai/chatbot/chatbot/chat:
     post:
       tags:
-      - Chatbot
-      - Chatbot
+      - RAG-Assistant
+      - Smart-Study-Assistant
+      - Content-Recommender
+      - TA-Doubt-Summarizer
+      - Discourse-Integration
+      - Onboarding-Mentor
       summary: Chat with AI assistant
       description: "Send a message to the AI chatbot and get a response.\n\n    **Features:**\n\
         \    - Conversation memory (maintains context)\n    - Multiple chat modes\
@@ -364,8 +293,10 @@ paths:
   /api/ai/chatbot/chatbot/chat/stream:
     post:
       tags:
-      - Chatbot
-      - Chatbot
+      - RAG-Assistant
+      - Smart-Study-Assistant
+      - TA-Doubt-Summarizer
+      - Discourse-Integration
       summary: Stream chat response
       description: "Send a message and get a streaming response (real-time).\n\n \
         \   **Features:**\n    - Real-time streaming responses\n    - See AI typing\
@@ -395,8 +326,8 @@ paths:
   /api/ai/chatbot/chatbot/conversation/{conversation_id}:
     delete:
       tags:
-      - Chatbot
-      - Chatbot
+      - RAG-Assistant
+      - Onboarding-Mentor
       summary: Clear conversation history
       description: Delete conversation history for a specific conversation ID.
       operationId: clear_conversation_api_ai_chatbot_chatbot_conversation__conversation_id__delete
@@ -424,8 +355,8 @@ paths:
   /api/ai/chatbot/chatbot/conversation/{conversation_id}/history:
     get:
       tags:
-      - Chatbot
-      - Chatbot
+      - RAG-Assistant
+      - Onboarding-Mentor
       summary: Get conversation history
       description: Retrieve the message history for a conversation.
       operationId: get_conversation_history_api_ai_chatbot_chatbot_conversation__conversation_id__history_get
@@ -453,8 +384,12 @@ paths:
   /api/ai/chatbot/chatbot/status:
     get:
       tags:
-      - Chatbot
-      - Chatbot
+      - RAG-Assistant
+      - Smart-Study-Assistant
+      - Content-Recommender
+      - TA-Doubt-Summarizer
+      - Discourse-Integration
+      - Onboarding-Mentor
       summary: Get chatbot status
       description: Check if chatbot is configured and ready.
       operationId: get_chatbot_status_api_ai_chatbot_chatbot_status_get
@@ -467,8 +402,7 @@ paths:
   /api/ai/chatbot/chatbot/metrics:
     get:
       tags:
-      - Chatbot
-      - Chatbot
+      - Admin-Analytics
       summary: Get chatbot metrics
       description: Get observability metrics (agent invocations, LLM requests, etc.)
       operationId: get_chatbot_metrics_api_ai_chatbot_chatbot_metrics_get
@@ -483,8 +417,8 @@ paths:
   /api/ai/chatbot/chatbot/conversation/{conversation_id}/state:
     get:
       tags:
-      - Chatbot
-      - Chatbot
+      - RAG-Assistant
+      - Onboarding-Mentor
       summary: Get conversation session state
       description: Retrieve the session state for a conversation (user context, preferences,
         etc.)
@@ -512,8 +446,11 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/courses/:
     get:
-      tags:
-      - Courses
+      tags: &id002
+      - Smart-Study-Assistant
+      - Content-Recommender
+      - Admin-Analytics
+      - Onboarding-Mentor
       summary: List all available courses
       description: Retrieve a list of all available courses. Accessible by any authenticated
         user.
@@ -531,8 +468,7 @@ paths:
       security:
       - HTTPBearer: []
     post:
-      tags:
-      - Courses
+      tags: *id002
       summary: Create a new course (Admin only)
       description: Create a new course in the database. Only accessible by administrators.
       operationId: create_course_api_courses__post
@@ -559,8 +495,11 @@ paths:
       - HTTPBearer: []
   /api/courses/{course_id}:
     get:
-      tags:
-      - Courses
+      tags: &id003
+      - Smart-Study-Assistant
+      - Content-Recommender
+      - Admin-Analytics
+      - Onboarding-Mentor
       summary: Get a course by ID
       description: Retrieve the details of a specific course by its ID.
       operationId: get_course_by_id_api_courses__course_id__get
@@ -587,8 +526,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     put:
-      tags:
-      - Courses
+      tags: *id003
       summary: Update a course (Admin only)
       description: Update an existing course's details. Only accessible by administrators.
       operationId: update_course_api_courses__course_id__put
@@ -621,8 +559,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
-      tags:
-      - Courses
+      tags: *id003
       summary: Delete a course (Admin only)
       description: Delete a course from the database. Only accessible by administrators.
       operationId: delete_course_api_courses__course_id__delete
@@ -646,8 +583,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/tags/:
     post:
-      tags:
-      - Tags
+      tags: &id004
+      - Content-Recommender
+      - Admin-Analytics
       summary: Create a new tag (TA/Admin only)
       description: Create a new tag. Accessible by TAs, Instructors, and Admins.
       operationId: create_tag_api_tags__post
@@ -673,8 +611,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     get:
-      tags:
-      - Tags
+      tags: *id004
       summary: List all tags or search by name
       description: 'Retrieve a list of all tags. Supports searching by name.
 
@@ -687,11 +624,10 @@ paths:
         in: query
         required: false
         schema:
-          anyOf:
-          - type: string
-          - type: 'null'
           description: Search for tags by name (case-insensitive).
           title: Search
+          type: string
+          nullable: true
         description: Search for tags by name (case-insensitive).
       responses:
         '200':
@@ -711,8 +647,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/tags/{tag_id}:
     get:
-      tags:
-      - Tags
+      tags: &id005
+      - Content-Recommender
+      - Admin-Analytics
       summary: Get a tag by ID
       description: Retrieve the details of a specific tag by its ID.
       operationId: get_tag_by_id_api_tags__tag_id__get
@@ -739,8 +676,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     put:
-      tags:
-      - Tags
+      tags: *id005
       summary: Update a tag (TA/Admin only)
       description: Update an existing tag's name. Accessible by TAs, Instructors,
         and Admins.
@@ -774,8 +710,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
-      tags:
-      - Tags
+      tags: *id005
       summary: Delete a tag (TA/Admin only)
       description: Delete a tag from the database. Accessible by TAs, Instructors,
         and Admins.
@@ -801,7 +736,7 @@ paths:
   /api/quizzes/generate:
     post:
       tags:
-      - Quizzes
+      - Assessment-Generator
       summary: Generate a new quiz (TA/Admin only)
       description: Generates a new quiz using the AI service and saves it to the database.
       operationId: generate_and_save_quiz_api_quizzes_generate_post
@@ -828,8 +763,8 @@ paths:
       - HTTPBearer: []
   /api/quizzes/{quiz_id}:
     put:
-      tags:
-      - Quizzes
+      tags: &id006
+      - Assessment-Generator
       summary: Update an existing quiz (Creator only)
       description: Updates an existing quiz using AI-powered feedback. Only the original
         creator can update it.
@@ -863,8 +798,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     get:
-      tags:
-      - Quizzes
+      tags: *id006
       summary: Get a single quiz
       operationId: get_quiz_api_quizzes__quiz_id__get
       security:
@@ -890,8 +824,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
-      tags:
-      - Quizzes
+      tags: *id006
       summary: Delete a quiz (Creator only)
       operationId: delete_quiz_api_quizzes__quiz_id__delete
       security:
@@ -915,7 +848,7 @@ paths:
   /api/quizzes/:
     get:
       tags:
-      - Quizzes
+      - Assessment-Generator
       summary: List all quizzes
       description: Retrieves a list of all available quizzes, with optional search
         and filtering.
@@ -927,21 +860,19 @@ paths:
         in: query
         required: false
         schema:
-          anyOf:
-          - type: string
-          - type: 'null'
           description: Search quizzes by title.
           title: Search
+          type: string
+          nullable: true
         description: Search quizzes by title.
       - name: course_id
         in: query
         required: false
         schema:
-          anyOf:
-          - type: integer
-          - type: 'null'
           description: Filter quizzes by course ID.
           title: Course Id
+          type: integer
+          nullable: true
         description: Filter quizzes by course ID.
       responses:
         '200':
@@ -962,7 +893,7 @@ paths:
   /api/quizzes/{quiz_id}/attempt:
     post:
       tags:
-      - Quizzes
+      - Assessment-Generator
       summary: Submit an attempt for a quiz
       description: Allows a user to submit their answers for a quiz. The score is
         calculated and stored.
@@ -997,8 +928,10 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/slide-decks/:
     post:
-      tags:
-      - Slide Decks
+      tags: &id007
+      - Slide-Deck-Generator
+      - Smart-Study-Assistant
+      - Onboarding-Mentor
       summary: Generate a new slide deck (TA/Instructor only)
       description: 'Generates a new slide deck using the AI service based on specified
         topics
@@ -1027,8 +960,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     get:
-      tags:
-      - Slide Decks
+      tags: *id007
       summary: List all slide decks
       description: Retrieves a list of all available slide decks, accessible to any
         authenticated user.
@@ -1040,21 +972,19 @@ paths:
         in: query
         required: false
         schema:
-          anyOf:
-          - type: string
-          - type: 'null'
           description: Search slide decks by title.
           title: Search
+          type: string
+          nullable: true
         description: Search slide decks by title.
       - name: course_id
         in: query
         required: false
         schema:
-          anyOf:
-          - type: integer
-          - type: 'null'
           description: Filter slide decks by course ID.
           title: Course Id
+          type: integer
+          nullable: true
         description: Filter slide decks by course ID.
       responses:
         '200':
@@ -1074,8 +1004,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/slide-decks/{deck_id}:
     get:
-      tags:
-      - Slide Decks
+      tags: &id008
+      - Slide-Deck-Generator
+      - Onboarding-Mentor
       summary: Get a single slide deck
       description: Retrieves a single slide deck by its ID.
       operationId: get_slide_deck_api_slide_decks__deck_id__get
@@ -1102,8 +1033,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     put:
-      tags:
-      - Slide Decks
+      tags: *id008
       summary: Update a slide deck (Creator only)
       description: 'Updates a slide deck''s title, description, or slide content.
 
@@ -1138,8 +1068,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
-      tags:
-      - Slide Decks
+      tags: *id008
       summary: Delete a slide deck (Creator only)
       description: Deletes a slide deck. Only the original creator can perform this
         action.
@@ -1165,7 +1094,7 @@ paths:
   /health:
     get:
       tags:
-      - Health
+      - Admin-Analytics
       summary: Health check endpoint
       description: Check if the API is running and database is accessible.
       operationId: health_check_health_get
@@ -1178,7 +1107,7 @@ paths:
   /api:
     get:
       tags:
-      - Info
+      - RAG-Assistant
       summary: API information
       description: Get API version and available endpoints.
       operationId: api_info_api_get
@@ -1224,22 +1153,20 @@ components:
           title: Message
           description: User's message
         conversation_id:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Conversation Id
           description: Conversation ID for maintaining history
+          type: string
+          nullable: true
         mode:
           $ref: '#/components/schemas/ChatMode'
           description: Chat mode
           default: general
         context:
-          anyOf:
-          - type: string
-            maxLength: 1000
-          - type: 'null'
           title: Context
           description: Additional context
+          type: string
+          maxLength: 1000
+          nullable: true
       type: object
       required:
       - message
@@ -1261,20 +1188,18 @@ components:
           title: Conversation Id
           description: Conversation ID
         sources:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
           title: Sources
           description: Sources or references used
           default: []
+          items:
+            type: string
+          type: array
+          nullable: true
         tokens_used:
-          anyOf:
-          - type: integer
-          - type: 'null'
           title: Tokens Used
           description: Number of tokens used
+          type: integer
+          nullable: true
         model:
           type: string
           title: Model
@@ -1307,11 +1232,10 @@ components:
           title: Name
           example: Introduction to Machine Learning
         description:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Description
           example: A foundational course on ML concepts.
+          type: string
+          nullable: true
       type: object
       required:
       - name
@@ -1326,11 +1250,10 @@ components:
           title: Name
           example: Introduction to Machine Learning
         description:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Description
           example: A foundational course on ML concepts.
+          type: string
+          nullable: true
         id:
           type: integer
           title: Id
@@ -1351,19 +1274,17 @@ components:
     CourseUpdate:
       properties:
         name:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 3
-          - type: 'null'
           title: Name
           example: Advanced Machine Learning
+          type: string
+          maxLength: 100
+          minLength: 3
+          nullable: true
         description:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Description
           example: An in-depth course on advanced ML concepts.
+          type: string
+          nullable: true
       type: object
       title: CourseUpdate
       description: Schema for updating an existing course. All fields are optional.
@@ -1437,11 +1358,10 @@ components:
           title: Title
           example: Python Basics Quiz
         description:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Description
           example: A quiz covering fundamental Python concepts.
+          type: string
+          nullable: true
         topics:
           items:
             type: string
@@ -1459,17 +1379,19 @@ components:
           example: Easy
         marks_per_question:
           type: integer
-          exclusiveMinimum: 0.0
+          exclusiveMinimum: true
           title: Marks Per Question
           default: 5
           example: 5
+          minimum: 0.0
         num_questions:
           type: integer
           maximum: 20.0
-          exclusiveMinimum: 0.0
+          exclusiveMinimum: true
           title: Num Questions
           default: 10
           example: 10
+          minimum: 0.0
       type: object
       required:
       - course_id
@@ -1486,10 +1408,9 @@ components:
           type: string
           title: Title
         description:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Description
+          type: string
+          nullable: true
         course_id:
           type: integer
           title: Course Id
@@ -1504,11 +1425,10 @@ components:
           format: date-time
           title: Created At
         updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
           title: Updated At
+          type: string
+          format: date-time
+          nullable: true
       type: object
       required:
       - id
@@ -1571,12 +1491,11 @@ components:
           title: Title
           description: Title of the slide deck.
         description:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
           title: Description
           description: A brief description of the slide deck.
+          type: string
+          maxLength: 500
+          nullable: true
         course_id:
           type: integer
           title: Course Id
@@ -1590,9 +1509,10 @@ components:
         num_slides:
           type: integer
           maximum: 20.0
-          exclusiveMinimum: 0.0
+          exclusiveMinimum: true
           title: Num Slides
           description: Number of slides to generate.
+          minimum: 0.0
       type: object
       required:
       - title
@@ -1610,12 +1530,11 @@ components:
           title: Title
           description: Title of the slide deck.
         description:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
           title: Description
           description: A brief description of the slide deck.
+          type: string
+          maxLength: 500
+          nullable: true
         id:
           type: integer
           title: Id
@@ -1632,11 +1551,10 @@ components:
           format: date-time
           title: Created At
         updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
           title: Updated At
+          type: string
+          format: date-time
+          nullable: true
         creator:
           $ref: '#/components/schemas/app__schemas__user_schema__UserSimpleResponse'
       type: object
@@ -1652,26 +1570,23 @@ components:
     SlideDeckUpdateRequest:
       properties:
         title:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 3
-          - type: 'null'
           title: Title
+          type: string
+          maxLength: 100
+          minLength: 3
+          nullable: true
         description:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
           title: Description
+          type: string
+          maxLength: 500
+          nullable: true
         slides:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/Slide'
-            type: array
-          - type: 'null'
           title: Slides
           description: The complete, updated list of slides.
+          items:
+            $ref: '#/components/schemas/Slide'
+          type: array
+          nullable: true
       type: object
       title: SlideDeckUpdateRequest
       description: Schema for updating an existing slide deck.
@@ -1782,13 +1697,12 @@ components:
           description: 'User role: student, ta, instructor, or admin'
           default: student
         full_name:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 2
-          - type: 'null'
           title: Full Name
           description: User's full name
+          type: string
+          maxLength: 100
+          minLength: 2
+          nullable: true
       type: object
       required:
       - email
@@ -1835,10 +1749,9 @@ components:
         role:
           $ref: '#/components/schemas/UserRole'
         full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Full Name
+          type: string
+          nullable: true
         is_active:
           type: boolean
           title: Is Active
@@ -1875,32 +1788,28 @@ components:
     UserUpdate:
       properties:
         full_name:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 2
-          - type: 'null'
           title: Full Name
+          type: string
+          maxLength: 100
+          minLength: 2
+          nullable: true
         email:
-          anyOf:
-          - type: string
-            format: email
-          - type: 'null'
           title: Email
+          type: string
+          format: email
+          nullable: true
         current_password:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Current Password
           description: Required when changing password
+          type: string
+          nullable: true
         new_password:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 8
-          - type: 'null'
           title: New Password
           description: New password
+          type: string
+          maxLength: 100
+          minLength: 8
+          nullable: true
       type: object
       title: UserUpdate
       description: "Schema for updating user information.\n\nAll fields are optional\
@@ -1968,10 +1877,9 @@ components:
           format: email
           title: Email
         full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Full Name
+          type: string
+          nullable: true
       type: object
       required:
       - id
