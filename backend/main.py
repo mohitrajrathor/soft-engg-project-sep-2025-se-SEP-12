@@ -29,6 +29,7 @@ from app.core.db import init_db
 from app.api.auth import auth_router
 from app.api.chatbot import chatbot_router
 from app.api.course_router import router as course_router
+from app.api.tag_router import router as tag_router
 
 
 
@@ -195,6 +196,13 @@ app.include_router(
     course_router,
     prefix=f"{settings.API_PREFIX}/courses",
     tags=["Courses"]
+)
+
+# Tag routes
+app.include_router(
+    tag_router,
+    prefix=f"{settings.API_PREFIX}/tags",
+    tags=["Tags"]
 )
 
 
