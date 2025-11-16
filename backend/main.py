@@ -50,27 +50,6 @@ async def lifespan(app: FastAPI):
     init_db()
     print("Database initialized")
 
-    # Initialize Google LLM (if available)
-    if LANGCHAIN_AVAILABLE and settings.GOOGLE_API_KEY:
-        try:
-            app.state.llm = ChatGoogleGenerativeAI(
-                model=settings.GEMINI_MODEL,
-                google_api_key=settings.GOOGLE_API_KEY,
-                temperature=settings.GEMINI_TEMPERATURE,
-                max_output_tokens=settings.GEMINI_MAX_TOKENS,
-                convert_system_message_to_human=True
-            )
-            print(f"[OK] Google Gemini LLM initialized - Model: {settings.GEMINI_MODEL}")
-        except Exception as e:
-            print(f"[WARNING] Failed to initialize Gemini LLM: {e}")
-            app.state.llm = None
-    else:
-        app.state.llm = None
-        if not LANGCHAIN_AVAILABLE:
-            print("[WARNING] LangChain not installed. Chatbot features will be limited.")
-        if not settings.GOOGLE_API_KEY:
-            print("[WARNING] GOOGLE_API_KEY not set. Chatbot features will be limited.")
-
     yield
 
     # Shutdown: Cleanup (if needed)
