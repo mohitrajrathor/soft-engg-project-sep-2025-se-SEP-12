@@ -1,0 +1,53 @@
+"""
+Pydantic schemas for Slide Deck operations.
+"""
+
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
+from datetime import datetime
+
+from app.schemas.user_schema import UserSimpleResponse
+
+
+class Slide(BaseModel):
+    """Represents a single slide with a title and markdown content."""
+    title: str = Field(..., description="The title of the slide.")
+    content: str = Field(..., description="The markdown content of the slide.")
+
+
+class SlideDeckBase(BaseModel):
+    """Base schema for slide deck attributes."""
+    title: str = Field(..., min_length=3, max_length=100, description="Title of the slide deck.")
+    description: Optional[str] = Field(None, max_length=500, description="A brief description of the slide deck.")
+
+
+class SlideDeckGenerationRequest(SlideDeckBase):
+    """Schema for requesting AI-powered slide deck generation."""
+    course_id: int = Field(..., description="The ID of the course this deck belongs to.")
+    topics: List[str] = Field(..., description="A list of topics to be covered in the slides.")
+    num_slides: int = Field(..., gt=0, le=20, description="Number of slides to generate.")
+
+
+class SlideDeckUpdateRequest(BaseModel):
+    """Schema for updating an existing slide deck."""
+    title: Optional[str] = Field(None, min_length=3, max_length=100)
+    description: Optional[str] = Field(None, max_length=500)
+    slides: Optional[List[Slide]] = Field(None, description="The complete, updated list of slides.")
+
+
+class SlideDeckResponse(SlideDeckBase):
+    """Schema for returning a slide deck in an API response."""
+    id: int
+    course_id: int
+    slides: List[Slide]
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    creator: UserSimpleResponse
+
+    class Config:
+        from_attributes = True
+
+
+class SlideDeckRefineRequest(BaseModel):
+    """Schema for requesting AI-powered refinement of existing slides."""
+    feedback: str = Field(..., description="Detailed feedback or instructions for refining the slides.")

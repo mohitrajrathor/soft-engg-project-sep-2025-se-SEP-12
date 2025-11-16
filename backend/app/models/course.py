@@ -21,3 +21,4 @@ class Course(Base):
 
     creator = relationship("User")
     quizzes = relationship("Quiz", back_populates="course", cascade="all, delete-orphan")
+    slide_decks = relationship("SlideDeck", back_populates="course", cascade="all, delete-orphan")
