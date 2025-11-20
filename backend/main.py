@@ -97,30 +97,30 @@ Most endpoints require authentication using JWT Bearer tokens.
 
 ### Features
 
-#### 🔐 Authentication & Authorization
+#### Authentication & Authorization
 - JWT-based authentication with refresh tokens
 - Role-based access control
 - Secure password hashing with Argon2
 
-#### ❓ Query Management
+#### Query Management
 - Students can post doubts/questions
 - TAs/Instructors can respond and resolve queries
 - Priority levels and status tracking
 - Query analytics and statistics
 
-#### 📚 Resource Management
+#### Resource Management
 - Upload and share educational materials
 - Multiple resource types (videos, PDFs, links, etc.)
 - Access control (public, course-specific, private)
 - Download and view tracking
 
-#### 📢 Announcements
+#### Announcements
 - Institution-wide and course-specific announcements
 - Target specific user roles
 - Urgent/deadline notifications
 - Pin important announcements
 
-#### 👤 User Profiles
+#### User Profiles
 - Extended user information
 - Academic details and interests
 - Activity statistics
