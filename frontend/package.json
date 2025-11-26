@@ -20,6 +20,8 @@
     "vue-chartjs": "^5.3.3",
     "vue-draggable-next": "^2.3.0",
     "vue-router": "^4.6.3"
+    ,
+    "markdown-it": "^13.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
