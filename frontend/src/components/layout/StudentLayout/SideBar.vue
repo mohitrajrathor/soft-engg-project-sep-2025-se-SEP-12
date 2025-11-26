@@ -15,7 +15,7 @@ const mainNav = [
 
 const quickActions = [
   { name: 'New Query', path: '/student/my-query', icon: 'bi-plus-circle' },
-  { name: 'Book Office Hour', path: '/student/office-hour', icon: 'bi-calendar-check' },
+  { name: 'Video Summary', path: '/student/summary', icon: 'bi-calendar-check' },
 ]
 
 function signOut() {
@@ -25,7 +25,7 @@ function signOut() {
 </script>
 
 <template>
-  <div class="d-flex flex-column flex-shrink-0 p-3 text-white vh-100" style="width: 250px; background-color: #0d1b2a;">
+  <div class="d-flex flex-column flex-shrink-0 p-3 text-white vh-100" style="width: 250px; background-color: #0d1b2a; height: 100vh; position: fixed; top: 0; left: 0; z-index: 100;">
     <RouterLink to="/" class="d-flex align-items-center mb-3 text-white text-decoration-none">
       <span class="fs-4 fw-semibold">AURA</span>
     </RouterLink>
@@ -53,7 +53,7 @@ function signOut() {
     </ul>
 
     <!-- Sign Out -->
-    <div class="mt-auto">
+    <div class="pb-2 mt-auto">
       <button @click="signOut" class="btn btn-outline-light w-100 mt-3">
         <i class="bi bi-box-arrow-right me-2"></i> Sign Out
       </button>

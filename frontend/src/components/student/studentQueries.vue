@@ -46,7 +46,7 @@ const sendMessage = () => {
     <Sidebar class="sticky top-0 h-screen flex-shrink-0" />
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col bg-gray-50">
+    <div class="flex-1 flex flex-col bg-gray-50 ml-[250px]">
       <!-- Header -->
       <HeaderBar class="sticky top-0 z-50" searchPlaceholder="Search courses, threads, resources" />
 
@@ -221,7 +221,8 @@ const sendMessage = () => {
         </div>
       </div>
 
-    
+      <!-- Bottom Bar -->
+      <BottomBar />
     </div>
   </div>
 </template>

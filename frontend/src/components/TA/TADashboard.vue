@@ -1,107 +1,166 @@
 <script setup>
 import TASidebar from '@/components/layout/TaLayout/TASideBar.vue'
-import TaHeaderBar from '@/components/layout/TaLayout/TaHeaderBar.vue';
+import TaHeaderBar from '@/components/layout/TaLayout/TaHeaderBar.vue'
+import { CheckCircleIcon, UsersIcon, ClockIcon, ArrowTrendingUpIcon, PlusCircleIcon, ArrowRightOnRectangleIcon, ClipboardDocumentListIcon, ChatBubbleLeftRightIcon } from "@heroicons/vue/24/outline"
 
-import { PlusCircleIcon, ArrowRightOnRectangleIcon, ClipboardDocumentListIcon, ChatBubbleLeftRightIcon } from "@heroicons/vue/24/outline";
+const metrics = [
+  {
+    label: 'Doubts Resolved',
+    value: 24,
+    sub: 'This week',
+    icon: CheckCircleIcon,
+    iconColor: 'text-green-500'
+  },
+  {
+    label: 'Students Helped',
+    value: 18,
+    sub: 'This week',
+    icon: UsersIcon,
+    iconColor: 'text-blue-500'
+  },
+  {
+    label: 'Avg Response Time',
+    value: '45 mins',
+    sub: 'Improved by 20%',
+    icon: ClockIcon,
+    iconColor: 'text-orange-500'
+  },
+  {
+    label: 'Satisfaction Rate',
+    value: '92%',
+    sub: 'From student feedback',
+    icon: ArrowTrendingUpIcon,
+    iconColor: 'text-purple-500'
+  }
+]
+const assignedCourses = [
+  { name: 'Software Engineering', code: 'BSCS3001', students: 45 },
+  { name: 'Machine Learning', code: 'BSCS3003', students: 38 }
+]
+const doubts = [
+  { title: 'Help with Milestone 3 design patterns', student: 'John Student', code: 'BSCS3001', time: '30 mins ago', status: 'pending' },
+  { title: 'Neural network convergence issue', student: 'Jane Doe', code: 'BSCS3003', time: '2 hours ago', status: 'answered' },
+  { title: 'Database normalization clarification', student: 'Mike Smith', code: 'BSCS3001', time: '5 hours ago', status: 'pending' }
+]
+const escalations = [
+  { title: 'Grade re-evaluation request', student: 'John Student', role: 'Instructor', date: '2024-10-30' },
+  { title: 'Extension request for medical reasons', student: 'Sarah Lee', role: 'Admin', date: '2024-10-29' }
+]
+const announcements = [
+  { headline: 'New Feature: AI Summarizer', description: 'The new doubt summarizer is now live! Explore its capabilities.' },
+  { headline: 'System Maintenance', description: 'Scheduled maintenance on 15th May, 10 PM - 12 AM IST.' },
+  { headline: 'Resource HUB Updates', description: "Latest academic papers for 'Advanced AI' course added." }
+]
+
+
 </script>
 
-
 <template>
-  <div class="flex">
-  <TASidebar class="fixed top-0 left-0 h-screen w-[250px]" />
-    <main class="flex-1 flex flex-col min-h-screen ml-[250px] bg-gray-50">
+  <div class="flex min-h-screen bg-[#f8fafc]">
+    <TASidebar />
+    <main class="flex-1 p-0 ml-[250px]">
       <TaHeaderBar searchPlaceholder="Search dashboard, queries, resources" />
-      <div class="px-8 pt-6 flex flex-col lg:flex-row gap-8">
-        <!-- MAIN DASHBOARD SECTION -->
-        <div class="flex-1 flex flex-col gap-8">
-          <!-- Dashboard Headline -->
-          <div class="flex items-center justify-between mb-2">
-            <h1 class="font-black text-3xl text-black tracking-tight">TA Dashboard</h1>
-          </div>
-          <!-- Metric Cards Row -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-start">
-              <span class="text-sm font-medium text-gray-500 mb-1">Pending Queries</span>
-              <span class="text-2xl font-bold mb-2 text-black">28 <span class="text-xs text-gray-500 ml-1">this week</span></span>
-              <div class="flex-1 w-full flex items-end justify-between">
-                <div class="w-14 h-8 bg-blue-50 rounded-lg"></div>
+
+      <!-- Welcome Banner (flat style) -->
+      <div class="px-8 pt-8">
+        <div class="rounded-2xl w-full py-7 px-7 mb-7 shadow flex flex-col gap-1"
+          style="background: linear-gradient(90deg, #9340ff 0%, #5e61ea 100%);">
+          <h1 class="text-white font-black text-2xl md:text-3xl mb-2 flex items-center">
+            Welcome back, TA! <span class="ml-3 text-2xl"></span>
+          </h1>
+          <p class="text-white text-lg">Here's your teaching activity overview</p>
+        </div>
+      </div>
+
+      <div class="px-8 flex flex-col lg:flex-row gap-8">
+        <!-- Main Section -->
+        <div class="flex-1 flex flex-col gap-8  ">
+          <!-- Professional Metric Cards Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 mb-2">
+            <div v-for="card in metrics" :key="card.label"
+              class="rounded-xl p-6 bg-white shadow-lg border border-gray-100 transition-transform hover:scale-105 hover:shadow-xl flex flex-col gap-2">
+              <div class="flex items-center gap-3 mb-1">
+                <component :is="card.icon" :class="[card.iconColor, 'h-6 w-6']" />
+                <span class="font-semibold text-gray-700 text-[1rem]">{{ card.label }}</span>
               </div>
-              <button class="text-xs font-semibold mt-3 text-blue-700 hover:text-blue-900 hover:underline transition-colors">View Details</button>
-            </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-start">
-              <span class="text-sm font-medium text-gray-500 mb-1">Resolved This Week</span>
-              <span class="text-2xl font-bold mb-2 text-black">64 <span class="text-xs text-gray-500 ml-1">total</span></span>
-              <div class="flex-1 w-full flex items-end justify-between">
-                <div class="w-14 h-8 bg-blue-50 rounded-lg"></div>
-              </div>
-              <button class="text-xs font-semibold mt-3 text-blue-700 hover:text-blue-900 hover:underline transition-colors">View Details</button>
-            </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-start">
-              <span class="text-sm font-medium text-gray-500 mb-1">New Resources</span>
-              <span class="text-2xl font-bold mb-2 text-black">12 <span class="text-xs text-gray-500 ml-1">added</span></span>
-              <div class="flex-1 w-full flex items-end justify-between">
-                <div class="w-14 h-8 bg-blue-50 rounded-lg"></div>
-              </div>
-              <button class="text-xs font-semibold mt-3 text-blue-700 hover:text-blue-900 hover:underline transition-colors">Explore Resources</button>
-            </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-start">
-              <span class="text-sm font-medium text-gray-500 mb-1">Avg. Response Time</span>
-              <span class="text-2xl font-bold mb-2 text-black">3.5 <span class="text-xs text-gray-500 ml-1">hours</span></span>
-              <div class="flex-1 w-full flex items-end justify-between">
-                <div class="w-14 h-8 bg-blue-50 rounded-lg"></div>
+              <div class="flex items-end justify-between mt-3">
+                <span class="text-3xl font-black text-slate-900">{{ card.value }}</span>
+                <span class="ml-2 text-sm font-semibold text-gray-400">{{ card.sub }}</span>
               </div>
             </div>
           </div>
-          <!-- Trends and Analytics -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-2">
-            <div class="bg-white rounded-2xl shadow-2xl p-6">
-              <div class="font-semibold text-lg mb-2 text-black">Doubt Trends by Topic</div>
-              <div class="text-xs text-gray-400 mb-4">Overview of student queries across various academic topics.</div>
-              <div class="h-48 flex items-center justify-center">
-                <div class="w-full h-full bg-blue-50 rounded-xl flex items-center justify-center text-gray-400">[Bar Chart]</div>
+
+          <!-- Courses -->
+          <div class="bg-white rounded-xl shadow p-6 mb-6">
+            <div class="font-black text-lg mb-4 text-black">Assigned Courses</div>
+            <div class="flex gap-8">
+              <div v-for="course in assignedCourses" :key="course.code"
+                class="flex-1 py-7 px-7 rounded-xl bg-[#f3f6fa] border border-gray-200 shadow-lg hover:shadow-xl transition group">
+                <span class="font-bold text-blue-900 text-lg block mb-1">{{ course.name }}</span>
+                <span class="text-sm text-gray-400 block mb-3">{{ course.code }}</span>
+                <span class="block text-2xl font-black text-slate-900">{{ course.students }}</span>
+                <span class="block text-base text-gray-700">Students</span>
+
               </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-6">
-              <div class="font-semibold text-lg mb-2 text-black">Resource Access Over Time</div>
-              <div class="text-xs text-gray-400 mb-4">Monthly views and downloads of academic resources.</div>
-              <div class="h-48 flex items-center justify-center">
-                <div class="w-full h-full bg-blue-50 rounded-xl flex items-center justify-center text-gray-400">[Line Chart]</div>
+          </div>
+
+          <!-- Queries & Escalations -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl shadow p-6">
+              <div class="font-black text-lg mb-3 text-black">Recent Student Doubts</div>
+              <div v-for="dubt in doubts" :key="dubt.title" class="mb-4 pb-4 border-b last:border-b-0 last:pb-0">
+                <div class="font-semibold text-blue-700">{{ dubt.title }}</div>
+                <div class="text-xs text-gray-400">{{ dubt.student }} • {{ dubt.code }} • {{ dubt.time }}</div>
+                <div class="flex items-center gap-2 mt-1">
+                  <span :class="dubt.status === 'pending'
+                    ? 'bg-orange-100 text-orange-600'
+                    : 'bg-green-100 text-green-600'" class="px-3 py-0.5 rounded-full text-xs">{{ dubt.status
+                    }}</span>
+                  <button
+                    class="ml-2 text-xs text-blue-700 hover:text-blue-900 font-semibold hover:underline transition">Respond</button>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6">
+              <div class="font-black text-lg mb-3 text-black">Escalated Queries</div>
+              <div v-for="item in escalations" :key="item.title" class="mb-4 pb-4 border-b last:border-b-0 last:pb-0">
+                <div class="font-semibold text-[#962424]">{{ item.title }}</div>
+                <div class="text-xs text-gray-400">{{ item.student }} • Escalated to: {{ item.role }}</div>
+                <div class="text-xs text-gray-400 mt-1">{{ item.date }}</div>
               </div>
             </div>
           </div>
         </div>
-        <!-- SIDE PANEL SECTION (RIGHT) -->
+
+        <!-- Sidebar -->
         <aside class="w-full lg:w-80 flex flex-col gap-6">
-          <!-- Quick Actions -->
-          <div class="bg-white rounded-2xl shadow-2xl p-5">
-            <div class="font-bold mb-4 text-lg text-black">Quick Actions</div>
-            <button class="flex items-center gap-2 w-full px-4 py-3 mb-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm font-semibold transition-colors">
-              <PlusCircleIcon class="w-5 h-5" /> Add New Resource
+          <div class="bg-white rounded-xl shadow p-5">
+            <div class="font-black mb-4 text-lg text-black">Quick Actions</div>
+            <button
+              class="flex items-center gap-2 w-full px-4 py-3 mb-2 rounded-lg bg-[#2563eb] text-white font-semibold shadow hover:bg-blue-600 hover:scale-105 transition">
+              <PlusCircleIcon class="w-5 h-5" />
+              Add New Resource
             </button>
-            <button class="flex items-center gap-2 w-full px-4 py-3 mb-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm font-semibold transition-colors">
+
+            <button
+              class="flex items-center gap-2 w-full px-4 py-3 mb-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm font-semibold transition hover:scale-105">
               <ClipboardDocumentListIcon class="w-5 h-5" /> Summarize Doubts
             </button>
-            <button class="flex items-center gap-2 w-full px-4 py-3 mb-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm font-semibold transition-colors">
+            <button
+              class="flex items-center gap-2 w-full px-4 py-3 mb-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm font-semibold transition hover:scale-105">
               <ChatBubbleLeftRightIcon class="w-5 h-5" /> View All Queries
             </button>
-            <button class="flex items-center gap-2 w-full px-4 py-3 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm font-semibold transition-colors">
+            <button
+              class="flex items-center gap-2 w-full px-4 py-3 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm font-semibold transition hover:scale-105">
               <ArrowRightOnRectangleIcon class="w-5 h-5" /> Start Onboarding Session
             </button>
           </div>
-          <!-- Announcements -->
-          <div class="bg-white rounded-2xl shadow-2xl p-5">
-            <div class="font-bold mb-3 text-lg text-black">Recent Announcements</div>
-            <div class="mb-2">
-              <div class="font-semibold text-blue-800">New Feature: AI Summarizer</div>
-              <div class="text-xs text-gray-500">The new doubt summarizer is now live! Explore its capabilities.</div>
-            </div>
-            <div class="mb-2">
-              <div class="font-semibold text-blue-800">System Maintenance</div>
-              <div class="text-xs text-gray-500">Scheduled maintenance on 15th May, 10 PM - 12 AM IST.</div>
-            </div>
-            <div>
-              <div class="font-semibold text-blue-800">Resource HUB Updates</div>
-              <div class="text-xs text-gray-500">Latest academic papers for 'Advanced AI' course added.</div>
+          <div class="bg-white rounded-xl shadow p-5">
+            <div class="font-black mb-3 text-lg text-black">Recent Announcements</div>
+            <div v-for="ann in announcements" :key="ann.headline" class="mb-2">
+              <div class="font-semibold text-blue-800">{{ ann.headline }}</div>
+              <div class="text-xs text-gray-500">{{ ann.description }}</div>
             </div>
           </div>
         </aside>
@@ -109,4 +168,3 @@ import { PlusCircleIcon, ArrowRightOnRectangleIcon, ClipboardDocumentListIcon, C
     </main>
   </div>
 </template>
-

@@ -9,6 +9,7 @@ import LoginPage from '../components/auth/LoginPage.vue'
 import studentRoutes from './studentRoutes'
 import instructorRoutes from './instructorRoutes'
 import taRoutes from './TaRoutes'
+import adminRoutes from './adminRoutes';
 
 const routes = [
   { path: '/', component: LandingPage },
@@ -30,6 +31,7 @@ const routes = [
     ],
   },
   instructorRoutes,
+  adminRoutes,
   
 ]
 

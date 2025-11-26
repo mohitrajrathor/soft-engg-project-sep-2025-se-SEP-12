@@ -4,11 +4,11 @@
     <Sidebar />
 
     <!-- Main Section -->
-    <div class="flex flex-col flex-grow bg-gray-50">
+    <div class="flex flex-col flex-grow bg-gray-50 ml-[250px]">
       <HeaderBar v-if="!isOnBreak" />
 
       <!-- Main Body -->
-      <div class="flex flex-grow overflow-hidden">
+      <div class="flex flex-grow overflow-hidden ">
         <!-- Course Section -->
         <div class="p-6 flex-grow overflow-y-auto">
           <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
@@ -230,7 +230,7 @@ export default {
       this.currentFilter = opt
     },
     saveResource() {
-      alert('✅ Resource saved successfully!')
+      alert('Resource saved successfully!')
       this.showAddResource = false
     },
     startBreak(mins) {
@@ -241,7 +241,7 @@ export default {
         if (this.breakTime > 0) this.breakTime--
         else {
           this.endBreak()
-          alert('⏰ Break over! Time to study again!')
+          alert('Break over! Time to study again!')
         }
       }, 1000)
     },

@@ -1,7 +1,7 @@
 <template>
   <div class="header-section">
 
-    <!-- 🔹 Top Box -->
+    <!--  Top Box -->
     <div class="top-box d-flex justify-content-between align-items-center p-3 bg-white rounded shadow-sm mb-2">
       <div class="d-flex align-items-center">
         <i class="bi bi-search text-muted me-2"></i>
@@ -31,7 +31,7 @@
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
             <img :src="profileImage" alt="Profile" class="rounded-circle me-2" width="36" height="36" />
-            <span class="fw-semibold text-dark">Student</span>
+            <span class="fw-semibold text-dark">TA</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle me-2"></i>Profile</a></li>

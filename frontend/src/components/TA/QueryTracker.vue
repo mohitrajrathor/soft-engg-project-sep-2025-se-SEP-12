@@ -32,7 +32,7 @@ const queries = ref([
       <TaHeaderBar searchPlaceholder="Search queries, students, topics" />
 
       <!-- MAIN DASHBOARD AREA BELOW HEADER -->
-      <div class="flex flex-1 gap-8 px-8 py-7">
+      <div class="flex flex-1 gap-8 px-8 py-7 ">
         <!-- Main dashboard (filters and table) -->
         <div class="flex-1 flex flex-col gap-6">
           <h1 class="text-2xl font-extrabold mb-2 text-black">Query Tracker</h1>
