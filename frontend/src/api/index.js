@@ -9,6 +9,7 @@ export { knowledgeAPI } from './knowledge'
 export { dashboardAPI } from './dashboard'
 export { tasksAPI } from './tasks'
 export { queriesAPI } from './queries'
+export { analyticsAPI } from './analytics'
 
 // Export other API modules as they are created
 // export { resourceAPI } from './resources'
