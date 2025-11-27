@@ -1,44 +1,41 @@
-from pydantic import BaseModel
 from typing import List
+from pydantic import BaseModel, Field
 
+# ------------------------
+# Request Schema (Upload)
+# ------------------------
 
-# -------------------
-# Message for Upload
-# -------------------
 class DoubtMessageCreate(BaseModel):
-    author_role: str
+    author_role: str = "student"
     text: str
 
-
-# -------------------
-# Upload Request Schema
-# -------------------
 class DoubtUploadCreate(BaseModel):
     course_code: str
     source: str
     messages: List[DoubtMessageCreate]
 
 
-# -------------------
-# Topic Cluster Schema
-# -------------------
-class DoubtTopic(BaseModel):
-    label: str
-    example_questions: List[str]
+# ------------------------
+# Response Schema (LLM Output)
+# ------------------------
 
+class TopicCluster(BaseModel):
+    label: str = Field(description="Topic name")
+    trend: str = Field(description="Trend direction")
+    count: int = Field(description="How many times this topic appeared")
+    sample_questions: List[str] = Field(description="Example questions")
 
-# -------------------
-# Summary Response Schema
-# -------------------
-class DoubtSummaryResponse(BaseModel):
+class LearningGap(BaseModel):
+    issue_title: str = Field(description="Misconception or gap title")
+    category: str = Field(description="Type of gap")
+    student_count: int = Field(description="Affected students")
+
+class WeeklySummaryResponse(BaseModel):
     course_code: str
     overall_summary: str
-    topics: List[DoubtTopic]
-
-
-# -------------------
-# Insights Response Schema
-# -------------------
-class DoubtInsightsResponse(BaseModel):
-    course_code: str
+    topics: List[TopicCluster]
+    learning_gaps: List[LearningGap]
     insights: List[str]
+
+    class Config:
+        from_attributes = True   # replaces orm_mode=True
