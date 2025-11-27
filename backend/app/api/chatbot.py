@@ -19,7 +19,7 @@ import traceback
 import logging
 
 
-chatbot_router = APIRouter(prefix="/chatbot", tags=["Chatbot"])
+chatbot_router = APIRouter(tags=["Chatbot"])
 
 
 @chatbot_router.post(

@@ -193,7 +193,7 @@ app.include_router(
 # Chatbot routes
 app.include_router(
     chatbot_router,
-    prefix=f"{settings.API_PREFIX}/ai/chatbot",
+    prefix=f"{settings.API_PREFIX}/chatbot",
     tags=["Chatbot"]
 )
 
