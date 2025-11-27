@@ -28,11 +28,15 @@ from app.core.config import settings
 from app.core.db import init_db
 from app.api.auth import auth_router
 from app.api.chatbot import chatbot_router
+from app.api.knowledge import router as knowledge_router
+from app.api.dashboard import router as dashboard_router
+from app.api.tasks import router as tasks_router
+from app.api.seed import router as seed_router
+from app.api.queries import router as queries_router
 from app.api.course_router import router as course_router
 from app.api.tag_router import router as tag_router
 from app.api.quiz_router import router as quiz_router
 from app.api.slide_deck_router import router as slide_deck_router
-
 
 
 # ============================================================================
@@ -189,8 +193,38 @@ app.include_router(
 # Chatbot routes
 app.include_router(
     chatbot_router,
-    prefix=f"{settings.API_PREFIX}/ai/chatbot",
+    prefix=f"{settings.API_PREFIX}/chatbot",
     tags=["Chatbot"]
+)
+
+# Knowledge Base routes
+app.include_router(
+    knowledge_router,
+    prefix=settings.API_PREFIX
+)
+
+# Dashboard & Analytics routes
+app.include_router(
+    dashboard_router,
+    prefix=settings.API_PREFIX
+)
+
+# Background Tasks routes
+app.include_router(
+    tasks_router,
+    prefix=settings.API_PREFIX
+)
+
+# Seed Data routes (for development/testing)
+app.include_router(
+    seed_router,
+    prefix=settings.API_PREFIX
+)
+
+# Queries routes
+app.include_router(
+    queries_router,
+    prefix=settings.API_PREFIX
 )
 
 # Course routes
@@ -221,7 +255,14 @@ app.include_router(
     tags=["Slide Decks"]
 )
 
-
+# TODO: Add more routers as they are implemented
+# from app.api.resources import resources_router
+# from app.api.announcements import announcements_router
+# from app.api.profiles import profiles_router
+#
+# app.include_router(resources_router, prefix=settings.API_PREFIX, tags=["Resources"])
+# app.include_router(announcements_router, prefix=settings.API_PREFIX, tags=["Announcements"])
+# app.include_router(profiles_router, prefix=settings.API_PREFIX, tags=["Profiles"])
 
 
 # ============================================================================

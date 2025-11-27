@@ -106,7 +106,11 @@ def init_db():
         init_db()  # Creates all tables
     """
     # Import all models here to ensure they are registered with Base
-    from app.models import User, Query, QueryResponse, Resource, Announcement, Profile
+    from app.models import (
+        User, Query, QueryResponse, Resource, Announcement, Profile,
+        # New models from merge
+        KnowledgeSource, KnowledgeChunk, Call, ChatSession, Task
+    )
 
     # Create all tables
     Base.metadata.create_all(bind=engine)
