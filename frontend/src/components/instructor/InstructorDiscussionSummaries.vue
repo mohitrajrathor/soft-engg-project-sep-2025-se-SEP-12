@@ -5,7 +5,7 @@
     </div>
     
     <!-- Main Content -->
-    <main class="flex-1 p-8 overflow-auto ml-48">
+    <main class="flex-1 p-8 overflow-auto ml-64">
       <!-- Header -->
       <div class="mb-6">
         <h2 class="text-2xl font-semibold text-gray-800">Discussion Summaries</h2>
