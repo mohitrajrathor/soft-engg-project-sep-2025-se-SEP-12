@@ -72,3 +72,9 @@ google-adk==1.18.0
 # Optional: Language Detection
 # Uncomment for multilingual support
 # langdetect==1.0.9
+
+# Web Search Integration
+duckduckgo-search==6.3.7
+beautifulsoup4==4.12.3
+requests==2.32.3
+lxml==5.3.0

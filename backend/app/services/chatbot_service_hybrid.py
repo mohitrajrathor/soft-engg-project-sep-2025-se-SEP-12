@@ -23,6 +23,14 @@ from typing import Dict, Optional, AsyncIterator, Any, TYPE_CHECKING, List
 from datetime import datetime, timedelta
 from enum import Enum
 
+# Web search imports
+try:
+    from duckduckgo_search import DDGS
+    WEB_SEARCH_AVAILABLE = True
+except ImportError:
+    WEB_SEARCH_AVAILABLE = False
+    DDGS = None
+
 if TYPE_CHECKING:
     from langchain_google_genai import ChatGoogleGenerativeAI
     from langchain.memory import ConversationBufferMemory
@@ -907,6 +915,54 @@ Provide clear, educational explanations and help students learn effectively.""",
             logging.error(f"Error getting chunks: {e}")
             return []
 
+    def search_web(
+        self,
+        query: str,
+        max_results: int = 5
+    ) -> List[Dict[str, str]]:
+        """
+        Search the web for real-time information using DuckDuckGo.
+
+        Args:
+            query: Search query
+            max_results: Maximum number of results to return
+
+        Returns:
+            List of search results with title, snippet, and URL
+        """
+        if not WEB_SEARCH_AVAILABLE:
+            logging.warning("Web search not available - duckduckgo_search not installed")
+            return []
+
+        try:
+            # Initialize DuckDuckGo search
+            with DDGS() as ddgs:
+                # Perform text search
+                results = list(ddgs.text(
+                    keywords=query,
+                    max_results=max_results,
+                    backend="api"  # Use API backend for faster results
+                ))
+
+                # Format results
+                formatted_results = []
+                for result in results:
+                    formatted_results.append({
+                        "title": result.get("title", ""),
+                        "snippet": result.get("body", ""),
+                        "url": result.get("href", ""),
+                        "source": "web_search"
+                    })
+
+                logging.info(f"Web search for '{query}' returned {len(formatted_results)} results")
+                return formatted_results
+
+        except Exception as e:
+            logging.error(f"Error performing web search: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
+
     # =========================================================================
     # User Context Retrieval Methods
     # =========================================================================
@@ -1150,6 +1206,12 @@ Provide clear, educational explanations and help students learn effectively.""",
                     )
                     kb_results.extend(results)
 
+            # PRIORITY 3: Search web for real-time information if no KB results found
+            web_results = []
+            if not is_asking_for_query_list and not relevant_queries_info and not kb_results and WEB_SEARCH_AVAILABLE:
+                logging.info(f"No KB results found, searching web for: {message}")
+                web_results = self.search_web(query=message, max_results=3)
+
             # Build enhanced context
             context_parts = []
 
@@ -1214,6 +1276,16 @@ Provide clear, educational explanations and help students learn effectively.""",
                     context_parts.append(f"\n{idx}. {result['title']} ({result['category']})")
                     context_parts.append(f"   {result['content']}")
 
+            # PRIORITY 3: Add web search results (if no KB results)
+            if web_results:
+                context_parts.append("\n=== REAL-TIME INFORMATION FROM WEB SEARCH (Priority 3) ===")
+                context_parts.append("Found current information from the internet:\n")
+                for idx, result in enumerate(web_results, 1):
+                    context_parts.append(f"\n{idx}. Title: {result['title']}")
+                    context_parts.append(f"   Content: {result['snippet']}")
+                    context_parts.append(f"   URL: {result['url']}")
+                    context_parts.append(f"   [You MUST include this URL in your response]")
+
             # Combine message with context based on priority
             if relevant_queries_info:
                 # PRIORITY 1: Answer from database queries
@@ -1271,20 +1343,51 @@ Reference the specific sources (title and category) when answering.
 
 Source: Knowledge Base (Priority 2)
 """
-            else:
-                # PRIORITY 3: Use AI's general knowledge
+            elif web_results:
+                # PRIORITY 3: Answer from web search
                 enhanced_message = f"""
 {chr(10).join(context_parts)}
 
 === User Question ===
 {message}
 
-INSTRUCTIONS - PRIORITY 3 (General AI Knowledge):
-No relevant information found in database queries or knowledge base.
+IMPORTANT INSTRUCTIONS - PRIORITY 3 (Web Search):
+I found current information from the web to answer this question.
+Please provide a comprehensive answer based on the web search results above.
+
+CRITICAL - YOU MUST INCLUDE SOURCE LINKS:
+1. After your answer, ALWAYS add a "📚 Sources:" section
+2. List each source with its title and FULL URL in markdown format: [Title](URL)
+3. Make the URLs clickable by using markdown link format
+4. Example format:
+
+   📚 Sources:
+   - [Article Title 1](https://example.com/article1)
+   - [Article Title 2](https://example.com/article2)
+
+5. Make it clear this is current information from the internet
+6. If it's a question requiring real-time data (weather, AQI, news, stock prices, etc.),
+   provide the most recent information from the search results
+7. Be accurate and factual based on the sources provided
+
+REMEMBER: Always include the sources section with clickable links at the end!
+
+Source: Web Search (Priority 3)
+"""
+            else:
+                # PRIORITY 4: Use AI's general knowledge
+                enhanced_message = f"""
+{chr(10).join(context_parts)}
+
+=== User Question ===
+{message}
+
+INSTRUCTIONS - PRIORITY 4 (General AI Knowledge):
+No relevant information found in database queries, knowledge base, or web search.
 Please answer using your general knowledge, but be clear that this is general information
 and suggest the user may want to ask a TA/instructor for course-specific guidance.
 
-Source: General AI Knowledge (Priority 3)
+Source: General AI Knowledge (Priority 4)
 """
 
             # Get response from base chat method
@@ -1297,7 +1400,12 @@ Source: General AI Knowledge (Priority 3)
             if relevant_queries_info:
                 priority_used = "database_queries"
                 sources = [
-                    {"type": "query", "title": q["title"], "category": q["category"], "query_id": q["id"]}
+                    {
+                        "type": "query",
+                        "title": str(q["title"]),
+                        "category": str(q["category"]),
+                        "query_id": str(q["id"])
+                    }
                     for q in relevant_queries_info
                 ]
             elif all_queries_info:
@@ -1306,8 +1414,22 @@ Source: General AI Knowledge (Priority 3)
             elif kb_results:
                 priority_used = "knowledge_base"
                 sources = [
-                    {"type": "knowledge", "title": r["title"], "category": r["category"]}
+                    {
+                        "type": "knowledge",
+                        "title": str(r["title"]),
+                        "category": str(r["category"])
+                    }
                     for r in kb_results[:3]
+                ]
+            elif web_results:
+                priority_used = "web_search"
+                sources = [
+                    {
+                        "type": "web",
+                        "title": str(r["title"]),
+                        "url": str(r["url"])
+                    }
+                    for r in web_results
                 ]
             else:
                 priority_used = "ai_general_knowledge"
@@ -1329,16 +1451,41 @@ Source: General AI Knowledge (Priority 3)
 
         except Exception as e:
             logging.error(f"Error in enhanced chat: {e}")
+            import traceback
+            traceback.print_exc()
+
             # Fallback to basic chat
-            response, conv_id = await self.chat(
-                message=message,
-                conversation_id=conversation_id
-            )
-            return {
-                "answer": response,
-                "conversation_id": conv_id,
-                "error": "Knowledge base integration failed, using basic response"
-            }
+            try:
+                response, conv_id = await self.chat(
+                    message=message,
+                    conversation_id=conversation_id
+                )
+                return {
+                    "answer": response,
+                    "conversation_id": conv_id,
+                    "priority_used": "fallback",
+                    "knowledge_sources_used": 0,
+                    "relevant_queries_found": 0,
+                    "sources": [],
+                    "user_context": {},
+                    "error": "Knowledge base integration failed, using basic response"
+                }
+            except Exception as fallback_error:
+                logging.error(f"Fallback chat also failed: {fallback_error}")
+                traceback.print_exc()
+
+                # Final fallback - return friendly error message
+                conversation_id = conversation_id or f"conv-{uuid.uuid4().hex[:12]}"
+                return {
+                    "answer": "I apologize, but I'm having trouble processing your request right now. This might be due to:\n\n1. A temporary issue with the AI service\n2. The question being outside my current knowledge scope\n3. A network connectivity issue\n\nPlease try:\n- Asking a different question\n- Checking your internet connection\n- Waiting a moment and trying again\n\nIf this persists, please contact support.",
+                    "conversation_id": conversation_id,
+                    "priority_used": "error",
+                    "knowledge_sources_used": 0,
+                    "relevant_queries_found": 0,
+                    "sources": [],
+                    "user_context": {},
+                    "error": f"Chat service temporarily unavailable: {str(fallback_error)}"
+                }
 
     async def chat_stream_with_context(
         self,

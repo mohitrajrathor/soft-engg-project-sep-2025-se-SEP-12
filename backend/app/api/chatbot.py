@@ -14,6 +14,9 @@ from app.services.chatbot_service_hybrid import hybrid_chatbot_service as chatbo
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
+import uuid
+import traceback
+import logging
 
 
 chatbot_router = APIRouter(prefix="/chatbot", tags=["Chatbot"])
@@ -319,6 +322,16 @@ async def chat_enhanced(
             use_knowledge_base=request.use_knowledge_base
         )
 
+        # Validate response structure
+        if not isinstance(response, dict):
+            raise ValueError(f"Service returned invalid response type: {type(response)}")
+
+        if "answer" not in response:
+            raise ValueError("Service response missing 'answer' field")
+
+        if "conversation_id" not in response:
+            raise ValueError("Service response missing 'conversation_id' field")
+
         return EnhancedChatResponse(
             answer=response["answer"],
             conversation_id=response["conversation_id"],
@@ -329,9 +342,19 @@ async def chat_enhanced(
         )
 
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Enhanced chat failed: {str(e)}"
+        # Log the full error
+        print(f"ERROR in chat_enhanced: {e}")
+        traceback.print_exc()
+
+        # Return a friendly error response instead of 500
+        conversation_id = request.conversation_id or f"conv-{uuid.uuid4().hex[:12]}"
+        return EnhancedChatResponse(
+            answer="I apologize, but I'm having trouble processing your request right now. Please try asking a different question or try again in a moment.",
+            conversation_id=conversation_id,
+            knowledge_sources_used=0,
+            sources=[],
+            user_context={},
+            timestamp=datetime.utcnow().isoformat()
         )
 
 
