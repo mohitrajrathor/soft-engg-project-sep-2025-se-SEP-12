@@ -18,13 +18,28 @@ from app.models.slide_deck import SlideDeck
 from app.models.tag import Tag
 # (and any others that appear in relationship("...") strings)
 
+# New models for knowledge base, calls, tasks
+from app.models.enums import (
+    CategoryEnum,
+    TaskTypeEnum,
+    TaskStatusEnum,
+    SourceTypeEnum,
+    CallStatusEnum
+)
+from app.models.knowledge import KnowledgeSource, KnowledgeChunk
+from app.models.call import Call
+from app.models.chat_session import ChatSession
+from app.models.task import Task
+
 __all__ = [
+    # Original models
     "User",
     "Query",
     "QueryResponse",
     "Resource",
     "Announcement",
     "Profile",
+    # Course management models
     "Course",
     "Quiz",
     "QuizAttempt",
@@ -32,5 +47,19 @@ __all__ = [
     "DoubtMessage",
     "SlideDeck",
     "Tag",
-    # add others here if needed
+    # Enums
+    "CategoryEnum",
+    "TaskTypeEnum",
+    "TaskStatusEnum",
+    "SourceTypeEnum",
+    "CallStatusEnum",
+    # Knowledge base
+    "KnowledgeSource",
+    "KnowledgeChunk",
+    # Voice calls
+    "Call",
+    # Chat sessions
+    "ChatSession",
+    # Background tasks
+    "Task",
 ]

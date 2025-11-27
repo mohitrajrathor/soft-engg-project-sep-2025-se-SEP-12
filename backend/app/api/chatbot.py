@@ -12,9 +12,14 @@ from app.schemas.chatbot_schema import ChatRequest, ChatResponse, ChatMode
 from app.api.dependencies import get_current_user
 from app.services.chatbot_service_hybrid import hybrid_chatbot_service as chatbot_service
 from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
+import uuid
+import traceback
+import logging
 
 
-chatbot_router = APIRouter(prefix="/chatbot", tags=["Chatbot"])
+chatbot_router = APIRouter(tags=["Chatbot"])
 
 
 @chatbot_router.post(
@@ -256,3 +261,272 @@ async def get_conversation_state(
             "state": {},
             "message": "No session state found or session service not available"
         }
+
+# ============================================================================
+# Enhanced Chatbot Endpoints with Knowledge Base Integration
+# ============================================================================
+
+
+class EnhancedChatRequest(BaseModel):
+    """Request model for enhanced chat with knowledge base."""
+    message: str
+    conversation_id: Optional[str] = None
+    use_knowledge_base: bool = True
+    mode: Optional[ChatMode] = ChatMode.ACADEMIC
+
+
+class EnhancedChatResponse(BaseModel):
+    """Response model for enhanced chat."""
+    answer: str
+    conversation_id: str
+    knowledge_sources_used: int
+    sources: List[Dict[str, str]]
+    user_context: Dict[str, Any]
+    timestamp: str
+
+
+@chatbot_router.post(
+    "/chat/enhanced",
+    response_model=EnhancedChatResponse,
+    summary="Enhanced chat with knowledge base integration",
+    description="""
+    Chat with AI assistant that integrates:
+    - Knowledge base search for accurate, sourced information
+    - User context (role, history, previous queries)
+    - Personalized responses based on user profile
+
+    **Features:**
+    - Retrieval Augmented Generation (RAG) using knowledge base
+    - Context-aware responses
+    - Source citations
+    - Role-based personalization
+    """
+)
+async def chat_enhanced(
+    request: EnhancedChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Enhanced chat with knowledge base and context integration.
+
+    This endpoint searches the knowledge base for relevant information
+    and provides context-aware responses personalized to the user.
+    """
+    try:
+        response = await chatbot_service.chat_with_context(
+            db=db,
+            user=current_user,
+            message=request.message,
+            conversation_id=request.conversation_id,
+            use_knowledge_base=request.use_knowledge_base
+        )
+
+        # Validate response structure
+        if not isinstance(response, dict):
+            raise ValueError(f"Service returned invalid response type: {type(response)}")
+
+        if "answer" not in response:
+            raise ValueError("Service response missing 'answer' field")
+
+        if "conversation_id" not in response:
+            raise ValueError("Service response missing 'conversation_id' field")
+
+        return EnhancedChatResponse(
+            answer=response["answer"],
+            conversation_id=response["conversation_id"],
+            knowledge_sources_used=response.get("knowledge_sources_used", 0),
+            sources=response.get("sources", []),
+            user_context=response.get("user_context", {}),
+            timestamp=datetime.utcnow().isoformat()
+        )
+
+    except Exception as e:
+        # Log the full error
+        print(f"ERROR in chat_enhanced: {e}")
+        traceback.print_exc()
+
+        # Return a friendly error response instead of 500
+        conversation_id = request.conversation_id or f"conv-{uuid.uuid4().hex[:12]}"
+        return EnhancedChatResponse(
+            answer="I apologize, but I'm having trouble processing your request right now. Please try asking a different question or try again in a moment.",
+            conversation_id=conversation_id,
+            knowledge_sources_used=0,
+            sources=[],
+            user_context={},
+            timestamp=datetime.utcnow().isoformat()
+        )
+
+
+@chatbot_router.post(
+    "/chat/enhanced/stream",
+    summary="Enhanced streaming chat with knowledge base",
+    description="""
+    Streaming version of enhanced chat with knowledge base integration.
+
+    Returns Server-Sent Events (SSE) for real-time response streaming.
+    """
+)
+async def chat_enhanced_stream(
+    request: EnhancedChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Enhanced streaming chat with knowledge base."""
+    async def generate():
+        try:
+            async for chunk in chatbot_service.chat_stream_with_context(
+                db=db,
+                user=current_user,
+                message=request.message,
+                conversation_id=request.conversation_id,
+                use_knowledge_base=request.use_knowledge_base
+            ):
+                yield f"data: {chunk}\n\n"
+        except Exception as e:
+            yield f"data: Error: {str(e)}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
+
+@chatbot_router.get(
+    "/search-knowledge",
+    summary="Search knowledge base",
+    description="""
+    Search the knowledge base for relevant information.
+
+    This endpoint allows direct search of the knowledge base
+    without going through the chatbot.
+    """
+)
+async def search_knowledge(
+    query: str,
+    category: Optional[str] = None,
+    limit: int = 5,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Search knowledge base directly."""
+    try:
+        from app.models.enums import CategoryEnum
+
+        # Convert category string to enum if provided
+        category_enum = None
+        if category:
+            try:
+                category_enum = CategoryEnum(category)
+            except ValueError:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid category: {category}"
+                )
+
+        results = chatbot_service.search_knowledge_base(
+            db=db,
+            query=query,
+            category=category_enum,
+            limit=limit
+        )
+
+        return {
+            "query": query,
+            "results_count": len(results),
+            "results": results,
+            "message": f"Found {len(results)} relevant knowledge sources"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Knowledge search failed: {str(e)}"
+        )
+
+
+@chatbot_router.post(
+    "/answer-query/{query_id}",
+    summary="Answer a specific query using AI and knowledge base",
+    description="""
+    Generate an AI answer for a specific query from the database.
+
+    Uses knowledge base and context to provide comprehensive answers.
+    """
+)
+async def answer_query(
+    query_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Answer a specific query using enhanced chatbot."""
+    try:
+        response = await chatbot_service.answer_query(
+            db=db,
+            user=current_user,
+            query_id=query_id
+        )
+
+        if "error" in response:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=response["error"]
+            )
+
+        return {
+            "query_id": query_id,
+            "answer": response["answer"],
+            "sources_used": response.get("sources_used", []),
+            "confidence": response.get("confidence", "medium"),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Query answering failed: {str(e)}"
+        )
+
+
+@chatbot_router.get(
+    "/user-context",
+    summary="Get user context for chatbot personalization",
+    description="""
+    Retrieve the user context that the chatbot uses for personalization.
+
+    Includes:
+    - User profile information
+    - Recent queries
+    - Active tasks
+    - Usage statistics
+    """
+)
+async def get_user_context(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get user context for chatbot."""
+    try:
+        context = chatbot_service.get_user_context(db, current_user)
+
+        return {
+            "user_context": context,
+            "relevant_categories": [
+                cat.value for cat in chatbot_service.get_relevant_categories(current_user)
+            ],
+            "message": "User context retrieved successfully"
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get user context: {str(e)}"
+        )
