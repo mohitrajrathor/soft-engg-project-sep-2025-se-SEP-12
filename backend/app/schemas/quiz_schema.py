@@ -19,6 +19,8 @@ class QuizGenerationRequest(BaseModel):
     difficulty: str = Field("Medium", example="Easy")
     marks_per_question: int = Field(5, gt=0, example=5)
     num_questions: int = Field(10, gt=0, le=20, example=10)
+    use_latex: bool = Field(False, example=False, description="Enable LaTeX rendering for questions.")
+    publish_mode: str = Field("manual", example="manual", description="'manual' for manual review, 'auto' for auto-publish.")
 
 
 class QuizUpdateRequest(BaseModel):
@@ -61,8 +63,14 @@ class QuizResponse(BaseModel):
     course_id: int
     creator: UserResponse
     questions: Dict[str, Any]  # The full JSON from the AI service
+    use_latex: bool
+    publish_mode: str
+    is_published: bool
     created_at: datetime
     updated_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
 
     class Config:
         orm_mode = True

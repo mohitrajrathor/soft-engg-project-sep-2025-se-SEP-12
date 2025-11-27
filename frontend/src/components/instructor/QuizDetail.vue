@@ -1,41 +1,43 @@
 <template>
-  <div class="flex">
-    <div class="fixed top-0 left-0 h-screen w-[250px]">
+  <div class="d-flex">
+    <div class="fixed top-0 left-0 h-screen w-64">
       <InstructorSidebar />
     </div>
 
-    <main class="flex-1 flex flex-col min-h-screen ml-[250px] bg-gray-50 ml-64">
+    <main class="flex-1 flex flex-col min-h-screen ml-64 bg-gray-50">
       <div class="p-8">
-        <button
-          @click="router.back()"
-          class="mb-4 text-[#0d1b2a] hover:underline"
+        <router-link to="/instructor/quiz-list"
+          class="mb-4 text-[#0d1b2a] hover:underline flex items-center gap-2"
         >
           ← Back to Quizzes
-        </button>
+        </router-link>
 
         <div v-if="loading" class="flex justify-center py-12">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0d1b2a]"></div>
         </div>
 
-        <div v-else-if="quiz" class="bg-white rounded-lg shadow-md p-8">
+        <div v-else-if="quiz" class="bg-white rounded-lg shadow-md p-8 max-w-5xl">
           <div class="flex justify-between items-start mb-6">
-            <div>
+            <div class="flex-1">
               <h1 class="text-3xl font-bold text-[#0d1b2a] mb-2">{{ quiz.title }}</h1>
               <p class="text-gray-600">{{ quiz.description }}</p>
             </div>
-            <button
-              v-if="quiz.creator.id === currentUserId"
-              @click="showUpdateModal = true"
-              class="bg-[#0d1b2a] text-white px-4 py-2 rounded hover:bg-[#1b263b] transition"
-            >
-              Update Quiz
-            </button>
+            <div class="flex gap-2">
+              <button
+                @click="showUpdateModal = true"
+                class="bg-[#0d1b2a] text-white px-4 py-2 rounded hover:bg-[#1b263b] transition"
+              >
+                Update Quiz
+              </button>
+            </div>
           </div>
 
-          <div class="mb-6 text-sm text-gray-600">
+          <div class="mb-6 text-sm text-gray-600 bg-gray-50 p-4 rounded-lg">
             <p><strong>Course ID:</strong> {{ quiz.course_id }}</p>
             <p><strong>Created by:</strong> {{ quiz.creator.name || quiz.creator.email }}</p>
             <p><strong>Created at:</strong> {{ formatDate(quiz.created_at) }}</p>
+            <p><strong>Publish Mode:</strong> {{ quiz.publish_mode === 'auto' ? 'Auto Publish' : 'Manual Review' }}</p>
+            <p><strong>Status:</strong> <span :class="quiz.is_published ? 'text-green-600 font-semibold' : 'text-yellow-600 font-semibold'">{{ quiz.is_published ? 'Published' : 'Draft' }}</span></p>
           </div>
 
           <!-- Questions -->
@@ -77,7 +79,7 @@
                 </ul>
               </div>
 
-              <div class="bg-blue-50 border-l-4 border-blue-500 p-3 text-sm">
+              <div v-if="question.explanation" class="bg-blue-50 border-l-4 border-blue-500 p-3 text-sm">
                 <strong>Explanation:</strong> {{ question.explanation }}
               </div>
             </div>
@@ -124,7 +126,6 @@
     </main>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
