@@ -15,7 +15,9 @@ except ImportError:
     LANGCHAIN_AVAILABLE = False
     # Define fallback types
     BaseModel = object
-    Field = object
+    # Create a fallback Field that accepts any arguments but does nothing
+    def Field(*args, **kwargs):
+        return None
     ChatGoogleGenerativeAI = None # type: ignore
     JsonOutputParser = None
     PromptTemplate = None
@@ -55,7 +57,7 @@ class QuizService:
     def __init__(self):
         """Initialize the Quiz Generation Service."""
         self.llm = None
-        self.parser = JsonOutputParser(pydantic_object=Quiz)
+        self.parser = None
 
         if not LANGCHAIN_AVAILABLE:
             logger.warning("LangChain or related libraries not installed. Quiz generation will not work.")
@@ -67,6 +69,7 @@ class QuizService:
             return
 
         try:
+            self.parser = JsonOutputParser(pydantic_object=Quiz)
             self.llm = ChatGoogleGenerativeAI(
                 model=settings.GEMINI_MODEL,
                 google_api_key=settings.GOOGLE_API_KEY,
