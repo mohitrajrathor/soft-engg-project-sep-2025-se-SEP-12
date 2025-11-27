@@ -199,7 +199,7 @@ export default {
 <style scoped>
 .signup-wrapper {
   background: url('/src/assets/login.jpg') no-repeat center center / cover;
-  min-height: 100dvh; /* ✅ adjusts better with zoom and browser bars */
+  min-height: 100dvh; /* adjusts better with zoom and browser bars */
   width: 100%;
   overflow: hidden;
 }

@@ -1,14 +1,17 @@
 <script setup>
 import { ref, computed } from 'vue'
 import instructorSidebar from '@/components/layout/instructorLayout/instructorSideBar.vue'
+import { api } from '@/api'
+import MarkdownIt from 'markdown-it'
 
+// renderer
+const md = new MarkdownIt()
 
+// Slide state (initial sample slides kept until generation)
 const slides = ref([
-  { id: 1, title: "Introduction to EduSlide Gen", content: "Welcome slide!", order: 1 },
-  { id: 2, title: "Agenda", content: "Topics covered ...", order: 2 },
-  { id: 3, title: "Core Concepts", content: "Explain concepts ...", order: 3 },
-  { id: 4, title: "Example Problems", content: "Practice slides ...", order: 4 },
-  { id: 5, title: "Summary & Next Steps", content: "Wrap up ...", order: 5 }
+  { id: 1, title: "Introduction to EduSlide Gen", content: "# Welcome\nThis is the *welcome* slide.", order: 1 },
+  { id: 2, title: "Agenda", content: "## Agenda\n- Topic A\n- Topic B", order: 2 },
+  { id: 3, title: "Core Concepts", content: "Explain concepts ...", order: 3 }
 ])
 
 const slideOrderOption = ref('all')
@@ -25,6 +28,60 @@ function selectOrder(option) {
 }
 function prevSlide() { if (currentIndex.value > 0) currentIndex.value-- }
 function nextSlide() { if (currentIndex.value < orderedSlides.value.length - 1) currentIndex.value++ }
+
+// Inputs for generation
+const courseId = ref(null)
+const title = ref('')
+const topicsInput = ref([''])
+const numSlides = ref(5)
+const loading = ref(false)
+
+function addTopic() { topicsInput.value.push('') }
+function removeTopic(i) { topicsInput.value.splice(i,1) }
+
+async function generateSlides() {
+  if (!courseId.value || courseId.value <= 0) {
+    alert('Please provide a valid Course ID (numeric).')
+    return
+  }
+  if (!title.value) {
+    alert('Please provide a title for the slide deck.')
+    return
+  }
+  const topics = topicsInput.value.map(t => t.trim()).filter(Boolean)
+  if (topics.length === 0) {
+    alert('Please provide at least one topic.')
+    return
+  }
+
+  loading.value = true
+  try {
+    const payload = {
+      course_id: courseId.value,
+      title: title.value,
+      description: '',
+      topics: topics,
+      num_slides: numSlides.value
+    }
+    const res = await api.post('/slide-decks', payload)
+    // backend returns SlideDeckResponse with `slides` list
+    const deck = res.data
+    if (deck && Array.isArray(deck.slides)) {
+      // normalize to local slide objects
+      slides.value = deck.slides.map((s, idx) => ({ id: s.id ?? idx+1, title: s.title ?? `Slide ${idx+1}`, content: s.content ?? '', order: idx+1 }))
+      currentIndex.value = 0
+      alert('Slide deck generated and saved.')
+    } else {
+      alert('Unexpected response from server.')
+    }
+  } catch (err) {
+    console.error('Slide generation error', err)
+    const msg = err.response?.data?.detail || err.message || 'Failed to generate slides.'
+    alert(msg)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -34,7 +91,6 @@ function nextSlide() { if (currentIndex.value < orderedSlides.value.length - 1) 
     <!-- Main Content -->
     <main class="flex-1 p-10 ml-64">
       <!-- Header -->
-      <instructorSideBar/>
       <!-- <div class="flex items-center justify-between mb-9">
         <h1 class="font-extrabold text-3xl tracking-tight text-indigo-700">Slide Deck Generator</h1>
         <button
@@ -93,8 +149,16 @@ function nextSlide() { if (currentIndex.value < orderedSlides.value.length - 1) 
               <button
                 class="px-3 py-2 rounded bg-blue-50 text-blue-700 font-medium hover:bg-blue-100 transition">Graph</button>
             </div>
-            <textarea v-model="currentSlide.content" class="..." rows="3"
-              placeholder="Type slide content here..."></textarea>
+            <div class="max-w-md w-full">
+              <textarea v-model="currentSlide.content" class="w-full p-3 border rounded-lg resize-y" rows="6"
+                placeholder="Type slide content here..."></textarea>
+
+              <!-- Rendered Markdown Preview for current slide -->
+              <div class="mt-4 p-4 bg-gray-50 rounded">
+                <h3 class="font-semibold mb-2">Preview</h3>
+                <div v-html="md.render(currentSlide.content)"></div>
+              </div>
+            </div>
 
           </div>
           <!-- Live Preview: Slide List (Ordered) -->
@@ -116,6 +180,42 @@ function nextSlide() { if (currentIndex.value < orderedSlides.value.length - 1) 
         </section>
         <!-- Side options -->
         <aside class="w-full max-w-xs flex flex-col gap-8">
+          <!-- Generate Slide Deck (API inputs) -->
+          <div class="bg-white rounded-2xl shadow-2xl p-5">
+            <h3 class="font-bold text-lg mb-3 text-black">Generate Slide Deck</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">Course ID</label>
+                <input v-model.number="courseId" type="number" min="1" placeholder="e.g., 1"
+                  class="w-full p-2 border rounded-lg focus:ring-1 focus:ring-indigo-300" />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">Deck Title</label>
+                <input v-model="title" type="text" placeholder="e.g., Lecture 1: Intro"
+                  class="w-full p-2 border rounded-lg focus:ring-1 focus:ring-indigo-300" />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">Topics</label>
+                <div class="space-y-2">
+                  <div v-for="(t, i) in topicsInput" :key="i" class="flex gap-2">
+                    <input v-model="topicsInput[i]" type="text" placeholder="Topic"
+                      class="flex-1 p-2 border rounded-lg" />
+                    <button @click.prevent="removeTopic(i)" class="px-3 rounded bg-red-100 text-red-600">✕</button>
+                  </div>
+                  <button @click.prevent="addTopic" class="text-indigo-700 text-sm font-medium">+ Add topic</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-1">Number of Slides</label>
+                <input v-model.number="numSlides" type="number" min="1" max="20" class="w-full p-2 border rounded-lg" />
+              </div>
+              <div class="pt-2">
+                <button @click.prevent="generateSlides" :disabled="loading"
+                  class="w-full px-4 py-2 rounded-lg bg-indigo-700 text-white hover:bg-indigo-800 disabled:opacity-60">{{ loading ? 'Generating...' : 'Generate' }}</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Template Selection -->
           <div class="bg-white rounded-2xl shadow-2xl p-5">
             <h3 class="font-bold text-lg mb-4 text-black">Template Selection</h3>

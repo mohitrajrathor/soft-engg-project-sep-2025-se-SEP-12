@@ -33,6 +33,10 @@ from app.api.dashboard import router as dashboard_router
 from app.api.tasks import router as tasks_router
 from app.api.seed import router as seed_router
 from app.api.queries import router as queries_router
+from app.api.course_router import router as course_router
+from app.api.tag_router import router as tag_router
+from app.api.quiz_router import router as quiz_router
+from app.api.slide_deck_router import router as slide_deck_router
 
 
 # ============================================================================
@@ -54,27 +58,6 @@ async def lifespan(app: FastAPI):
     print(f"Database: {settings.DATABASE_URL}")
     init_db()
     print("Database initialized")
-
-    # Initialize Google LLM (if available)
-    if LANGCHAIN_AVAILABLE and settings.GOOGLE_API_KEY:
-        try:
-            app.state.llm = ChatGoogleGenerativeAI(
-                model=settings.GEMINI_MODEL,
-                google_api_key=settings.GOOGLE_API_KEY,
-                temperature=settings.GEMINI_TEMPERATURE,
-                max_output_tokens=settings.GEMINI_MAX_TOKENS,
-                convert_system_message_to_human=True
-            )
-            print(f"[OK] Google Gemini LLM initialized - Model: {settings.GEMINI_MODEL}")
-        except Exception as e:
-            print(f"[WARNING] Failed to initialize Gemini LLM: {e}")
-            app.state.llm = None
-    else:
-        app.state.llm = None
-        if not LANGCHAIN_AVAILABLE:
-            print("[WARNING] LangChain not installed. Chatbot features will be limited.")
-        if not settings.GOOGLE_API_KEY:
-            print("[WARNING] GOOGLE_API_KEY not set. Chatbot features will be limited.")
 
     yield
 
@@ -118,30 +101,30 @@ Most endpoints require authentication using JWT Bearer tokens.
 
 ### Features
 
-#### 🔐 Authentication & Authorization
+#### Authentication & Authorization
 - JWT-based authentication with refresh tokens
 - Role-based access control
 - Secure password hashing with Argon2
 
-#### ❓ Query Management
+#### Query Management
 - Students can post doubts/questions
 - TAs/Instructors can respond and resolve queries
 - Priority levels and status tracking
 - Query analytics and statistics
 
-#### 📚 Resource Management
+#### Resource Management
 - Upload and share educational materials
 - Multiple resource types (videos, PDFs, links, etc.)
 - Access control (public, course-specific, private)
 - Download and view tracking
 
-#### 📢 Announcements
+#### Announcements
 - Institution-wide and course-specific announcements
 - Target specific user roles
 - Urgent/deadline notifications
 - Pin important announcements
 
-#### 👤 User Profiles
+#### User Profiles
 - Extended user information
 - Academic details and interests
 - Activity statistics
@@ -210,7 +193,7 @@ app.include_router(
 # Chatbot routes
 app.include_router(
     chatbot_router,
-    prefix=settings.API_PREFIX,
+    prefix=f"{settings.API_PREFIX}/ai/chatbot",
     tags=["Chatbot"]
 )
 
@@ -242,6 +225,34 @@ app.include_router(
 app.include_router(
     queries_router,
     prefix=settings.API_PREFIX
+)
+
+# Course routes
+app.include_router(
+    course_router,
+    prefix=f"{settings.API_PREFIX}/courses",
+    tags=["Courses"]
+)
+
+# Tag routes
+app.include_router(
+    tag_router,
+    prefix=f"{settings.API_PREFIX}/tags",
+    tags=["Tags"]
+)
+
+# Quiz routes
+app.include_router(
+    quiz_router,
+    prefix=f"{settings.API_PREFIX}/quizzes",
+    tags=["Quizzes"]
+)
+
+# Slide Deck routes
+app.include_router(
+    slide_deck_router,
+    prefix=f"{settings.API_PREFIX}/slide-decks",
+    tags=["Slide Decks"]
 )
 
 # TODO: Add more routers as they are implemented

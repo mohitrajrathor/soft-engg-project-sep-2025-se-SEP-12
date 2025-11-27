@@ -3,7 +3,7 @@
     <div class="max-w-6xl mx-auto">
       <!-- Banner -->
       <div class="rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-700 text-white p-8 mb-8 shadow">
-        <h1 class="text-3xl font-bold mb-2">Welcome back, Admin! 👋</h1>
+        <h1 class="text-3xl font-bold mb-2">Welcome back, Admin! </h1>
         <div class="text-lg">Here's a birds-eye view of your institution for today.</div>
       </div>
 
@@ -43,7 +43,6 @@
               <p class="mt-3 text-gray-500 text-sm">Monitor backlog and escalation rate.</p>
             </div>
           </div>
-
           <!-- Institutional Queries Table -->
           <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center justify-between mb-4">
@@ -158,7 +157,7 @@
             <ul class="text-gray-700 list-disc pl-6 text-sm">
               <li>Resource HUB update added for 'Advanced AI'</li>
               <li>New feature: AI Query Summarizer is now live!</li>
-              <li>Scheduled Maintenance: Nov 10, 12 AM – 2 AM</li>
+              <li>Scheduled Maintenance: Every Sunday, 12 AM – 2 AM</li>
             </ul>
           </div>
         </div>

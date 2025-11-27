@@ -71,7 +71,7 @@ const getSummary = async () => {
 
         <!-- Output Section -->
         <div class="bg-white shadow rounded-2xl p-6">
-          <h2 class="text-lg font-semibold mb-3 text-gray-800">📝 Summary</h2>
+          <h2 class="text-lg font-semibold mb-3 text-gray-800">Summary</h2>
 
           <div v-if="!summary && !isLoading" class="text-gray-400">
             Enter a video link above to get the summary.

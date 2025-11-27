@@ -11,7 +11,7 @@
     <div
       class="relative bg-white/90 backdrop-blur-lg shadow-2xl rounded-3xl p-8 w-full max-w-md flex flex-col items-center space-y-6 border border-gray-100 transition-transform duration-700 hover:scale-[1.02]"
     >
-      <h2 class="text-3xl font-bold text-gray-800">🎯 Study Break Timer</h2>
+      <h2 class="text-3xl font-bold text-gray-800"> Study Break Timer</h2>
       <p class="text-gray-600 text-center text-sm">
         Focus. Breathe. Recharge.
       </p>
@@ -133,7 +133,7 @@ function startTimer() {
       clearInterval(timerInterval);
       isRunning.value = false;
       sessions.value++;
-      alert("⏱️ Time’s up! Take a short break before your next session.");
+      alert("Time’s up! Take a short break before your next session.");
       resetTimer();
     }
   }, 1000);

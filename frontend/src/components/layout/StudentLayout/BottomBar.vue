@@ -83,7 +83,7 @@ const sendMessage = () => {
   nextTick(() => autoResize());
 };
 
-// ✅ Auto-resize logic
+// Auto-resize logic
 const autoResize = () => {
   const el = textareaRef.value;
   if (!el) return;
