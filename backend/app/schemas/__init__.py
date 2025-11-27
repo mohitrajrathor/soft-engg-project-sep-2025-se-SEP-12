@@ -36,6 +36,14 @@ from .profile_schema import (
     ProfileResponse,
 )
 
+from .doubts import (
+    DoubtMessageCreate,
+    DoubtUploadCreate,
+    DoubtTopic,
+    DoubtSummaryResponse,
+    DoubtInsightsResponse
+)
+
 __all__ = [
     # User schemas
     "UserCreate",
@@ -64,3 +72,6 @@ __all__ = [
     "ProfileUpdate",
     "ProfileResponse",
 ]
+
+
+
