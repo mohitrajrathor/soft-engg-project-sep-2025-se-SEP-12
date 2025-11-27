@@ -252,6 +252,27 @@ require_ta = RoleChecker([UserRole.TA, UserRole.INSTRUCTOR, UserRole.ADMIN])
 require_authenticated = get_current_active_user
 
 
+def require_role(allowed_roles: list[UserRole]):
+    """
+    Create a role-based access control dependency.
+
+    This function creates a dependency that checks if the current user
+    has one of the required roles.
+
+    Args:
+        allowed_roles: List of roles that are allowed access
+
+    Returns:
+        Callable: Dependency function that checks user role
+
+    Usage:
+        @app.get("/admin/analytics")
+        async def get_analytics(current_user: User = Depends(require_role([UserRole.ADMIN]))):
+            return {"data": [...]}
+    """
+    return RoleChecker(allowed_roles)
+
+
 # ============================================================================
 # Custom Permission Dependencies
 # ============================================================================

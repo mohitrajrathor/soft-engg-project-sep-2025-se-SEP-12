@@ -15,7 +15,9 @@ try:
 except ImportError:
     LANGCHAIN_AVAILABLE = False
     BaseModel = object
-    Field = object
+    # Create a fallback Field that accepts any arguments but does nothing
+    def Field(*args, **kwargs):
+        return None
     ChatGoogleGenerativeAI = None
     JsonOutputParser = None
     PromptTemplate = None
@@ -45,7 +47,7 @@ class SlideDeckService:
     def __init__(self):
         """Initializes the Slide Deck Service."""
         self.llm = None
-        self.parser = JsonOutputParser(pydantic_object=SlideDeck)
+        self.parser = None
 
         if not LANGCHAIN_AVAILABLE:
             logger.warning("LangChain not installed. Slide deck generation will be disabled.")
@@ -56,6 +58,7 @@ class SlideDeckService:
             return
 
         try:
+            self.parser = JsonOutputParser(pydantic_object=SlideDeck)
             self.llm = ChatGoogleGenerativeAI(
                 model=settings.GEMINI_MODEL,
                 google_api_key=settings.GOOGLE_API_KEY,

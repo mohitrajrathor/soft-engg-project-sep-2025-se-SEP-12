@@ -32,11 +32,13 @@ from app.api.knowledge import router as knowledge_router
 from app.api.dashboard import router as dashboard_router
 from app.api.tasks import router as tasks_router
 from app.api.seed import router as seed_router
+from app.api.seed_enhanced import router as seed_enhanced_router
 from app.api.queries import router as queries_router
 from app.api.course_router import router as course_router
 from app.api.tag_router import router as tag_router
 from app.api.quiz_router import router as quiz_router
 from app.api.slide_deck_router import router as slide_deck_router
+from app.api.analytics import router as analytics_router
 
 
 # ============================================================================
@@ -221,9 +223,21 @@ app.include_router(
     prefix=settings.API_PREFIX
 )
 
+# Enhanced Seed Data routes (for comprehensive testing)
+app.include_router(
+    seed_enhanced_router,
+    prefix=settings.API_PREFIX
+)
+
 # Queries routes
 app.include_router(
     queries_router,
+    prefix=settings.API_PREFIX
+)
+
+# Analytics routes (Admin dashboard)
+app.include_router(
+    analytics_router,
     prefix=settings.API_PREFIX
 )
 
