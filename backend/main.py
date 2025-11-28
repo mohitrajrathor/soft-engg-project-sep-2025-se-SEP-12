@@ -39,6 +39,7 @@ from app.api.tag_router import router as tag_router
 from app.api.quiz_router import router as quiz_router
 from app.api.slide_deck_router import router as slide_deck_router
 from app.api.analytics import router as analytics_router
+from app.api.instructor_analytics import router as instructor_analytics_router
 
 
 # ============================================================================
@@ -238,6 +239,12 @@ app.include_router(
 # Analytics routes (Admin dashboard)
 app.include_router(
     analytics_router,
+    prefix=settings.API_PREFIX
+)
+
+# Instructor Analytics routes (Discussion summaries, sentiment)
+app.include_router(
+    instructor_analytics_router,
     prefix=settings.API_PREFIX
 )
 
