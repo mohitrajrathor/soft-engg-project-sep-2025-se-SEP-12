@@ -35,6 +35,7 @@ async def generate_and_save_quiz(
 ):
     """
     Generates a new quiz using the AI service and saves it to the database.
+    If publish_mode is 'auto', the quiz is immediately published.
     """
     course = db.query(Course).filter(Course.id == request.course_id).first() # type: ignore
     if not course:
@@ -52,6 +53,9 @@ async def generate_and_save_quiz(
     if "error" in generated_questions:
         raise HTTPException(status_code=500, detail=f"AI service error: {generated_questions.get('error')}")
 
+    # Determine if quiz should be auto-published
+    is_published = request.publish_mode == "auto"
+
     # Save the generated quiz to the database
     db_quiz = Quiz(
         title=request.title,
@@ -59,6 +63,9 @@ async def generate_and_save_quiz(
         course_id=request.course_id,
         created_by_id=current_user.id,
         questions=generated_questions,
+        use_latex=request.use_latex,
+        publish_mode=request.publish_mode,
+        is_published=is_published,
     )
     db.add(db_quiz)
     db.commit()
@@ -165,6 +172,59 @@ def submit_quiz_attempt(
     )
 
     return db_attempt
+
+
+@router.post(
+    "/{quiz_id}/publish",
+    response_model=QuizResponse,
+    summary="Publish a quiz (Creator only, manual review mode)",
+)
+def publish_quiz(
+    quiz_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_ta),
+):
+    """
+    Publishes a quiz with manual review mode. Only the creator can publish.
+    Auto-published quizzes are already published at generation time.
+    """
+    db_quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first() # type: ignore
+    if not db_quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+    
+    if db_quiz.created_by_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only publish quizzes you have created.")
+    
+    db_quiz.is_published = True
+    db.commit()
+    db.refresh(db_quiz)
+    return db_quiz
+
+
+@router.post(
+    "/{quiz_id}/unpublish",
+    response_model=QuizResponse,
+    summary="Unpublish a quiz (Creator only)",
+)
+def unpublish_quiz(
+    quiz_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_ta),
+):
+    """
+    Unpublishes a quiz. Only the creator can unpublish.
+    """
+    db_quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first() # type: ignore
+    if not db_quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+    
+    if db_quiz.created_by_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only unpublish quizzes you have created.")
+    
+    db_quiz.is_published = False
+    db.commit()
+    db.refresh(db_quiz)
+    return db_quiz
 
 
 @router.delete("/{quiz_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a quiz (Creator only)")

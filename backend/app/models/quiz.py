@@ -2,7 +2,7 @@
 SQLAlchemy ORM model for Quiz.
 """
 
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, JSON
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, JSON, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -18,6 +18,9 @@ class Quiz(Base):
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     questions = Column(JSON, nullable=False)
+    use_latex = Column(Boolean, nullable=False, default=False)
+    publish_mode = Column(String(50), nullable=False, default="manual")
+    is_published = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

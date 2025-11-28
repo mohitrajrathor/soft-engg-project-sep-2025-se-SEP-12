@@ -1,19 +1,18 @@
 <template>
-  <div class="flex">
-    <div class="fixed top-0 left-0 h-screen w-[250px]">
+  <div class="d-flex">
+    <div class="fixed top-0 left-0 h-screen w-64">
       <InstructorSidebar />
     </div>
 
-    <main class="flex-1 flex flex-col min-h-screen ml-[250px] bg-gray-50 ml-64">
+    <main class="flex-1 flex flex-col min-h-screen ml-64 bg-gray-50">
       <div class="p-8">
         <div class="flex justify-between items-center mb-6">
-          <h1 class="text-3xl font-bold text-[#0d1b2a]">All Quizzes</h1>
-          <button
-            @click="router.push('/instructor/quizzes/generate')"
+          <h1 class="text-3xl font-bold text-[#0d1b2a]">All Generated Quizzes</h1>
+          <router-link to="/instructor/assessment-generator"
             class="bg-[#0d1b2a] text-white px-4 py-2 rounded hover:bg-[#1b263b] transition"
           >
             <i class="bi bi-plus-circle mr-2"></i>Create New Quiz
-          </button>
+          </router-link>
         </div>
 
         <!-- Search and Filter -->
@@ -46,36 +45,61 @@
             :key="quiz.id"
             class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition"
           >
-            <h3 class="text-xl font-semibold text-[#0d1b2a] mb-2">{{ quiz.title }}</h3>
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="text-xl font-semibold text-[#0d1b2a]">{{ quiz.title }}</h3>
+              <span v-if="quiz.is_published" class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">Published</span>
+              <span v-else class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">Draft</span>
+            </div>
             <p class="text-gray-600 text-sm mb-4">{{ quiz.description || 'No description' }}</p>
             
             <div class="text-sm text-gray-500 space-y-1 mb-4">
               <p><strong>Course ID:</strong> {{ quiz.course_id }}</p>
               <p><strong>Questions:</strong> {{ quiz.questions?.questions?.length || 0 }}</p>
+              <p><strong>Mode:</strong> {{ quiz.publish_mode === 'auto' ? 'Auto Publish' : 'Manual Review' }}</p>
               <p><strong>Created:</strong> {{ formatDate(quiz.created_at) }}</p>
             </div>
 
             <div class="flex space-x-2">
-              <button
-                @click="viewQuiz(quiz.id)"
-                class="flex-1 bg-[#0d1b2a] text-white px-3 py-2 rounded text-sm hover:bg-[#1b263b] transition"
+              <router-link 
+                :to="`/instructor/quiz-details/${quiz.id}`"
+                class="flex-1 bg-[#0d1b2a] text-white px-3 py-2 rounded text-sm hover:bg-[#1b263b] transition text-center"
               >
                 View
+              </router-link>
+              <button
+                v-if="!quiz.is_published"
+                @click="publishQuiz(quiz.id)"
+                class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 transition"
+                :disabled="publishingId === quiz.id"
+              >
+                {{ publishingId === quiz.id ? 'Publishing...' : 'Publish' }}
               </button>
               <button
-                v-if="quiz.creator.id === currentUserId"
+                v-if="quiz.is_published"
+                @click="unpublishQuiz(quiz.id)"
+                class="bg-orange-600 text-white px-3 py-2 rounded text-sm hover:bg-orange-700 transition"
+                :disabled="unpublishingId === quiz.id"
+              >
+                {{ unpublishingId === quiz.id ? 'Unpublishing...' : 'Unpublish' }}
+              </button>
+              <button
                 @click="deleteQuiz(quiz.id)"
                 class="bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600 transition"
+                :disabled="deletingId === quiz.id"
               >
-                Delete
+                {{ deletingId === quiz.id ? 'Deleting...' : 'Delete' }}
               </button>
             </div>
           </div>
         </div>
 
         <!-- Empty State -->
-        <div v-else class="text-center py-12">
-          <p class="text-gray-500">No quizzes found.</p>
+        <div v-else class="text-center py-12 bg-white rounded-lg border border-gray-200">
+          <i class="bi bi-inbox text-6xl text-gray-300 mb-4 block"></i>
+          <p class="text-gray-500 mb-4">No quizzes found.</p>
+          <router-link to="/instructor/assessment-generator" class="text-[#0d1b2a] font-semibold hover:underline">
+            Create your first quiz →
+          </router-link>
         </div>
       </div>
     </main>
@@ -93,11 +117,15 @@ const quizzes = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
 const filterCourseId = ref(null);
-const currentUserId = ref(null); // Set from auth state
+const currentUserId = ref(null);
+
+const publishingId = ref(null);
+const unpublishingId = ref(null);
+const deletingId = ref(null);
 
 onMounted(() => {
   fetchQuizzes();
-  // Get current user ID from your auth store/composable
+  // Get current user ID from your auth store
   // currentUserId.value = useAuthStore().user.id;
 });
 
@@ -118,13 +146,38 @@ const fetchQuizzes = async () => {
   }
 };
 
-const viewQuiz = (quizId) => {
-  router.push(`/instructor/quizzes/${quizId}`);
+const publishQuiz = async (quizId) => {
+  publishingId.value = quizId;
+  try {
+    await api.post(`/quizzes/${quizId}/publish`);
+    await fetchQuizzes();
+    alert('Quiz published successfully');
+  } catch (err) {
+    console.error('Publish quiz error:', err);
+    alert('Failed to publish quiz');
+  } finally {
+    publishingId.value = null;
+  }
+};
+
+const unpublishQuiz = async (quizId) => {
+  unpublishingId.value = quizId;
+  try {
+    await api.post(`/quizzes/${quizId}/unpublish`);
+    await fetchQuizzes();
+    alert('Quiz unpublished successfully');
+  } catch (err) {
+    console.error('Unpublish quiz error:', err);
+    alert('Failed to unpublish quiz');
+  } finally {
+    unpublishingId.value = null;
+  }
 };
 
 const deleteQuiz = async (quizId) => {
   if (!confirm('Are you sure you want to delete this quiz?')) return;
 
+  deletingId.value = quizId;
   try {
     await api.delete(`/quizzes/${quizId}`);
     quizzes.value = quizzes.value.filter(q => q.id !== quizId);
@@ -132,6 +185,8 @@ const deleteQuiz = async (quizId) => {
   } catch (err) {
     console.error('Delete quiz error:', err);
     alert('Failed to delete quiz');
+  } finally {
+    deletingId.value = null;
   }
 };
 

@@ -3,6 +3,8 @@ import InstructorDashboard from '../components/instructor/InstructorDashboard.vu
 import InstructorDiscussionSummaries from '../components/instructor/InstructorDiscussionSummaries.vue'
 import InstructorSlideGenerator from '../components/instructor/InstructorSlideGenerator.vue'
 import InstructorProfile from '../components/instructor/InstructorProfile.vue'
+import QuizDetails from '../components/instructor/QuizDetail.vue'
+import QuizList from '../components/instructor/QuizList.vue'
 
 export default {
   path: '/instructor',
@@ -11,7 +13,8 @@ export default {
     { path: 'assessment-generator', name: 'InstructorAssessmentGenerator', component: InstructorAssessmentGenerator },
     { path: 'discussion-summaries', name: 'InstructorDiscussionSummaries', component: InstructorDiscussionSummaries },
     { path: 'slide-generator', name: 'InstructorSlideGenerator', component: InstructorSlideGenerator},
+    { path: 'quiz-list', name: 'QuizList', component: QuizList },
+    { path: 'quiz-details/:id', name: 'QuizDetails', component: QuizDetails },
     { path: 'profile', name: 'InstructorProfile', component: InstructorProfile },
-    
   ],
 }
