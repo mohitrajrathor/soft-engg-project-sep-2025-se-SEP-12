@@ -847,4 +847,3 @@ async def get_user_context(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get user context: {str(e)}"
         )
-
