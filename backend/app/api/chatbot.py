@@ -2,12 +2,13 @@
 Chatbot API endpoints with streaming support.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.models.user import User
+from app.models.chat_session import ChatSession
 from app.schemas.chatbot_schema import ChatRequest, ChatResponse, ChatMode
 from app.api.dependencies import get_current_user
 from app.services.chatbot_service_hybrid import hybrid_chatbot_service as chatbot_service
@@ -17,6 +18,105 @@ from typing import Optional, List, Dict, Any
 import uuid
 import traceback
 import logging
+
+
+def get_or_create_chat_session(
+    db: Session,
+    conversation_id: Optional[str],
+    user: User,
+    request: Request = None,
+    metadata: Dict[str, Any] = None
+) -> ChatSession:
+    """
+    Get existing chat session or create a new one.
+
+    Args:
+        db: Database session
+        conversation_id: Optional conversation ID to look up
+        user: Current user
+        request: FastAPI request object for IP/device info
+        metadata: Additional metadata to store
+
+    Returns:
+        ChatSession object
+    """
+    # Try to find existing session by conversation_id in metadata
+    # Use a SQLite-compatible approach by iterating through recent sessions
+    if conversation_id:
+        try:
+            # Get recent sessions for this user and check metadata
+            recent_sessions = db.query(ChatSession).order_by(
+                ChatSession.updated_at.desc()
+            ).limit(50).all()
+
+            for session in recent_sessions:
+                if session.metadata_ and session.metadata_.get("conversation_id") == conversation_id:
+                    # Update the session's updated_at timestamp
+                    session.updated_at = datetime.utcnow()
+                    db.commit()
+                    return session
+        except Exception as e:
+            logging.warning(f"Error searching for existing chat session: {e}")
+
+    # Create new session
+    ip_address = None
+    device_info = None
+
+    if request:
+        ip_address = request.client.host if request.client else None
+        device_info = request.headers.get("user-agent", "")[:500]
+
+    session_metadata = metadata or {}
+    session_metadata["user_id"] = user.id
+    session_metadata["user_email"] = user.email
+    session_metadata["user_role"] = user.role.value if hasattr(user.role, 'value') else str(user.role)
+
+    if conversation_id:
+        session_metadata["conversation_id"] = conversation_id
+
+    new_session = ChatSession(
+        ip_address=ip_address,
+        device_info=device_info,
+        language="en",
+        metadata_=session_metadata
+    )
+    db.add(new_session)
+    db.commit()
+    db.refresh(new_session)
+
+    return new_session
+
+
+def update_chat_session(
+    db: Session,
+    session: ChatSession,
+    message: str,
+    response: str,
+    conversation_id: str = None
+):
+    """
+    Update chat session with new message interaction.
+
+    Args:
+        db: Database session
+        session: ChatSession to update
+        message: User's message
+        response: AI's response
+        conversation_id: Conversation ID
+    """
+    # Update metadata with message count
+    current_metadata = session.metadata_ or {}
+    message_count = current_metadata.get("message_count", 0) + 1
+    current_metadata["message_count"] = message_count
+    current_metadata["last_message"] = message[:200]  # Store truncated last message
+    current_metadata["last_response_preview"] = response[:200] if response else ""
+
+    if conversation_id:
+        current_metadata["conversation_id"] = conversation_id
+
+    session.metadata_ = current_metadata
+    session.updated_at = datetime.utcnow()
+    db.commit()
 
 
 chatbot_router = APIRouter(tags=["Chatbot"])
@@ -33,6 +133,7 @@ chatbot_router = APIRouter(tags=["Chatbot"])
     - Conversation memory (maintains context)
     - Multiple chat modes (academic, general, study help, doubt clarification)
     - Powered by Google Gemini AI
+    - Automatically saves chat session to database
 
     **Example:**
     ```json
@@ -45,7 +146,8 @@ chatbot_router = APIRouter(tags=["Chatbot"])
     """
 )
 async def chat(
-    request: ChatRequest,
+    chat_request: ChatRequest,
+    http_request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -55,11 +157,29 @@ async def chat(
     Requires authentication.
     """
     try:
+        # Get or create chat session
+        chat_session = get_or_create_chat_session(
+            db=db,
+            conversation_id=chat_request.conversation_id,
+            user=current_user,
+            request=http_request,
+            metadata={"mode": chat_request.mode.value if chat_request.mode else "general"}
+        )
+
         # Generate response
         response, conv_id = await chatbot_service.chat(
-            message=request.message,
-            conversation_id=request.conversation_id,
-            mode=request.mode
+            message=chat_request.message,
+            conversation_id=chat_request.conversation_id,
+            mode=chat_request.mode
+        )
+
+        # Update chat session with the interaction
+        update_chat_session(
+            db=db,
+            session=chat_session,
+            message=chat_request.message,
+            response=response,
+            conversation_id=conv_id
         )
 
         return ChatResponse(
@@ -294,6 +414,7 @@ class EnhancedChatResponse(BaseModel):
     - Knowledge base search for accurate, sourced information
     - User context (role, history, previous queries)
     - Personalized responses based on user profile
+    - Automatically saves chat session to database
 
     **Features:**
     - Retrieval Augmented Generation (RAG) using knowledge base
@@ -303,7 +424,8 @@ class EnhancedChatResponse(BaseModel):
     """
 )
 async def chat_enhanced(
-    request: EnhancedChatRequest,
+    enhanced_request: EnhancedChatRequest,
+    http_request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -314,12 +436,25 @@ async def chat_enhanced(
     and provides context-aware responses personalized to the user.
     """
     try:
+        # Get or create chat session
+        chat_session = get_or_create_chat_session(
+            db=db,
+            conversation_id=enhanced_request.conversation_id,
+            user=current_user,
+            request=http_request,
+            metadata={
+                "mode": enhanced_request.mode.value if enhanced_request.mode else "academic",
+                "use_knowledge_base": enhanced_request.use_knowledge_base,
+                "endpoint": "enhanced"
+            }
+        )
+
         response = await chatbot_service.chat_with_context(
             db=db,
             user=current_user,
-            message=request.message,
-            conversation_id=request.conversation_id,
-            use_knowledge_base=request.use_knowledge_base
+            message=enhanced_request.message,
+            conversation_id=enhanced_request.conversation_id,
+            use_knowledge_base=enhanced_request.use_knowledge_base
         )
 
         # Validate response structure
@@ -331,6 +466,15 @@ async def chat_enhanced(
 
         if "conversation_id" not in response:
             raise ValueError("Service response missing 'conversation_id' field")
+
+        # Update chat session with the interaction
+        update_chat_session(
+            db=db,
+            session=chat_session,
+            message=enhanced_request.message,
+            response=response["answer"],
+            conversation_id=response["conversation_id"]
+        )
 
         return EnhancedChatResponse(
             answer=response["answer"],
@@ -347,7 +491,7 @@ async def chat_enhanced(
         traceback.print_exc()
 
         # Return a friendly error response instead of 500
-        conversation_id = request.conversation_id or f"conv-{uuid.uuid4().hex[:12]}"
+        conversation_id = enhanced_request.conversation_id or f"conv-{uuid.uuid4().hex[:12]}"
         return EnhancedChatResponse(
             answer="I apologize, but I'm having trouble processing your request right now. Please try asking a different question or try again in a moment.",
             conversation_id=conversation_id,

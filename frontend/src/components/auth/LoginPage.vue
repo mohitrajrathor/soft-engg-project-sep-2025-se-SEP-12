@@ -7,7 +7,7 @@
         <div class="text-content">
           <h1>Welcome to AURA</h1>
           <p class="lead">
-            Your personalized academic assistant — track, analyze, and enhance your learning journey.
+            Your personalized academic assistant for track, analyze, and enhance your learning journey.
           </p>
           <p class="small">
             Designed for IITM BS students.
