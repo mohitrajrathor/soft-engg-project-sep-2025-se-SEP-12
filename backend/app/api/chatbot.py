@@ -5,6 +5,7 @@ Chatbot API endpoints with streaming support.
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.core.db import get_db
 from app.models.user import User
@@ -20,45 +21,144 @@ import traceback
 import logging
 
 
-def get_or_create_chat_session(
+def get_user_previous_conversations(
     db: Session,
-    conversation_id: Optional[str],
     user: User,
-    request: Request = None,
-    metadata: Dict[str, Any] = None
-) -> ChatSession:
+    limit: int = 10
+) -> List[Dict[str, Any]]:
     """
-    Get existing chat session or create a new one.
+    Get summaries of user's previous conversations from chat_sessions.
 
     Args:
         db: Database session
-        conversation_id: Optional conversation ID to look up
         user: Current user
+        limit: Maximum number of previous sessions to fetch
+
+    Returns:
+        List of previous conversation summaries
+    """
+    previous_conversations = []
+
+    try:
+        # Get all chat sessions for this user
+        all_sessions = db.query(ChatSession).order_by(
+            ChatSession.updated_at.desc()
+        ).all()
+
+        for session in all_sessions:
+            if session.metadata_:
+                session_user_id = session.metadata_.get("user_id")
+                session_user_email = session.metadata_.get("user_email")
+
+                # Check if this session belongs to the current user
+                if session_user_id == user.id or session_user_email == user.email:
+                    summary = session.metadata_.get("summary", "")
+                    messages = session.metadata_.get("messages", [])
+                    message_count = session.metadata_.get("message_count", 0)
+
+                    if summary or messages:  # Only include sessions with content
+                        previous_conversations.append({
+                            "conversation_id": session.metadata_.get("conversation_id", "unknown"),
+                            "summary": summary,
+                            "message_count": message_count,
+                            "started_at": session.metadata_.get("started_at", ""),
+                            "last_message_at": session.metadata_.get("last_message_at", ""),
+                            "recent_topics": [
+                                msg.get("content", "")[:100]
+                                for msg in messages[-4:]
+                                if msg.get("role") == "user"
+                            ]
+                        })
+
+                    if len(previous_conversations) >= limit:
+                        break
+
+    except Exception as e:
+        logging.warning(f"Error fetching previous conversations: {e}")
+
+    return previous_conversations
+
+
+def build_personalization_context(previous_conversations: List[Dict[str, Any]]) -> str:
+    """
+    Build personalization context string from previous conversations.
+
+    Args:
+        previous_conversations: List of previous conversation data
+
+    Returns:
+        Formatted context string for LLM
+    """
+    if not previous_conversations:
+        return ""
+
+    context_parts = [
+        "\n=== USER'S PREVIOUS CONVERSATION HISTORY ===",
+        f"This user has {len(previous_conversations)} previous chat sessions with you.",
+        "Here are summaries of their past conversations:\n"
+    ]
+
+    for idx, conv in enumerate(previous_conversations[:5], 1):  # Limit to 5 for context length
+        context_parts.append(f"Session {idx}:")
+        if conv.get("summary"):
+            context_parts.append(f"  Summary: {conv['summary']}")
+        if conv.get("recent_topics"):
+            context_parts.append(f"  Topics discussed: {', '.join(conv['recent_topics'][:3])}")
+        if conv.get("message_count"):
+            context_parts.append(f"  Messages exchanged: {conv['message_count']}")
+        context_parts.append("")
+
+    context_parts.append(
+        "Use this history to personalize your responses. "
+        "Reference past discussions when relevant. "
+        "Remember the user's interests and learning patterns.\n"
+    )
+
+    return "\n".join(context_parts)
+
+
+def get_or_create_chat_session(
+    db: Session,
+    user: User,
+    conversation_id: Optional[str],
+    request: Request = None
+) -> ChatSession:
+    """
+    Get existing chat session for a conversation or create a new one.
+
+    - Same user + same conversation_id = return existing session
+    - Same user + new/different conversation_id = create new session
+    - Each session stores conversation summary in metadata
+
+    Args:
+        db: Database session
+        user: Current user
+        conversation_id: Conversation ID to track
         request: FastAPI request object for IP/device info
-        metadata: Additional metadata to store
 
     Returns:
         ChatSession object
     """
-    # Try to find existing session by conversation_id in metadata
-    # Use a SQLite-compatible approach by iterating through recent sessions
+    # If we have a conversation_id, try to find existing session for it
     if conversation_id:
         try:
-            # Get recent sessions for this user and check metadata
-            recent_sessions = db.query(ChatSession).order_by(
+            all_sessions = db.query(ChatSession).order_by(
                 ChatSession.updated_at.desc()
-            ).limit(50).all()
+            ).all()
 
-            for session in recent_sessions:
-                if session.metadata_ and session.metadata_.get("conversation_id") == conversation_id:
-                    # Update the session's updated_at timestamp
-                    session.updated_at = datetime.utcnow()
-                    db.commit()
-                    return session
+            for session in all_sessions:
+                if session.metadata_:
+                    session_conv_id = session.metadata_.get("conversation_id")
+                    session_user_id = session.metadata_.get("user_id")
+
+                    # Found existing session for this conversation and user
+                    if session_conv_id == conversation_id and session_user_id == user.id:
+                        return session
+
         except Exception as e:
             logging.warning(f"Error searching for existing chat session: {e}")
 
-    # Create new session
+    # Create new session for this conversation
     ip_address = None
     device_info = None
 
@@ -66,13 +166,16 @@ def get_or_create_chat_session(
         ip_address = request.client.host if request.client else None
         device_info = request.headers.get("user-agent", "")[:500]
 
-    session_metadata = metadata or {}
-    session_metadata["user_id"] = user.id
-    session_metadata["user_email"] = user.email
-    session_metadata["user_role"] = user.role.value if hasattr(user.role, 'value') else str(user.role)
-
-    if conversation_id:
-        session_metadata["conversation_id"] = conversation_id
+    session_metadata = {
+        "user_id": user.id,
+        "user_email": user.email,
+        "user_role": user.role.value if hasattr(user.role, 'value') else str(user.role),
+        "conversation_id": conversation_id,
+        "started_at": datetime.utcnow().isoformat(),
+        "message_count": 0,
+        "messages": [],  # Store conversation messages
+        "summary": ""    # Will store conversation summary
+    }
 
     new_session = ChatSession(
         ip_address=ip_address,
@@ -84,39 +187,72 @@ def get_or_create_chat_session(
     db.commit()
     db.refresh(new_session)
 
+    logging.info(f"New chat session created for user: {user.email}, conversation: {conversation_id}")
     return new_session
 
 
-def update_chat_session(
+def update_chat_session_with_message(
     db: Session,
     session: ChatSession,
-    message: str,
-    response: str,
+    user_message: str,
+    ai_response: str,
     conversation_id: str = None
 ):
     """
-    Update chat session with new message interaction.
+    Update chat session with new message and generate summary.
 
     Args:
         db: Database session
         session: ChatSession to update
-        message: User's message
-        response: AI's response
+        user_message: User's message
+        ai_response: AI's response
         conversation_id: Conversation ID
     """
-    # Update metadata with message count
-    current_metadata = session.metadata_ or {}
-    message_count = current_metadata.get("message_count", 0) + 1
-    current_metadata["message_count"] = message_count
-    current_metadata["last_message"] = message[:200]  # Store truncated last message
-    current_metadata["last_response_preview"] = response[:200] if response else ""
+    try:
+        current_metadata = session.metadata_ or {}
 
-    if conversation_id:
-        current_metadata["conversation_id"] = conversation_id
+        # Update message count
+        message_count = current_metadata.get("message_count", 0) + 1
+        current_metadata["message_count"] = message_count
 
-    session.metadata_ = current_metadata
-    session.updated_at = datetime.utcnow()
-    db.commit()
+        # Store messages (keep last 10 for summary)
+        messages = current_metadata.get("messages", [])
+        messages.append({
+            "role": "user",
+            "content": user_message[:500],  # Truncate long messages
+            "timestamp": datetime.utcnow().isoformat()
+        })
+        messages.append({
+            "role": "assistant",
+            "content": ai_response[:500],  # Truncate long responses
+            "timestamp": datetime.utcnow().isoformat()
+        })
+        # Keep only last 20 messages (10 exchanges)
+        current_metadata["messages"] = messages[-20:]
+
+        # Generate conversation summary
+        summary_parts = []
+        for msg in messages[-6:]:  # Last 3 exchanges for summary
+            if msg["role"] == "user":
+                summary_parts.append(f"Q: {msg['content'][:100]}")
+
+        current_metadata["summary"] = " | ".join(summary_parts) if summary_parts else "Conversation started"
+        current_metadata["last_message_at"] = datetime.utcnow().isoformat()
+
+        if conversation_id:
+            current_metadata["conversation_id"] = conversation_id
+
+        session.metadata_ = current_metadata
+        session.updated_at = datetime.utcnow()
+
+        # Tell SQLAlchemy that the JSON field has been modified
+        flag_modified(session, "metadata_")
+
+        db.commit()
+        logging.info(f"Chat session updated: {message_count} messages for conversation {conversation_id}")
+    except Exception as e:
+        logging.error(f"Failed to update chat session: {e}")
+        db.rollback()
 
 
 chatbot_router = APIRouter(tags=["Chatbot"])
@@ -157,28 +293,48 @@ async def chat(
     Requires authentication.
     """
     try:
-        # Get or create chat session
-        chat_session = get_or_create_chat_session(
+        # Get user's previous conversation history for personalization
+        previous_conversations = get_user_previous_conversations(
             db=db,
-            conversation_id=chat_request.conversation_id,
             user=current_user,
-            request=http_request,
-            metadata={"mode": chat_request.mode.value if chat_request.mode else "general"}
+            limit=5
         )
+
+        # Build personalization context
+        personalization_context = build_personalization_context(previous_conversations)
+
+        # Enhance message with personalization context if user has history
+        enhanced_message = chat_request.message
+        if personalization_context:
+            enhanced_message = f"""{personalization_context}
+
+=== Current Message ===
+{chat_request.message}
+
+Remember to personalize your response based on the user's conversation history above."""
 
         # Generate response
         response, conv_id = await chatbot_service.chat(
-            message=chat_request.message,
+            message=enhanced_message,
             conversation_id=chat_request.conversation_id,
             mode=chat_request.mode
         )
 
-        # Update chat session with the interaction
-        update_chat_session(
+        # Get or create chat session for this conversation
+        # New conversation = new session, same conversation = same session
+        chat_session = get_or_create_chat_session(
+            db=db,
+            user=current_user,
+            conversation_id=conv_id,
+            request=http_request
+        )
+
+        # Update session with message and summary
+        update_chat_session_with_message(
             db=db,
             session=chat_session,
-            message=chat_request.message,
-            response=response,
+            user_message=chat_request.message,  # Store original message, not enhanced
+            ai_response=response,
             conversation_id=conv_id
         )
 
@@ -434,25 +590,31 @@ async def chat_enhanced(
 
     This endpoint searches the knowledge base for relevant information
     and provides context-aware responses personalized to the user.
+    It also includes the user's previous conversation history for personalization.
     """
     try:
-        # Get or create chat session
-        chat_session = get_or_create_chat_session(
+        # Get user's previous conversation history for personalization
+        previous_conversations = get_user_previous_conversations(
             db=db,
-            conversation_id=enhanced_request.conversation_id,
             user=current_user,
-            request=http_request,
-            metadata={
-                "mode": enhanced_request.mode.value if enhanced_request.mode else "academic",
-                "use_knowledge_base": enhanced_request.use_knowledge_base,
-                "endpoint": "enhanced"
-            }
+            limit=5
         )
+
+        # Build personalization context from previous conversations
+        personalization_context = build_personalization_context(previous_conversations)
+
+        # Enhance message with personalization context
+        enhanced_message = enhanced_request.message
+        if personalization_context:
+            enhanced_message = f"""{personalization_context}
+
+=== Current Question ===
+{enhanced_request.message}"""
 
         response = await chatbot_service.chat_with_context(
             db=db,
             user=current_user,
-            message=enhanced_request.message,
+            message=enhanced_message,
             conversation_id=enhanced_request.conversation_id,
             use_knowledge_base=enhanced_request.use_knowledge_base
         )
@@ -467,18 +629,29 @@ async def chat_enhanced(
         if "conversation_id" not in response:
             raise ValueError("Service response missing 'conversation_id' field")
 
-        # Update chat session with the interaction
-        update_chat_session(
+        conv_id = response["conversation_id"]
+
+        # Get or create chat session for this conversation
+        # New conversation = new session, same conversation = same session
+        chat_session = get_or_create_chat_session(
+            db=db,
+            user=current_user,
+            conversation_id=conv_id,
+            request=http_request
+        )
+
+        # Update session with message and summary
+        update_chat_session_with_message(
             db=db,
             session=chat_session,
-            message=enhanced_request.message,
-            response=response["answer"],
-            conversation_id=response["conversation_id"]
+            user_message=enhanced_request.message,
+            ai_response=response["answer"],
+            conversation_id=conv_id
         )
 
         return EnhancedChatResponse(
             answer=response["answer"],
-            conversation_id=response["conversation_id"],
+            conversation_id=conv_id,
             knowledge_sources_used=response.get("knowledge_sources_used", 0),
             sources=response.get("sources", []),
             user_context=response.get("user_context", {}),
