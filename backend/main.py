@@ -41,7 +41,7 @@ from app.api.quiz_router import router as quiz_router
 from app.api.slide_deck_router import router as slide_deck_router
 from app.api.analytics import router as analytics_router
 from app.api.instructor_analytics import router as instructor_analytics_router
-
+from app.api import video_router
 
 # ============================================================================
 # Application Lifecycle Management
@@ -281,6 +281,11 @@ app.include_router(
     prefix=f"{settings.API_PREFIX}/slide-decks",
     tags=["Slide Decks"]
 )
+# Video Summary routes
+app.include_router(
+    video_router.router, 
+    prefix="/api/video", 
+    tags=["Video"])
 
 # TODO: Add more routers as they are implemented
 # from app.api.resources import resources_router
