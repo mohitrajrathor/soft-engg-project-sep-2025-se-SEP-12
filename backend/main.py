@@ -194,10 +194,13 @@ app.include_router(
     tags=["Authentication"]
 )
 
-# Doubt Summarizer
+# Doubt Summarizer routes
 app.include_router(
-    doubt_router  
+    doubt_router,
+    prefix=f"{settings.API_PREFIX}/doubts",
+    tags=["Doubt Summarizer"]
 )
+
 
 # Chatbot routes
 app.include_router(
