@@ -82,6 +82,32 @@
               </div>
             </div>
           </div>
+
+          <!-- Resources Section -->
+          <div class="mt-8">
+            <h3 class="font-semibold text-gray-800 mb-3">My Resources</h3>
+            <div v-if="resources.length === 0" class="text-gray-400">No resources added yet.</div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div v-for="(res, i) in resources" :key="i" class="bg-white p-4 rounded-2xl shadow">
+                <!-- Document -->
+                <div v-if="res.document" class="text-sm text-gray-700 mb-1">
+                  📄
+                  <a :href="res.document.url" target="_blank" class="underline hover:text-blue-600">{{ res.document.name }}</a>
+                </div>
+
+                <!-- Image -->
+                <div v-if="res.image" class="mb-2">
+                  <img :src="res.image" class="w-full h-32 object-cover rounded-lg" />
+                </div>
+
+                <!-- Link -->
+                <div v-if="res.link" class="text-blue-600 text-sm">
+                  🔗 <a :href="res.link" target="_blank" class="underline hover:text-blue-800">{{ res.link }}</a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Right Panel -->
@@ -104,15 +130,15 @@
         <div class="space-y-4">
           <div>
             <label class="font-semibold block mb-1">Upload Document</label>
-            <input type="file" accept=".pdf,.doc,.docx" class="w-full border rounded-lg p-2" />
+            <input type="file" accept=".pdf,.doc,.docx" class="w-full border rounded-lg p-2" ref="docInput" />
           </div>
           <div>
             <label class="font-semibold block mb-1">Upload Image</label>
-            <input type="file" accept="image/*" class="w-full border rounded-lg p-2" />
+            <input type="file" accept="image/*" class="w-full border rounded-lg p-2" ref="imgInput" />
           </div>
           <div>
             <label class="font-semibold block mb-1">Add Link</label>
-            <input type="url" placeholder="https://example.com" class="w-full border rounded-lg p-2" />
+            <input type="url" placeholder="https://example.com" class="w-full border rounded-lg p-2" ref="linkInput" />
           </div>
         </div>
 
@@ -128,7 +154,6 @@
     </div>
 
     <!-- Study Break Modal -->
-
     <div
       v-if="showStudyBreak"
       class="fixed inset-0 flex items-center justify-center bg-black/40 z-50"
@@ -220,6 +245,7 @@ export default {
       breakTime: 0,
       breakTimer: null,
       customBreak: '',
+      resources: [], // store resources
     }
   },
   computed: {
@@ -239,8 +265,23 @@ export default {
       this.currentFilter = opt
     },
     saveResource() {
-      alert('Resource saved successfully!')
-      this.showAddResource = false
+      const docInput = this.$refs.docInput?.files[0];
+      const imgInput = this.$refs.imgInput?.files[0];
+      const linkInput = this.$refs.linkInput?.value;
+
+      const newResource = {
+        document: docInput ? { name: docInput.name, url: URL.createObjectURL(docInput) } : null,
+        image: imgInput ? URL.createObjectURL(imgInput) : null,
+        link: linkInput || null,
+      };
+
+      this.resources.push(newResource);
+      this.showAddResource = false;
+
+      // reset inputs
+      if (docInput) this.$refs.docInput.value = '';
+      if (imgInput) this.$refs.imgInput.value = '';
+      if (linkInput) this.$refs.linkInput.value = '';
     },
     startBreak(mins) {
       this.showStudyBreak = false
