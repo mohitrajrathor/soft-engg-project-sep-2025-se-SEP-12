@@ -150,7 +150,7 @@ def update_slide_deck(
     if db_deck.created_by_id != current_user.id:
         raise HTTPException(status_code=403, detail="You can only update slide decks you have created.")
 
-    update_data = request.dict(exclude_unset=True)
+    update_data = request.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_deck, key, value)
 
