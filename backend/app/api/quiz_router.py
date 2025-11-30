@@ -168,7 +168,7 @@ def submit_quiz_attempt(
         user_id=current_user.id,
         score=score_result["score"],
         total_marks=score_result["total_marks"],
-        answers=[ans.dict() for ans in attempt_in.answers],
+        answers=[ans.model_dump() for ans in attempt_in.answers],
     )
 
     return db_attempt

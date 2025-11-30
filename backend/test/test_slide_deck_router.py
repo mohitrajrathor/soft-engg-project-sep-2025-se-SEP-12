@@ -25,12 +25,14 @@ MOCK_SLIDE_CONTENT = {
                 "title": "Language Popularity",
                 "labels": ["Python", "JavaScript", "Java"],
                 "datasets": [{"label": "Usage %", "data": [45, 30, 25]}]
-            }
+            },
+            "graph_image": None
         },
         {
             "title": "Basic Data Types",
             "content": "## Common Data Types\n\n- **Integers**: `x = 10`\n- **Floats**: `y = 3.14`\n- **Strings**: `name = \"AURA\"`",
-            "graph_data": None
+            "graph_data": None,
+            "graph_image": None
         }
     ]
 }
