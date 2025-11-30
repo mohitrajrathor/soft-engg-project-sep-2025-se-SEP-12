@@ -1,6 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import TASidebar from '@/components/layout/TaLayout/TASideBar.vue'
+import doubtsAPI from '@/api/doubts'
+import ExportOptions from '@/components/shared/ExportOptions.vue'
 import { 
   ArrowDownTrayIcon, 
   ChatBubbleLeftRightIcon, 
@@ -9,6 +11,10 @@ import {
   ClipboardDocumentListIcon, 
   DocumentTextIcon 
 } from '@heroicons/vue/24/outline'
+
+// === STATE ===
+const isLoading = ref(false)
+const error = ref(null)
 
 // === FILTERS ===
 const selectedPeriod = ref('weekly')
@@ -70,11 +76,75 @@ const doubtSummary = ref({
   }
 })
 
-// === MOCK API CALL ===
+// === DATA FETCH ===
+const normalizeTrend = (t) => {
+  const v = (t || '').toString().toLowerCase()
+  if (v.startsWith('inc')) return 'up'
+  if (v.startsWith('dec')) return 'down'
+  return 'stable'
+}
+
 const fetchSummary = async () => {
-  console.log('Fetching AI-powered doubt summary...')
+  const courseCode = selectedCourse.value === 'all' ? 'CS101' : selectedCourse.value
+  isLoading.value = true
+  error.value = null
+
+  try {
+    const params = { period: selectedPeriod.value, source: selectedSource.value === 'all' ? null : selectedSource.value }
+    
+    // Fetch summary and source breakdown in parallel
+    const [res, breakdownRes] = await Promise.all([
+      doubtsAPI.getSummary(courseCode, params),
+      doubtsAPI.getSourceBreakdown(courseCode, { period: selectedPeriod.value })
+    ])
+
+    // Map backend -> UI
+    const topics = Array.isArray(res.topics) ? res.topics : []
+    const learningGaps = Array.isArray(res.learning_gaps) ? res.learning_gaps : []
+    const stats = res.stats || {}
+
+    // Build summary stats from backend computed values
+    summaryStats.value = {
+      totalQueries: stats.total_messages || breakdownRes.total || 0,
+      topicClusters: stats.topic_clusters || topics.length,
+      recurringDoubts: stats.recurring_issues || 0,  // Now using proper recurring issues count
+      learningGaps: stats.learning_gaps || learningGaps.length,
+      percentageChange: 0 // TODO: compute from historical data
+    }
+
+    doubtSummary.value = {
+      topicClusters: topics.map(t => ({
+        topic: t.label || 'Unknown',
+        count: t.count || 0,
+        trend: normalizeTrend(t.trend),
+        samples: t.sample_questions || []
+      })),
+      commonIssues: learningGaps.map(g => ({
+        issue: g.issue_title || 'Unlabeled Gap',
+        students: g.student_count || 0
+      })),
+      // Use real source breakdown from backend (prefer summary response, fallback to breakdown endpoint)
+      sourceBreakdown: {
+        forum: res.source_breakdown?.forum || breakdownRes.breakdown?.forum || { count: 0, percentage: 0 },
+        email: res.source_breakdown?.email || breakdownRes.breakdown?.email || { count: 0, percentage: 0 },
+        chat: res.source_breakdown?.chat || breakdownRes.breakdown?.chat || { count: 0, percentage: 0 }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load doubt summary', e)
+    error.value = e.response?.data?.detail || e.message || 'Failed to load summary. Please try again.'
+  } finally {
+    isLoading.value = false
+  }
 }
 onMounted(fetchSummary)
+
+// Debounced watch to avoid rapid API calls during filter changes
+let debounceTimer = null
+watch([selectedPeriod, selectedSource, selectedCourse], () => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(fetchSummary, 300) // 300ms debounce
+})
 
 // === ACTION HANDLERS ===
 const exportSummary = () => alert('Exporting summary as PDF...')
@@ -113,9 +183,9 @@ const getTrendText = (trend) => {
     <!-- Main Layout -->
     <main class="flex-1 flex flex-col min-h-screen ml-[250px] bg-gray-50">
       <!-- Header -->
-      <header class="bg-white shadow-sm px-8 py-5 flex items-center justify-between">
+      <header class="bg-white shadow-sm px-8 py-3 flex items-center justify-between">
         <h1 class="text-2xl font-extrabold text-black">TA Doubt Summarizer</h1>
-        <button @click="exportSummary" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center font-semibold shadow-sm transition-colors">
+        <button @click="exportSummary" class="px-4 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200 flex items-center font-semibold shadow-sm transition-colors border border-gray-300">
           <ArrowDownTrayIcon class="w-5 h-5 mr-2" />
           Export Summary
         </button>
@@ -123,8 +193,27 @@ const getTrendText = (trend) => {
 
       <!-- Content Area -->
       <div class="flex-1 p-8 gap-6 flex">
-        <!-- Main Panel -->
-        <div class="flex-1 space-y-6">
+        <!-- Error State (full overlay) -->
+        <div v-if="error && !isLoading" class="flex-1 flex items-center justify-center">
+          <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-8 max-w-md text-center">
+            <ExclamationTriangleIcon class="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 class="text-xl font-bold text-red-800 mb-2">Error Loading Summary</h3>
+            <p class="text-red-600 mb-4">{{ error }}</p>
+            <button @click="fetchSummary" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold shadow-sm">
+              Try Again
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Panel (with loading overlay) -->
+        <div class="flex-1 space-y-6 relative transition-opacity duration-300" :class="{ 'opacity-60 pointer-events-none': isLoading }">
+          <!-- Loading Indicator (small, non-intrusive) -->
+          <div v-if="isLoading" class="absolute top-0 left-0 right-0 z-10 flex justify-center">
+            <div class="bg-blue-600 text-white px-6 py-3 rounded-b-xl shadow-lg flex items-center gap-3 animate-pulse">
+              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <span class="font-semibold">Updating summary...</span>
+            </div>
+          </div>
           <!-- Filter Controls -->
           <div class="bg-white rounded-2xl shadow-2xl p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-6">
@@ -172,25 +261,54 @@ const getTrendText = (trend) => {
 
           <!-- Summary Stats Cards -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
-              <p class="text-sm font-medium text-gray-500 mb-1">Total Queries</p>
-              <p class="text-3xl font-bold text-black">{{ summaryStats.totalQueries }}</p>
-              <p class="text-xs text-green-600 mt-1 font-semibold">up {{ summaryStats.percentageChange }}% from last week</p>
+            <!-- Most Active Channel -->
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-2xl p-5 border border-blue-200">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-semibold text-blue-900">Most Active Channel</p>
+                <ChatBubbleLeftRightIcon class="w-5 h-5 text-blue-600" />
+              </div>
+              <p class="text-2xl font-bold text-blue-900 mb-1">
+                {{ Object.entries(doubtSummary.sourceBreakdown).sort((a, b) => b[1].count - a[1].count)[0][0].charAt(0).toUpperCase() + Object.entries(doubtSummary.sourceBreakdown).sort((a, b) => b[1].count - a[1].count)[0][0].slice(1) }}
+              </p>
+              <p class="text-xs text-blue-700">{{ Object.entries(doubtSummary.sourceBreakdown).sort((a, b) => b[1].count - a[1].count)[0][1].percentage }}% of all queries</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
-              <p class="text-sm font-medium text-gray-500 mb-1">Topic Clusters</p>
-              <p class="text-3xl font-bold text-black">{{ summaryStats.topicClusters }}</p>
-              <p class="text-xs text-gray-500 mt-1">Major confusion areas</p>
+            
+            <!-- Top Concern -->
+            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-2xl p-5 border border-orange-200">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-semibold text-orange-900">Top Concern</p>
+                <ExclamationTriangleIcon class="w-5 h-5 text-orange-600" />
+              </div>
+              <p class="text-2xl font-bold text-orange-900 mb-1 truncate" :title="doubtSummary.topicClusters[0]?.topic">
+                {{ doubtSummary.topicClusters[0]?.topic || 'N/A' }}
+              </p>
+              <p class="text-xs text-orange-700">{{ doubtSummary.topicClusters[0]?.count || 0 }} queries this period</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
-              <p class="text-sm font-medium text-gray-500 mb-1">Recurring Doubts</p>
-              <p class="text-3xl font-bold text-black">{{ summaryStats.recurringDoubts }}</p>
-              <p class="text-xs text-orange-600 mt-1 font-semibold">Need attention</p>
+            
+            <!-- Response Time Target -->
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-2xl p-5 border border-green-200">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-semibold text-green-900">Avg Response Time</p>
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p class="text-2xl font-bold text-green-900 mb-1">< 2 hrs</p>
+              <p class="text-xs text-green-700">Within SLA targets</p>
             </div>
-            <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
-              <p class="text-sm font-medium text-gray-500 mb-1">Learning Gaps</p>
-              <p class="text-3xl font-bold text-black">{{ summaryStats.learningGaps }}</p>
-              <p class="text-xs text-red-600 mt-1 font-semibold">Critical issues</p>
+            
+            <!-- Trend Indicator -->
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-2xl p-5 border border-purple-200">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-semibold text-purple-900">Activity Trend</p>
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <p class="text-2xl font-bold text-purple-900 mb-1">
+                {{ summaryStats.percentageChange > 0 ? '+' : '' }}{{ summaryStats.percentageChange }}%
+              </p>
+              <p class="text-xs text-purple-700">vs previous period</p>
             </div>
           </div>
 
@@ -349,46 +467,36 @@ const getTrendText = (trend) => {
         </div>
 
         <!-- Right Side Panel -->
-        <aside class="w-[320px] flex flex-col gap-6">
+        <aside class="w-[320px] flex flex-col gap-6 relative transition-opacity duration-300" :class="{ 'opacity-60 pointer-events-none': isLoading }">
           <!-- Summary Statistics -->
           <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
             <div class="font-bold mb-4 text-base text-black">Summary Statistics</div>
             <div class="space-y-3">
               <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                <span class="text-gray-700 text-sm font-medium">Total Queries</span>
+                <span class="text-gray-700 text-sm font-medium">Total Messages</span>
                 <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.totalQueries }}</span>
               </div>
               <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                 <span class="text-gray-700 text-sm font-medium">Topics Identified</span>
                 <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.topicClusters }}</span>
               </div>
-              <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
                 <span class="text-gray-700 text-sm font-medium">Recurring Issues</span>
-                <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.recurringDoubts }}</span>
+                <span class="bg-orange-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.recurringDoubts }}</span>
               </div>
-              <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
                 <span class="text-gray-700 text-sm font-medium">Learning Gaps</span>
-                <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.learningGaps }}</span>
+                <span class="bg-red-600 text-white px-3 py-1 rounded-full font-bold text-sm">{{ summaryStats.learningGaps }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Export Options -->
-          <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">
-            <div class="font-bold mb-4 text-base text-black">Export Options</div>
-            <button class="w-full mb-2 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-sm">
-              <DocumentTextIcon class="w-5 h-5 inline mr-2" />
-              Export as PDF
-            </button>
-            <button class="w-full mb-2 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-sm">
-              <ClipboardDocumentListIcon class="w-5 h-5 inline mr-2" />
-              Export as CSV
-            </button>
-            <button class="w-full px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-sm">
-              <EnvelopeIcon class="w-5 h-5 inline mr-2" />
-              Email Report
-            </button>
-          </div>
+          <!-- Export Options Component -->
+          <ExportOptions 
+            :course-code="selectedCourse === 'all' ? 'CS101' : selectedCourse"
+            :period="selectedPeriod"
+            :source="selectedSource"
+          />
 
           <!-- AI Insights -->
           <div class="bg-white rounded-2xl shadow-2xl p-5 border border-gray-200">

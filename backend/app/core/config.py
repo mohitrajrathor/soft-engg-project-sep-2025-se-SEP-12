@@ -157,6 +157,18 @@ class Settings(BaseSettings):
         default="noreply@aura.edu",
         description="From email address"
     )
+    EMAILS_FROM_NAME: str = Field(
+        default="AURA - Academic Assistant",
+        description="From email name"
+    )
+    SMTP_TLS: bool = Field(
+        default=True,
+        description="Use TLS for SMTP connection"
+    )
+    SMTP_SSL: bool = Field(
+        default=False,
+        description="Use SSL for SMTP connection"
+    )
 
     # AI/LLM Settings (Gemini)
     GOOGLE_API_KEY: str = Field(
