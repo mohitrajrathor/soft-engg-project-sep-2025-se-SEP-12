@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useThemeStore } from '@/stores/theme'
 import { authAPI } from '@/api'
 import InstructorSidebar from '@/components/layout/instructorLayout/instructorSideBar.vue'
 import HeaderBar from '@/components/layout/StudentLayout/HeaderBar.vue'
@@ -14,9 +15,11 @@ import {
   CheckCircleIcon,
   ArrowRightOnRectangleIcon,
   ExclamationCircleIcon
+  , AcademicCapIcon
 } from "@heroicons/vue/24/outline"
 
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 
 // State
 const isLoading = ref(false)
@@ -117,12 +120,12 @@ watch(
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-gray-50">
+  <div class="flex min-h-screen" style="background-color: var(--page-bg);">
     <!-- Sidebar -->
     <InstructorSidebar class="fixed top-0 left-0 h-screen w-[250px]" />
 
     <!-- Main -->
-    <main class="flex-1 p-8 ml-[250px] overflow-y-auto">
+    <main class="flex-1 p-8 ml-[250px] overflow-y-auto" style="background-color: var(--page-bg);">
       <HeaderBar searchPlaceholder="Search students, courses, or resources" />
       <h2 class="font-bold text-2xl mb-6">Instructor Settings</h2>
 
@@ -191,16 +194,42 @@ watch(
           <!-- Teaching Preferences -->
           <div class="bg-white rounded-2xl p-6 shadow hover:shadow-lg transition">
             <div class="font-bold mb-2">Teaching Preferences</div>
-            <div class="flex flex-col gap-3">
-              <label class="flex items-center cursor-pointer hover:bg-green-50 px-2 py-1 rounded transition">
-                <input type="checkbox" checked class="mr-2 accent-green-600"> Enable AI grading assistant
-              </label>
-              <label class="flex items-center cursor-pointer hover:bg-green-50 px-2 py-1 rounded transition">
-                <input type="checkbox" checked class="mr-2 accent-green-600"> Allow student message alerts
-              </label>
-              <label class="flex items-center cursor-pointer hover:bg-green-50 px-2 py-1 rounded transition">
-                <input type="checkbox" class="mr-2 accent-green-600"> Auto-schedule office hours
-              </label>
+            <div class="flex gap-2">
+              <button 
+                @click="themeStore.setTheme('light')"
+                :class="[
+                  'border-2 rounded-lg px-4 py-2 transition active:scale-95 font-semibold',
+                  themeStore.currentTheme === 'light' 
+                    ? 'border-blue-600 bg-blue-50 text-blue-600 shadow-sm' 
+                    : 'border-gray-300 hover:border-blue-400'
+                ]"
+                :style="themeStore.currentTheme === 'light' 
+                  ? {} 
+                  : { backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)' }"
+              >
+                Light
+              </button>
+              <button 
+                @click="themeStore.setTheme('dark')"
+                :class="[
+                  'border-2 rounded-lg px-4 py-2 transition active:scale-95 font-semibold',
+                  themeStore.currentTheme === 'dark' 
+                    ? 'border-blue-600 bg-blue-50 text-blue-600 shadow-sm' 
+                    : 'border-gray-300 hover:border-blue-400'
+                ]"
+                :style="themeStore.currentTheme === 'dark' 
+                  ? {} 
+                  : { backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)' }"
+              >
+                Dark
+              </button>
+            </div>
+            <div class="mt-4">
+              <div class="text-xs mb-1 font-semibold">Language</div>
+              <div class="flex gap-2">
+                <button class="border rounded-lg px-4 py-2 bg-gray-100 text-gray-700 border-gray-300 hover:border-green-400 active:scale-95 transition">English</button>
+                <button class="border rounded-lg px-4 py-2 bg-gray-100 text-gray-700 border-gray-300 hover:border-green-400 active:scale-95 transition">Hindi</button>
+              </div>
             </div>
           </div>
 
@@ -214,7 +243,47 @@ watch(
             </div>
           </div>
 
-          <!-- Danger Zone -->
+          <!-- Theme Preferences Card -->
+          <div class="bg-white rounded-2xl p-6 shadow hover:shadow-lg transition" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+            <div class="font-bold mb-4">Appearance Preferences</div>
+            <div class="flex gap-6 flex-wrap">
+              <div>
+                <div class="text-xs mb-2 font-semibold">Theme</div>
+                <div class="flex gap-2">
+                  <button 
+                    @click="themeStore.setTheme('light')"
+                    :class="[
+                      'border-2 rounded-lg px-4 py-2 transition active:scale-95 font-semibold',
+                      themeStore.currentTheme === 'light' 
+                        ? 'border-blue-600 bg-blue-600 text-white shadow-lg' 
+                        : 'border-gray-300 hover:border-blue-400'
+                    ]"
+                    :style="themeStore.currentTheme === 'light' 
+                      ? {} 
+                      : { backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)' }"
+                  >
+                    Light
+                  </button>
+                  <button 
+                    @click="themeStore.setTheme('dark')"
+                    :class="[
+                      'border-2 rounded-lg px-4 py-2 transition active:scale-95 font-semibold',
+                      themeStore.currentTheme === 'dark' 
+                        ? 'border-blue-600 bg-blue-600 text-white shadow-lg' 
+                        : 'border-gray-300 hover:border-blue-400'
+                    ]"
+                    :style="themeStore.currentTheme === 'dark' 
+                      ? {} 
+                      : { backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)' }"
+                  >
+                    Dark
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger Zone Card -->
           <div class="bg-white rounded-2xl p-6 shadow flex items-center justify-between hover:shadow-lg transition">
             <div>
               <div class="font-bold text-red-600 mb-2">Danger zone</div>

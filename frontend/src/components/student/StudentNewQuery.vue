@@ -1,17 +1,17 @@
 <template>
-  <div class="flex h-screen overflow-hidden">
+  <div class="flex h-screen overflow-hidden" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
     <!-- Sidebar -->
     <Sidebar class="sticky top-0 h-screen flex-shrink-0" />
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col bg-gray-50 ml-[250px]">
+    <div class="flex-1 flex flex-col ml-[250px]" :style="{ background: 'var(--page-bg)' }">
       <!-- Header -->
       <HeaderBar class="sticky top-0 z-50" searchPlaceholder="Ask a question..." />
 
       <!-- Page content -->
       <div class="flex flex-1 overflow-hidden">
         <!-- Center: Chat Area -->
-        <section class="flex-1 flex flex-col relative bg-white">
+        <section class="flex-1 flex flex-col relative" :style="{ background: 'var(--color-bg-card)' }">
           <!-- Scrollable Conversation -->
           <div class="flex-1 overflow-y-auto p-6 pb-28">
             <div v-if="messages.length === 0" class="flex flex-col items-center justify-center h-full text-center">
@@ -20,64 +20,30 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
               </div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-2">Start a New Query</h3>
-              <p class="text-gray-500 max-w-md">
+              <h3 class="text-xl font-semibold mb-2" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">Start a New Query</h3>
+              <p class="max-w-md" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
                 Ask a question about your coursework, assignments, or concepts. Our AI assistant and instructors are here to help!
               </p>
             </div>
 
             <!-- Messages -->
             <div v-else class="space-y-6 max-w-4xl mx-auto">
-              <div
+              <ChatBubble
                 v-for="(msg, index) in messages"
                 :key="index"
-                class="flex items-start gap-4"
-                :class="msg.type === 'user' ? 'flex-row-reverse' : ''"
-              >
-                <!-- Avatar -->
-                <div
-                  class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                  :class="msg.type === 'user' ? 'bg-blue-600' : 'bg-gradient-to-br from-purple-500 to-blue-500'"
-                >
-                  <span class="text-white font-semibold text-sm">
-                    {{ msg.type === 'user' ? 'You' : 'AI' }}
-                  </span>
-                </div>
+                :message="{ content: msg.content, timestamp: msg.timestamp, file: msg.file }"
+                :isUser="msg.type === 'user'"
+                :isDark="themeStore.currentTheme === 'dark'"
+              />
 
-                <!-- Message Content -->
-                <div
-                  class="flex-1 max-w-2xl"
-                  :class="msg.type === 'user' ? 'text-right' : ''"
-                >
-                  <div class="text-xs font-semibold mb-1" :class="msg.type === 'user' ? 'text-blue-900' : 'text-purple-900'">
-                    {{ msg.type === 'user' ? 'You' : 'AI Assistant' }}
-                  </div>
-                  <div
-                    class="inline-block px-4 py-3 rounded-2xl text-base"
-                    :class="msg.type === 'user' 
-                      ? 'bg-blue-600 text-white rounded-tr-sm' 
-                      : 'bg-gray-100 text-gray-800 rounded-tl-sm'"
-                  >
-                    <p class="whitespace-pre-wrap">{{ msg.content }}</p>
-                    <div v-if="msg.file" class="mt-2 pt-2 border-t border-white/20 flex items-center gap-2 text-sm">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                      </svg>
-                      {{ msg.file.name }}
-                    </div>
-                  </div>
-                  <div class="text-xs text-gray-400 mt-1">{{ msg.timestamp }}</div>
-                </div>
-              </div>
-
-              <!-- Typing Indicator -->
+              <!-- Typing Indicator (theme-aware) -->
               <div v-if="isTyping" class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                  <span class="text-white font-semibold text-sm">AI</span>
+                <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" :style="{ backgroundColor: 'var(--color-accent, #2563eb)', color: 'white' }">
+                  <span class="font-semibold text-sm text-white">AI</span>
                 </div>
                 <div class="flex-1">
                   <div class="text-xs font-semibold mb-1 text-purple-900">AI Assistant</div>
-                  <div class="inline-block px-4 py-3 rounded-2xl rounded-tl-sm bg-gray-100">
+                  <div class="inline-block px-4 py-3 rounded-2xl rounded-tl-sm" :style="{ background: 'var(--color-bg-card)' }">
                     <div class="flex gap-1">
                       <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
                       <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
@@ -91,7 +57,7 @@
         </section>
 
         <!-- Right: Recent Chats Panel -->
-        <aside class="w-64 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0">
+        <aside class="w-64 overflow-y-auto flex-shrink-0" :style="{ background: 'var(--color-bg-card)', borderLeft: '1px solid var(--color-border)' }">
           <div class="p-4">
             <div class="flex items-center justify-between mb-4">
               <h3 class="font-bold text-lg">Recent Chats</h3>
@@ -100,7 +66,7 @@
                 class="p-1.5 rounded-lg hover:bg-gray-100 transition"
                 title="New Chat"
               >
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
               </button>
@@ -111,12 +77,12 @@
                 v-for="(chat, index) in recentChats"
                 :key="index"
                 @click="loadChat(chat)"
-                class="p-3 rounded-xl border hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition"
-                :class="currentChatId === chat.id ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200'"
+                class="p-3 rounded-xl border cursor-pointer transition"
+                :style="currentChatId === chat.id ? { background: 'var(--color-highlight, var(--color-bg-card))', borderColor: 'var(--color-border)' } : { background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }"
               >
-                <div class="font-semibold text-sm line-clamp-1 mb-1">{{ chat.title }}</div>
-                <div class="text-xs text-gray-500 line-clamp-2 mb-1">{{ chat.preview }}</div>
-                <div class="flex items-center justify-between text-xs text-gray-400">
+                <div class="font-semibold text-sm line-clamp-1 mb-1" :style="{ color: 'var(--color-text-primary)' }">{{ chat.title }}</div>
+                <div class="text-xs line-clamp-2 mb-1" :style="{ color: 'var(--color-text-secondary)' }">{{ chat.preview }}</div>
+                <div class="flex items-center justify-between text-xs" :style="{ color: 'var(--color-text-secondary)' }">
                   <span>{{ chat.time }}</span>
                   <span class="px-2 py-0.5 rounded-full" :class="chat.status === 'Open' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'">
                     {{ chat.status }}
@@ -139,13 +105,17 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useThemeStore } from '@/stores/theme'
 import Sidebar from '@/components/layout/StudentLayout/SideBar.vue'
 import HeaderBar from '@/components/layout/StudentLayout/HeaderBar.vue'
 import BottomBar from '@/components/layout/StudentLayout/BottomBar.vue'
+import ChatBubble from '@/components/shared/ChatBubble.vue'
 
 const messages = ref([])
 const isTyping = ref(false)
 const currentChatId = ref(null)
+
+const themeStore = useThemeStore()
 
 const recentChats = ref([
   {
