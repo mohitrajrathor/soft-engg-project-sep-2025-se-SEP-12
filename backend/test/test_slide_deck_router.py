@@ -19,12 +19,26 @@ MOCK_SLIDE_CONTENT = {
     "slides": [
         {
             "title": "Introduction to Python",
-            "content": "# Welcome to Python\n\n- Python is a versatile language.\n- You can use it for everything from web development to data science."
+            "content": "# Welcome to Python\n\n- Python is a versatile language.\n- You can use it for everything from web development to data science.",
+            "graph_data": {
+                "type": "bar",
+                "title": "Language Popularity",
+                "labels": ["Python", "JavaScript", "Java"],
+                "datasets": [{"label": "Usage %", "data": [45, 30, 25]}]
+            }
         },
         {
             "title": "Basic Data Types",
-            "content": "## Common Data Types\n\n- **Integers**: `x = 10`\n- **Floats**: `y = 3.14`\n- **Strings**: `name = \"AURA\"`"
+            "content": "## Common Data Types\n\n- **Integers**: `x = 10`\n- **Floats**: `y = 3.14`\n- **Strings**: `name = \"AURA\"`",
+            "graph_data": None
         }
+    ]
+}
+
+MOCK_PREVIEW_OUTLINE = {
+    "outline": [
+        "Slide 1: Introduction to Python - overview of language features",
+        "Slide 2: Basic Data Types - integers, floats, strings",
     ]
 }
 
@@ -46,6 +60,33 @@ def test_slide_deck(db_session: Session, test_course: Course, authenticated_ta: 
 
 
 @pytest.mark.asyncio
+async def test_generate_slide_deck_preview_as_ta(
+    client: TestClient, ta_auth_headers: dict, test_course: Course, monkeypatch
+):
+    """Tests that a TA can generate a preview of a slide deck."""
+    mock_preview = AsyncMock(return_value=MOCK_PREVIEW_OUTLINE)
+    monkeypatch.setattr("app.api.slide_deck_router.slide_deck_service.generate_preview", mock_preview)
+
+    request_data = {
+        "course_id": test_course.id,
+        "title": "Preview Test",
+        "description": "Testing preview generation.",
+        "topics": ["Python syntax", "Data types"],
+        "num_slides": 2,
+        "format": "presentation",
+    }
+
+    response = client.post("/api/slide-decks/preview", headers=ta_auth_headers, json=request_data)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "outline" in data
+    assert isinstance(data["outline"], list)
+    assert len(data["outline"]) > 0
+    mock_preview.assert_called_once()
+
+
+@pytest.mark.asyncio
 async def test_generate_slide_deck_as_ta(
     client: TestClient, ta_auth_headers: dict, test_course: Course, monkeypatch
 ):
@@ -59,6 +100,9 @@ async def test_generate_slide_deck_as_ta(
         "description": "Slides about Python basics.",
         "topics": ["Python syntax", "Data types"],
         "num_slides": 2,
+        "format": "presentation",
+        "include_graphs": True,
+        "graph_types": ["bar", "line"],
     }
 
     response = client.post("/api/slide-decks/", headers=ta_auth_headers, json=request_data)
@@ -69,6 +113,8 @@ async def test_generate_slide_deck_as_ta(
     assert data["course_id"] == test_course.id
     assert data["slides"] == MOCK_SLIDE_CONTENT["slides"]
     assert data["creator"]["id"] is not None
+    # Verify graph_data is present in the first slide
+    assert data["slides"][0].get("graph_data") is not None
     mock_generate.assert_called_once()
 
 
@@ -80,6 +126,7 @@ async def test_generate_slide_deck_as_student(client: TestClient, auth_headers: 
         "title": "Student Slide Attempt",
         "topics": ["Python basics"],
         "num_slides": 2,
+        "format": "presentation",
     }
     response = client.post("/api/slide-decks/", headers=auth_headers, json=request_data)
     assert response.status_code == 403
@@ -183,6 +230,7 @@ async def test_generate_slides_ai_service_error(
         "title": "Test AI Error",
         "topics": ["Error handling"],
         "num_slides": 1,
+        "format": "presentation",
     }
 
     response = client.post("/api/slide-decks/", headers=ta_auth_headers, json=request_data)

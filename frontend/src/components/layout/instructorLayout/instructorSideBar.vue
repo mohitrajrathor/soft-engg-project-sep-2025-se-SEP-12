@@ -7,7 +7,8 @@ const router = useRouter()
 const mainNav = [
   { name: 'Dashboard', path: '/instructor/dashboard', icon: 'bi-speedometer2' },
   { name: 'Discussion Summaries', path: '/instructor/discussion-summaries', icon: 'bi-robot' },
-  { name: 'Slide Generator', path: '/instructor/slide-generator', icon: 'bi-journal-text' },
+  { name: 'Slides Workspace', path: '/instructor/slide-deck-generator', icon: 'bi-journal-text' },
+  { name: 'My Slide Decks', path: '/instructor/slide-decks', icon: 'bi-collection-play' },
   { name: 'Question Paper Generator', path: '/instructor/assessment-generator', icon: 'bi-question-circle' },
   { name: 'Generated Quizzes', path: '/instructor/quiz-list', icon: 'bi-file-earmark-text' },
   { name: 'Profile', path: '/instructor/profile', icon: 'bi-gear' },

@@ -26,7 +26,7 @@ function signOut() {
 
 <template>
   <div class="d-flex flex-column flex-shrink-0 p-3 text-white vh-100" style="width: 250px; background-color: #0d1b2a; height: 100vh; position: fixed; top: 0; left: 0; z-index: 100;">
-    <RouterLink to="/" class="d-flex align-items-center mb-3 text-white text-decoration-none">
+    <RouterLink to="/" class="d-flex align-items-center mb-3 text-white text-decoration-none" style="color: #fff; opacity: 1; font-weight: 600;">
       <span class="fs-4 fw-semibold">AURA</span>
     </RouterLink>
     <hr class="border-light opacity-25" />
@@ -34,8 +34,8 @@ function signOut() {
     <!-- Main nav -->
     <ul class="nav nav-pills flex-column mb-auto">
       <li v-for="item in mainNav" :key="item.path">
-        <RouterLink :to="item.path" class="nav-link text-white" active-class="active-link">
-          <i :class="`${item.icon} me-2`"></i> {{ item.name }}
+        <RouterLink :to="item.path" class="nav-link text-white" active-class="active-link" style="color: #fff; opacity: 1; font-weight: 500;">
+          <i :class="`${item.icon} me-2`" style="color: #fff; opacity: 1;"></i> {{ item.name }}
         </RouterLink>
       </li>
     </ul>
@@ -43,21 +43,21 @@ function signOut() {
     <hr class="border-light opacity-25" />
 
     <!-- Quick Actions -->
-    <p class="text-secondary text-uppercase small mb-2">Quick Actions</p>
+    <p class="text-secondary text-uppercase small mb-2" style="color: #e0e7ff; opacity: 0.85; font-weight: 400;">Quick Actions</p>
     <ul class="nav nav-pills flex-column mb-auto">
       <li v-for="action in quickActions" :key="action.path">
-        <RouterLink :to="action.path" class="nav-link text-white" active-class="active-link">
-          <i :class="`${action.icon} me-2`"></i> {{ action.name }}
+        <RouterLink :to="action.path" class="nav-link text-white" active-class="active-link" style="color: #fff; opacity: 1; font-weight: 500;">
+          <i :class="`${action.icon} me-2`" style="color: #fff; opacity: 1;"></i> {{ action.name }}
         </RouterLink>
       </li>
     </ul>
 
     <!-- Sign Out -->
     <div class="pb-2 mt-auto">
-      <button @click="signOut" class="btn btn-outline-light w-100 mt-3">
-        <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+      <button @click="signOut" class="btn btn-outline-light w-100 mt-3" style="background: #2563eb; color: #fff; font-weight: 500;">
+        <i class="bi bi-box-arrow-right me-2" style="color: #fff; opacity: 1;"></i> Sign Out
       </button>
-      <p class="small text-secondary text-center mt-2 mb-0">Logged in as Student</p>
+      <p class="small text-secondary text-center mt-2 mb-0" style="color: #e0e7ff; opacity: 0.85; font-weight: 400;">Logged in as Student</p>
     </div>
   </div>
 </template>

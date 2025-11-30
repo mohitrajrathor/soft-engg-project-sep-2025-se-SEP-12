@@ -4,7 +4,7 @@
     <instructorSideBar />
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col bg-gray-50 ml-[250px] pt-9 px-6 pb-8 min-h-screen">
+    <div class="flex-1 flex flex-col ml-[250px] pt-9 px-6 pb-8 min-h-screen" :style="{ background: 'var(--page-bg)' }">
       <!-- Welcome/Header -->
       <div class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 rounded-b-2xl shadow px-8 py-7 mb-8">
         <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-1">Welcome back, Instructor! </h2>
@@ -19,7 +19,7 @@
             <!-- Top Row: Chart & Heatmap -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <!-- Chart -->
-              <div class="bg-white rounded-2xl shadow border border-gray-100 p-6 flex flex-col">
+              <div class="rounded-2xl shadow border p-6 flex flex-col" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
                 <div class="flex items-center justify-between mb-3">
                   <h3 class="font-semibold text-xl text-gray-900">Student Engagement Over Time</h3>
                   <button class="text-blue-700 font-medium hover:underline transition">View Details</button>
@@ -30,7 +30,7 @@
                 <EngagementLineChart />
               </div>
               <!-- Heatmap -->
-              <div class="bg-white rounded-2xl shadow border border-gray-100 p-6">
+              <div class="rounded-2xl shadow border p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
                 <div class="flex items-center justify-between mb-3">
                   <h3 class="font-semibold text-xl text-gray-900">Assignment Performance Heatmap</h3>
                   <button class="text-blue-700 font-medium hover:underline transition">View All Assignments</button>
@@ -55,7 +55,7 @@
             <!-- Bottom Row: Deadlines & Quiz Scores -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <!-- Deadlines -->
-              <div class="bg-white rounded-2xl shadow border border-gray-100 p-6 flex flex-col">
+              <div class="rounded-2xl shadow border p-6 flex flex-col" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
                 <div class="flex items-center justify-between mb-3">
                   <h3 class="font-semibold text-lg text-gray-900">Upcoming & Missed Deadlines</h3>
                   <button class="text-blue-700 font-medium hover:underline text-xs transition">Review All Deadlines</button>
@@ -79,7 +79,7 @@
                 </div>
               </div>
               <!-- Quiz Score Bar -->
-              <div class="bg-white rounded-2xl shadow border border-gray-100 p-6 flex flex-col">
+              <div class="rounded-2xl shadow border p-6 flex flex-col" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
                 <div class="flex items-center justify-between mb-3">
                   <h3 class="font-semibold text-lg text-gray-900">Quiz Score Distribution</h3>
                   <button class="text-blue-700 font-medium hover:underline text-xs transition">Analyze Scores</button>
@@ -105,7 +105,7 @@
           <!-- Right Sidebar: Actions + Top Students -->
           <div class="flex flex-col gap-8 w-full max-w-xs mx-auto lg:mx-0">
             <!-- Quick Actions -->
-            <div class="bg-white rounded-2xl shadow border border-gray-100 p-6">
+            <div class="rounded-2xl shadow border p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
               <h4 class="font-bold text-lg text-gray-900 mb-4">Quick Actions</h4>
               <ul class="space-y-3">
                 <li v-for="action in quickActions" :key="action.label">
@@ -119,7 +119,7 @@
               </ul>
             </div>
             <!-- Top Students -->
-            <div class="bg-white rounded-2xl shadow border border-gray-100 p-6">
+            <div class="rounded-2xl shadow border p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
               <div class="flex items-center justify-between mb-2">
                 <h4 class="font-bold text-gray-900 text-lg">Top Performing Students</h4>
                 <button class="text-blue-700 hover:underline text-xs font-semibold">View All Students</button>

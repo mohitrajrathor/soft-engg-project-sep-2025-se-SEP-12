@@ -11,12 +11,47 @@ from app.models.user import User
 from app.models.course import Course
 from app.models.slide_deck import SlideDeck
 from app.schemas.slide_deck_schema import (
-    SlideDeckGenerationRequest, SlideDeckUpdateRequest, SlideDeckResponse
+    SlideDeckGenerationRequest, SlideDeckUpdateRequest, SlideDeckResponse, SlideDeckPreview
 )
 from app.api.dependencies import require_ta, require_authenticated
 from app.services.slide_deck_service import slide_deck_service
 
 router = APIRouter()
+
+
+@router.post(
+    "/preview",
+    response_model=SlideDeckPreview,
+    summary="Generate a preview of the slide deck (TA/Instructor only)",
+)
+async def generate_slide_deck_preview(
+    request: SlideDeckGenerationRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_ta),
+):
+    """
+    Generates a preview outline of the slide deck before actual generation.
+    """
+    course = db.query(Course).filter(Course.id == request.course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+
+    # Generate preview using the AI service
+    preview_content = await slide_deck_service.generate_preview(
+        course_name=course.name,
+        topics=request.topics,
+        num_slides=request.num_slides,
+        description=request.description or "",
+        format=getattr(request, 'format', 'presentation'),
+    )
+
+    if "error" in preview_content:
+        raise HTTPException(
+            status_code=500,
+            detail=f"AI service error: {preview_content['error']}"
+        )
+
+    return preview_content
 
 
 @router.post(
@@ -43,6 +78,10 @@ async def generate_slide_deck(
         course_name=course.name,
         topics=request.topics,
         num_slides=request.num_slides,
+        description=request.description or "",
+        format=getattr(request, 'format', 'presentation'),
+        include_graphs=getattr(request, 'include_graphs', False),
+        graph_types=getattr(request, 'graph_types', None),
     )
 
     if "error" in generated_content or "slides" not in generated_content:

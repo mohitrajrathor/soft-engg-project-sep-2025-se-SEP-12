@@ -1,7 +1,9 @@
 <script setup>
 import { ref, nextTick, onMounted } from 'vue'
+import { useThemeStore } from '@/stores/theme'
 import Sidebar from '@/components/layout/StudentLayout/SideBar.vue'
-import HeaderBar from '@/components/layout/StudentLayout/HeaderBar.vue'
+import BottomBar from '@/components/layout/StudentLayout/BottomBar.vue'
+import ChatBubble from '@/components/shared/ChatBubble.vue'
 import { sendEnhancedChatMessage, getChatbotStatus } from '@/api/chatbot'
 
 // State
@@ -12,6 +14,8 @@ const conversationId = ref(null)
 const chatMode = ref('academic')
 const chatMessagesContainer = ref(null)
 const isChatbotAvailable = ref(true)
+
+const themeStore = useThemeStore()
 
 // Suggested prompts
 const suggestedPrompts = [
@@ -147,159 +151,68 @@ const clearChat = () => {
 const changeChatMode = (mode) => {
   chatMode.value = mode
 }
+
+// Handle BottomBar send event
+const onBottomBarSend = async ({ message, file }) => {
+  if (!message?.trim()) return;
+  userInput.value = message.trim();
+  // Handle file if needed (upload logic here)
+  await sendMessage();
+};
 </script>
 
 <template>
-  <div class="flex h-screen bg-gray-50 overflow-hidden">
+  <div class="h-screen w-full flex" :style="{ background: 'var(--bg-primary)' }">
     <!-- Sidebar -->
-    <Sidebar class="sticky top-0 h-screen overflow-y-auto flex-shrink-0" />
+    <Sidebar class="fixed top-0 left-0 h-screen w-48 z-20" />
 
     <!-- Main Content Area -->
-    <div class="flex flex-col flex-1 overflow-hidden ml-[250px]">
-      <!-- Header -->
-      <HeaderBar />
-
-      <!-- Main Body -->
-      <main class="flex flex-1 overflow-hidden">
-        <!-- Central Chat Section -->
-        <section
-          class="flex flex-col flex-1 bg-white m-4 rounded-2xl shadow relative overflow-hidden"
-        >
-          <!-- Chat Mode Selector -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-            <div class="flex gap-2">
-              <button
-                @click="changeChatMode('academic')"
-                :class="[
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  chatMode === 'academic'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                ]"
-              >
-                Academic
-              </button>
-              <button
-                @click="changeChatMode('doubt_clarification')"
-                :class="[
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  chatMode === 'doubt_clarification'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                ]"
-              >
-                Doubt Clarification
-              </button>
-              <button
-                @click="changeChatMode('study_help')"
-                :class="[
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  chatMode === 'study_help'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                ]"
-              >
-                Study Help
-              </button>
-              <button
-                @click="changeChatMode('general')"
-                :class="[
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  chatMode === 'general'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                ]"
-              >
-                General
-              </button>
-            </div>
-            <button
-              @click="clearChat"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Clear Chat
-            </button>
+    <div class="flex-1 flex flex-col ml-56 min-w-0">
+      <!-- Mode Selection Header -->
+      <header class="sticky top-0 z-10 px-6 py-3" :style="{ background: 'var(--bg-primary)' }">
+        <div class="flex items-center justify-between">
+          <!-- Conversation Topic Name -->
+          <div class="flex items-center gap-3">
+            <h1 class="text-lg font-semibold" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+              AI Assistant - {{ chatMode.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) }}
+            </h1>
           </div>
 
-          <!-- Chat Messages (Scrollable) -->
-          <div
-            ref="chatMessagesContainer"
-            class="flex-1 overflow-y-auto px-6 py-4 space-y-4"
-            style="scroll-behavior: smooth"
+          <!-- Clear Chat Button -->
+          <button
+            @click="clearChat"
+            class="px-3 py-1.5 rounded-md transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap hover:bg-gray-100"
+            :style="{ color: '#ef4444' }"
           >
-            <!-- Message Loop -->
-            <div
-              v-for="(message, index) in messages"
-              :key="index"
-              :class="[
-                'flex items-start',
-                message.type === 'user' ? 'justify-end' : ''
-              ]"
-            >
-              <!-- Assistant Message -->
-              <template v-if="message.type === 'assistant'">
-                <img
-                  src="https://randomuser.me/api/portraits/lego/2.jpg"
-                  class="w-10 h-10 rounded-full mr-3 mt-1 flex-shrink-0"
-                  alt="AI Assistant"
-                />
-                <div class="flex-1 max-w-3xl">
-                  <div
-                    :class="[
-                      'rounded-2xl px-5 py-4',
-                      message.isError
-                        ? 'bg-red-50 text-red-800'
-                        : message.isLoading
-                        ? 'bg-gray-100 text-gray-600'
-                        : 'bg-gray-100 text-gray-800'
-                    ]"
-                  >
-                    <div v-if="message.isLoading" class="flex items-center gap-2">
-                      <div class="flex gap-1">
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                        <span
-                          class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                          style="animation-delay: 0.2s"
-                        ></span>
-                        <span
-                          class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                          style="animation-delay: 0.4s"
-                        ></span>
-                      </div>
-                      <span class="text-sm">{{ message.content }}</span>
-                    </div>
-                    <div v-else class="whitespace-pre-wrap">{{ message.content }}</div>
-                  </div>
-                  <span class="text-xs text-gray-400 mt-1 block">
-                    {{ message.timestamp.toLocaleTimeString() }}
-                  </span>
-                </div>
-              </template>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Clear Chat
+          </button>
+        </div>
+      </header>
 
-              <!-- User Message -->
-              <template v-else>
-                <div class="flex flex-col items-end max-w-3xl">
-                  <div
-                    class="rounded-2xl bg-blue-600 text-white px-5 py-3 shadow text-sm whitespace-pre-wrap"
-                  >
-                    {{ message.content }}
-                  </div>
-                  <span class="text-xs text-gray-400 mt-1 block">
-                    {{ message.timestamp.toLocaleTimeString() }}
-                  </span>
-                </div>
-                <img
-                  src="https://randomuser.me/api/portraits/men/36.jpg"
-                  class="w-10 h-10 rounded-full ml-3 mt-1 flex-shrink-0"
-                  alt="You"
-                />
-              </template>
+      <!-- Content -->
+      <div class="flex-1 flex overflow-hidden">
+        <!-- Central Chat Section -->
+        <section class="flex flex-col flex-1 overflow-hidden">
+          <div ref="chatMessagesContainer" class="flex-1 overflow-y-auto px-2 py-3 space-y-4 mb-20">
+            <!-- Message Loop -->
+            <div class="space-y-3">
+              <ChatBubble
+                v-for="(message, index) in messages"
+                :key="index"
+                :message="message"
+                :isUser="message.type === 'user'"
+                :isDark="themeStore.currentTheme === 'dark'"
+              />
             </div>
 
             <!-- Empty state -->
             <div
               v-if="messages.length === 1"
-              class="flex flex-col items-center justify-center py-12 text-gray-400"
+              class="flex flex-col items-center justify-center py-12"
+              :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }"
             >
               <svg
                 class="w-16 h-16 mb-4"
@@ -318,133 +231,121 @@ const changeChatMode = (mode) => {
             </div>
           </div>
 
-          <!-- Chat Input -->
-          <div class="border-t border-gray-200 p-4 bg-white">
-            <div class="flex items-end gap-3">
-              <div class="flex-1">
-                <textarea
-                  v-model="userInput"
-                  @keydown="handleKeyDown"
-                  placeholder="Type your message... (Shift+Enter for new line)"
-                  rows="1"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  :disabled="isLoading || !isChatbotAvailable"
-                  style="max-height: 120px"
-                ></textarea>
-              </div>
-              <button
-                @click="sendMessage"
-                :disabled="!userInput.trim() || isLoading || !isChatbotAvailable"
-                class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <svg
-                  v-if="!isLoading"
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                  />
-                </svg>
-                <span v-if="isLoading" class="flex gap-1">
-                  <span class="w-2 h-2 bg-white rounded-full animate-bounce"></span>
-                  <span
-                    class="w-2 h-2 bg-white rounded-full animate-bounce"
-                    style="animation-delay: 0.2s"
-                  ></span>
-                  <span
-                    class="w-2 h-2 bg-white rounded-full animate-bounce"
-                    style="animation-delay: 0.4s"
-                  ></span>
-                </span>
-                <span v-else>Send</span>
-              </button>
-            </div>
-
-            <!-- Chatbot status warning -->
-            <div
-              v-if="!isChatbotAvailable"
-              class="mt-2 text-sm text-amber-600 flex items-center gap-2"
-            >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              Chatbot is currently unavailable. Please try again later.
-            </div>
-          </div>
+          <!-- Fixed Bottom Bar for message input -->
+          <BottomBar @send="onBottomBarSend" />
         </section>
 
         <!-- Right Sidebar -->
         <aside
-          class="w-80 flex-shrink-0 flex flex-col gap-5 p-4 overflow-y-auto h-[calc(100vh-80px)]"
+          class="w-80 flex-shrink-0 flex flex-col gap-5 p-4 overflow-y-auto"
+          :style="{ maxHeight: 'calc(100vh - 140px)' }"
         >
+          <!-- Current Mode -->
+          <div class="rounded-2xl shadow p-5" :style="{ background: 'var(--card-bg)' }">
+            <h3 class="text-base font-semibold mb-4" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">Current Mode</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <button
+                @click="changeChatMode('academic')"
+                :class="[
+                  'px-2 py-3 rounded-lg text-xs transition-all text-center min-h-[44px] flex items-center justify-center border-2',
+                  chatMode === 'academic'
+                    ? 'bg-blue-600 border-blue-600 shadow-lg font-semibold'
+                    : 'border-gray-300 hover:border-blue-400'
+                ]"
+                :style="chatMode === 'academic' 
+                  ? { color: themeStore.currentTheme === 'dark' ? 'white' : 'black' } 
+                  : { backgroundColor: 'var(--card-bg)', color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }"
+              >
+                Academic
+              </button>
+              <button
+                @click="changeChatMode('study_help')"
+                :class="[
+                  'px-2 py-3 rounded-lg text-xs transition-all text-center min-h-[44px] flex items-center justify-center border-2',
+                  chatMode === 'study_help'
+                    ? 'bg-blue-600 border-blue-600 shadow-lg font-semibold'
+                    : 'border-gray-300 hover:border-blue-400'
+                ]"
+                :style="chatMode === 'study_help' 
+                  ? { color: themeStore.currentTheme === 'dark' ? 'white' : 'black' } 
+                  : { backgroundColor: 'var(--card-bg)', color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }"
+              >
+                Study Help
+              </button>
+              <button
+                @click="changeChatMode('doubt_clarification')"
+                :class="[
+                  'px-2 py-3 rounded-lg text-xs transition-all text-center min-h-[44px] flex items-center justify-center border-2',
+                  chatMode === 'doubt_clarification'
+                    ? 'bg-blue-600 border-blue-600 shadow-lg font-semibold'
+                    : 'border-gray-300 hover:border-blue-400'
+                ]"
+                :style="chatMode === 'doubt_clarification' 
+                  ? { color: themeStore.currentTheme === 'dark' ? 'white' : 'black' } 
+                  : { backgroundColor: 'var(--card-bg)', color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }"
+              >
+                <span class="leading-tight">Doubt<br>Clarification</span>
+              </button>
+              <button
+                @click="changeChatMode('general')"
+                :class="[
+                  'px-2 py-3 rounded-lg text-xs transition-all text-center min-h-[44px] flex items-center justify-center border-2',
+                  chatMode === 'general'
+                    ? 'bg-blue-600 border-blue-600 shadow-lg font-semibold'
+                    : 'border-gray-300 hover:border-blue-400'
+                ]"
+                :style="chatMode === 'general' 
+                  ? { color: themeStore.currentTheme === 'dark' ? 'white' : 'black' } 
+                  : { backgroundColor: 'var(--card-bg)', color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }"
+              >
+                General
+              </button>
+            </div>
+            <p class="text-xs mt-4" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+              <span v-if="chatMode === 'academic'">
+                Get clear, educational explanations with examples.
+              </span>
+              <span v-else-if="chatMode === 'doubt_clarification'">
+                Step-by-step help to clarify your doubts.
+              </span>
+              <span v-else-if="chatMode === 'study_help'">
+                Study strategies, time management, and learning techniques.
+              </span>
+              <span v-else>
+                General helpful responses for any question.
+              </span>
+            </p>
+          </div>
+
           <!-- Suggested Prompts -->
-          <div class="bg-white rounded-2xl shadow p-5">
-            <h3 class="text-base font-semibold mb-3">Suggested Prompts</h3>
+          <div class="rounded-2xl shadow p-5" :style="{ background: 'var(--card-bg)' }">
+            <h3 class="text-base font-semibold mb-3" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">Suggested Prompts</h3>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="(prompt, index) in suggestedPrompts"
                 :key="index"
                 @click="useSuggestedPrompt(prompt)"
-                class="bg-gray-100 hover:bg-blue-100 text-gray-700 text-xs px-3 py-2 rounded-full transition"
+                class="bg-black hover:bg-gray-800 text-white text-xs px-3 py-2 rounded-full transition border border-gray-600 shadow-md"
                 :disabled="isLoading"
               >
                 {{ prompt }}
               </button>
             </div>
-            <p class="text-xs text-gray-400 mt-3">
+            <p class="text-xs mt-3" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
               Click to use these prompts or type your own question.
             </p>
           </div>
 
-          <!-- Chat Mode Info -->
-          <div class="bg-white rounded-2xl shadow p-5">
-            <h3 class="text-base font-semibold mb-3">Current Mode</h3>
-            <div class="flex flex-col gap-2 text-sm">
-              <div class="flex items-center gap-2">
-                <span class="font-medium text-gray-600">Mode:</span>
-                <span
-                  class="bg-blue-50 text-blue-700 font-semibold px-3 py-1 rounded-full text-xs capitalize"
-                >
-                  {{ chatMode.replace('_', ' ') }}
-                </span>
-              </div>
-              <p class="text-xs text-gray-500 mt-2">
-                <span v-if="chatMode === 'academic'">
-                  Get clear, educational explanations with examples.
-                </span>
-                <span v-else-if="chatMode === 'doubt_clarification'">
-                  Step-by-step help to clarify your doubts.
-                </span>
-                <span v-else-if="chatMode === 'study_help'">
-                  Study strategies, time management, and learning techniques.
-                </span>
-                <span v-else>
-                  General helpful responses for any question.
-                </span>
-              </p>
-            </div>
-          </div>
-
           <!-- Conversation Info -->
-          <div class="bg-white rounded-2xl shadow p-5">
-            <h3 class="text-base font-semibold mb-3">Conversation</h3>
+          <div class="rounded-2xl shadow p-5" :style="{ background: 'var(--card-bg)' }">
+            <h3 class="text-base font-semibold mb-3" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">Conversation</h3>
             <div class="flex flex-col gap-2 text-sm">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-600">Messages:</span>
-                <span class="text-gray-700 font-semibold">{{ messages.length }}</span>
+                <span class="font-medium" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">Messages:</span>
+                <span class="font-semibold" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">{{ messages.length }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-600">Status:</span>
+                <span class="font-medium" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">Status:</span>
                 <span
                   :class="[
                     'font-semibold px-2 py-1 rounded-full text-xs',
@@ -459,7 +360,7 @@ const changeChatMode = (mode) => {
             </div>
           </div>
         </aside>
-      </main>
+      </div>
     </div>
   </div>
 </template>
@@ -469,12 +370,15 @@ const changeChatMode = (mode) => {
 ::-webkit-scrollbar {
   width: 6px;
 }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+  background-color: var(--border-default);
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+  background-color: var(--border-dark);
 }
 
 /* Textarea auto-resize */
@@ -496,5 +400,12 @@ textarea {
 
 .animate-bounce {
   animation: bounce 1s infinite;
+}
+
+.blue-shadow {
+  box-shadow: 0 4px 24px 0 rgba(37, 99, 235, 0.25), 0 1.5px 6px 0 rgba(37, 99, 235, 0.18);
+}
+.default-shadow {
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
 }
 </style>

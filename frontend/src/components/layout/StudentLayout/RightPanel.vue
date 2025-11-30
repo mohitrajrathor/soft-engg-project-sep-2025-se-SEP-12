@@ -1,53 +1,53 @@
 <template>
-  <div class="border-start bg-white p-3" style="width: 300px; min-height: 100vh;">
+  <div class="border-start p-3 right-panel-theme" style="width: 300px; min-height: 100vh;" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
     <!-- Pinned Resources -->
     <div class="mb-4">
-      <h6 class="fw-semibold text-secondary mb-3">
-        <i class="bi bi-pin-angle me-2 text-primary"></i>Pinned resources
+      <h6 class="fw-semibold mb-3 panel-heading" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+        <i class="bi bi-pin-angle me-2 panel-icon"></i>Pinned resources
       </h6>
       <div class="list-group small">
-        <a href="#" class="list-group-item list-group-item-action border rounded mb-2" @click="openResource('CS301 • Lab 2 rubric')">
-          <i class="bi bi-journal-text me-2 text-secondary"></i>CS301 • Lab 2 rubric
+        <a href="#" class="list-group-item list-group-item-action border rounded mb-2 panel-item" @click="openResource('CS301 • Lab 2 rubric')" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+          <i class="bi bi-journal-text me-2 panel-item-icon"></i>CS301 • Lab 2 rubric
         </a>
-        <a href="#" class="list-group-item list-group-item-action border rounded mb-2" @click="openResource('Systems • Lecture 5')">
-          <i class="bi bi-gear-fill me-2 text-secondary"></i>Systems • Lecture 5
+        <a href="#" class="list-group-item list-group-item-action border rounded mb-2 panel-item" @click="openResource('Systems • Lecture 5')" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+          <i class="bi bi-gear-fill me-2 panel-item-icon"></i>Systems • Lecture 5
         </a>
-        <a href="#" class="list-group-item list-group-item-action border rounded" @click="openResource('Linear Algebra • Notes')">
-          <i class="bi bi-book me-2 text-secondary"></i>Linear Algebra • Notes
+        <a href="#" class="list-group-item list-group-item-action border rounded panel-item" @click="openResource('Linear Algebra • Notes')" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+          <i class="bi bi-book me-2 panel-item-icon"></i>Linear Algebra • Notes
         </a>
       </div>
     </div>
 
     <!-- ⚡ Quick Actions -->
     <div class="mb-4">
-      <h6 class="fw-semibold text-secondary mb-3">
-        <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Quick actions
+      <h6 class="fw-semibold mb-3 panel-heading" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+        <i class="bi bi-lightning-charge-fill me-2 panel-icon-warning"></i>Quick actions
       </h6>
       <div class="d-grid gap-2">
-        <button type="button" class="btn btn-light border text-start py-2" @click="viewDeadlines">
-          <i class="bi bi-calendar-check me-2 text-danger"></i>View deadlines
+        <button type="button" class="btn panel-btn border text-start py-2" @click="viewDeadlines" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+          <i class="bi bi-calendar-check me-2 panel-icon-danger"></i>View deadlines
         </button>
-        <button type="button" class="btn btn-light border text-start py-2" @click="shareToClass">
-          <i class="bi bi-share me-2 text-primary"></i>Share to class
+        <button type="button" class="btn panel-btn border text-start py-2" @click="shareToClass" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+          <i class="bi bi-share me-2 panel-icon"></i>Share to class
         </button>
-        <button type="button" class="btn btn-light border text-start py-2" @click="viewPinned">
-          <i class="bi bi-pin-angle me-2 text-success"></i>Pinned resources
+        <button type="button" class="btn panel-btn border text-start py-2" @click="viewPinned" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+          <i class="bi bi-pin-angle me-2 panel-icon-success"></i>Pinned resources
         </button>
       </div>
     </div>
 
     <!--  Continue Section -->
     <div>
-      <h6 class="fw-semibold text-secondary mb-3">
-        <i class="bi bi-clock-history me-2 text-info"></i>Continue where you left
+      <h6 class="fw-semibold mb-3 panel-heading">
+        <i class="bi bi-clock-history me-2 panel-icon-info"></i>Continue where you left
       </h6>
       <div class="list-group small">
-        <a href="#" class="list-group-item list-group-item-action border rounded mb-2 d-flex align-items-center" @click="continueStudy('CS301 Thread • Graphs')">
-          <i class="bi bi-diagram-3-fill me-2 text-secondary"></i>
+        <a href="#" class="list-group-item list-group-item-action border rounded mb-2 d-flex align-items-center panel-item" @click="continueStudy('CS301 Thread • Graphs')" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+          <i class="bi bi-diagram-3-fill me-2 panel-item-icon"></i>
           CS301 Thread • Graphs
         </a>
-        <a href="#" class="list-group-item list-group-item-action border rounded d-flex align-items-center" @click="continueStudy('Systems Lab • Setup')">
-          <i class="bi bi-cpu-fill me-2 text-secondary"></i>
+        <a href="#" class="list-group-item list-group-item-action border rounded d-flex align-items-center panel-item" @click="continueStudy('Systems Lab • Setup')" :style="{ color: themeStore.currentTheme === 'dark' ? 'white' : 'black' }">
+          <i class="bi bi-cpu-fill me-2 panel-item-icon"></i>
           Systems Lab • Setup
         </a>
       </div>
@@ -56,12 +56,12 @@
     <!-- Deadlines Modal -->
     <div class="modal fade" id="deadlinesModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 shadow">
-          <div class="modal-header bg-danger text-white rounded-top-4">
+        <div class="modal-content rounded-4 shadow modal-theme">
+          <div class="modal-header modal-header-danger text-white rounded-top-4">
             <h5 class="modal-title"><i class="bi bi-calendar-check me-2"></i>Upcoming Deadlines</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body modal-body-theme">
             <ul class="list-group small">
               <li class="list-group-item">CS301 Project • Due Nov 5</li>
               <li class="list-group-item">Linear Algebra Quiz • Due Nov 8</li>
@@ -75,14 +75,14 @@
     <!-- Share Modal -->
     <div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 shadow">
-          <div class="modal-header bg-primary text-white rounded-top-4">
+        <div class="modal-content rounded-4 shadow modal-theme">
+          <div class="modal-header modal-header-primary text-white rounded-top-4">
             <h5 class="modal-title"><i class="bi bi-share me-2"></i>Share Resource</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body">
-            <input type="text" class="form-control mb-3" placeholder="Enter email or username" />
-            <button class="btn btn-primary w-100 rounded-pill" @click="shareNow">Share</button>
+          <div class="modal-body modal-body-theme">
+            <input type="text" class="form-control mb-3 modal-input" placeholder="Enter email or username" />
+            <button class="btn modal-btn-primary w-100 rounded-pill" @click="shareNow">Share</button>
           </div>
         </div>
       </div>
@@ -91,7 +91,13 @@
 </template>
 
 <script>
+import { useThemeStore } from '@/stores/theme'
+
 export default {
+  setup() {
+    const themeStore = useThemeStore()
+    return { themeStore }
+  },
   methods: {
     openResource(name) {
       alert(`Opening resource: ${name}`)
@@ -124,14 +130,46 @@ export default {
   transition: background 0.2s ease, transform 0.2s ease;
 }
 .list-group-item:hover {
-  background-color: #f8f9fa;
+  background-color: var(--color-bg-hover, rgba(255,255,255,0.04));
   transform: translateY(-2px);
 }
-.btn {
-  transition: all 0.2s ease;
+.panel-item {
+  background: transparent;
+  color: var(--color-text-on-panel);
 }
-.btn:hover {
+.panel-item-icon {
+  color: var(--color-icon-on-panel, var(--color-text-secondary));
+}
+.panel-heading {
+  color: var(--color-text-on-panel);
+}
+.panel-icon {
+  color: var(--color-icon-on-panel, var(--color-text-secondary));
+}
+.panel-icon-warning { color: var(--color-accent-yellow); }
+.panel-icon-danger { color: var(--color-accent-red); }
+.panel-icon-success { color: var(--color-accent-green); }
+.panel-icon-info { color: var(--color-accent-blue); }
+.panel-btn {
+  background: var(--color-btn-bg);
+  color: var(--color-btn-text);
+}
+.panel-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
+.right-panel-theme {
+  background: var(--color-bg-card);
+  color: var(--color-text-on-panel);
+  transition: background 0.3s, color 0.3s;
+}
+.modal-theme {
+  background: var(--color-bg-card);
+  color: var(--color-text-on-panel);
+}
+.modal-header-danger { background: var(--color-accent-red); }
+.modal-header-primary { background: var(--color-accent-blue); }
+.modal-body-theme { background: var(--color-bg-card); color: var(--color-text-on-panel); }
+.modal-input { background: var(--color-bg-card); color: var(--color-text-on-panel); border-color: var(--color-border); }
+.modal-btn-primary { background: var(--color-accent-blue); color: var(--color-btn-blue-text); }
 </style>

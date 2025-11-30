@@ -58,7 +58,7 @@ const announcements = [
 <template>
   <div class="flex min-h-screen bg-[#f8fafc]">
     <TASidebar />
-    <main class="flex-1 p-0 ml-[250px]">
+    <main class="flex-1 ml-[250px]">
       <TaHeaderBar searchPlaceholder="Search dashboard, queries, resources" />
 
       <!-- Welcome Banner (flat style) -->

@@ -6,6 +6,9 @@ import router from './router'
 // ✅ Tailwind
 import './style.css'
 
+// ✅ Theme System
+import './styles/theme.css'
+
 // ✅ Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -16,6 +19,11 @@ const pinia = createPinia()
 // Register plugins
 app.use(pinia)
 app.use(router)
+
+// Initialize theme from localStorage
+import { useThemeStore } from './stores/theme'
+const themeStore = useThemeStore()
+themeStore.initTheme()
 
 // Initialize authentication from localStorage
 import { useUserStore } from './stores/user'

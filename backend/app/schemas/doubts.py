@@ -30,6 +30,17 @@ class LearningGap(BaseModel):
     category: str = Field(description="Type of gap")
     student_count: int = Field(description="Affected students")
 
+class SourceBreakdownItem(BaseModel):
+    count: int = Field(description="Number of messages from this source")
+    percentage: float = Field(description="Percentage of total messages")
+
+class SummaryStats(BaseModel):
+    total_messages: int = Field(description="Total doubt messages")
+    unique_uploads: int = Field(description="Number of unique doubt uploads/sessions")
+    topic_clusters: int = Field(description="Number of identified topic clusters")
+    learning_gaps: int = Field(description="Number of learning gaps identified")
+    recurring_issues: int = Field(description="Issues mentioned by multiple students")
+
 class WeeklySummaryResponse(BaseModel):
     course_code: str
     overall_summary: str
@@ -39,3 +50,8 @@ class WeeklySummaryResponse(BaseModel):
 
     class Config:
         from_attributes = True   # replaces orm_mode=True
+
+class EnhancedSummaryResponse(WeeklySummaryResponse):
+    """Extended summary response with stats and source breakdown"""
+    stats: SummaryStats
+    source_breakdown: dict  # {source_name: SourceBreakdownItem}

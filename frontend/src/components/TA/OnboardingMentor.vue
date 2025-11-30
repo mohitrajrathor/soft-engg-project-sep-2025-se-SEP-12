@@ -21,8 +21,12 @@
               :class="[
                 'flex-1 px-4 py-3 rounded-lg font-medium transition-colors text-sm',
                 activeTab === tab.id
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? (themeStore.currentTheme === 'dark'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-blue-50 text-black border border-blue-600')
+                  : (themeStore.currentTheme === 'dark'
+                      ? 'text-gray-300 hover:bg-gray-800'
+                      : 'text-gray-700 hover:bg-gray-100')
               ]"
             >
               {{ tab.label }}
@@ -388,11 +392,15 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useThemeStore } from '@/stores/theme'
 import TASidebar from '@/components/layout/TaLayout/TASideBar.vue'
 import { PaperAirplaneIcon, ClockIcon } from '@heroicons/vue/24/outline'
 
 const activeTab = ref('mentor')
 const communityQuestion = ref('')
+
+// Theme store for light/dark awareness
+const themeStore = useThemeStore()
 
 const tabs = [
   { id: 'mentor', label: 'AI Mentor Chat' },
