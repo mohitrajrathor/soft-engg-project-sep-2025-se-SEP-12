@@ -38,6 +38,7 @@ class QueryCategory(str, Enum):
     ASSIGNMENT = "assignment"
     EXAM = "exam"
     GENERAL = "general"
+    COURSES = "courses"
     OTHER = "other"
 
 

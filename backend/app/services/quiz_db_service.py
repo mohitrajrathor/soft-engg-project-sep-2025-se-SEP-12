@@ -49,7 +49,7 @@ class QuizDBService:
     ) -> QuizAttempt:
         """Creates and saves a new quiz attempt record."""
         db_attempt = QuizAttempt(
-            quiz_id=quiz.id, user_id=user_id, score=score, total_marks=total_marks, submitted_answers={"answers": answers}
+            quiz_id=quiz.id, user_id=user_id, score=score, total_marks=total_marks, submitted_answers=answers
         )
         db.add(db_attempt)
         db.commit()

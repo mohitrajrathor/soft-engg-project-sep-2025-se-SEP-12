@@ -122,7 +122,7 @@ def serialize_query(query: Query, include_responses: bool = False) -> dict:
     """
 )
 async def list_queries(
-    status: Optional[str] = QueryParam(None, description="Filter by status (OPEN, IN_PROGRESS, RESOLVED)"),
+    status_filter: Optional[str] = QueryParam(None, alias="status", description="Filter by status (OPEN, IN_PROGRESS, RESOLVED)"),
     category: Optional[str] = QueryParam(None, description="Filter by category"),
     priority: Optional[str] = QueryParam(None, description="Filter by priority"),
     limit: int = QueryParam(50, ge=1, le=100, description="Maximum number of results"),
@@ -140,16 +140,16 @@ async def list_queries(
             query = query.filter(Query.student_id == current_user.id)
 
         # Apply filters
-        if status:
+        if status_filter:
             try:
                 # QueryStatus enum uses uppercase names with lowercase values
                 # e.g., QueryStatus.OPEN = "open"
-                status_enum = QueryStatus[status.upper()]
+                status_enum = QueryStatus[status_filter.upper()]
                 query = query.filter(Query.status == status_enum)
             except KeyError:
                 raise HTTPException(
-                    status_code=http_status.HTTP_400_BAD_REQUEST,
-                    detail=f"Invalid status: {status}. Valid values: OPEN, IN_PROGRESS, RESOLVED"
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid status: {status_filter}. Valid values: OPEN, IN_PROGRESS, RESOLVED"
                 )
 
         if category:

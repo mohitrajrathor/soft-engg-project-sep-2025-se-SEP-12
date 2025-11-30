@@ -85,7 +85,7 @@ def update_course(
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
 
-    update_data = course_in.dict(exclude_unset=True)
+    update_data = course_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(course, field, value)
 
