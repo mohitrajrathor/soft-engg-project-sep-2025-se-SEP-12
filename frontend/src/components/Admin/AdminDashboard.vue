@@ -33,28 +33,28 @@
       <template v-else-if="overview">
         <!-- Top Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center hover:shadow-lg transition-shadow">
+          <div class="rounded-lg shadow p-6 flex flex-col items-center hover:shadow-lg transition-shadow" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
             <div class="text-2xl font-bold text-indigo-600">{{ formatNumber(usage?.usage_stats?.active_users_week || 0) }}</div>
             <div class="text-gray-700 mt-2">Active Users (Week)</div>
             <div class="text-xs text-gray-500 mt-1">
               {{ overview.active_users_today || 0 }} today
             </div>
           </div>
-          <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center hover:shadow-lg transition-shadow">
+          <div class="rounded-lg shadow p-6 flex flex-col items-center hover:shadow-lg transition-shadow" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
             <div class="text-2xl font-bold text-yellow-500">{{ overview.open_queries || 0 }}</div>
             <div class="text-gray-700 mt-2">Open Queries</div>
             <div class="text-xs text-gray-500 mt-1">
               {{ overview.queries_today || 0 }} created today
             </div>
           </div>
-          <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center hover:shadow-lg transition-shadow">
+          <div class="rounded-lg shadow p-6 flex flex-col items-center hover:shadow-lg transition-shadow" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
             <div class="text-2xl font-bold text-pink-600">{{ overview.total_queries || 0 }}</div>
             <div class="text-gray-700 mt-2">Total Queries</div>
             <div class="text-xs text-gray-500 mt-1">
               {{ overview.resolved_queries || 0 }} resolved
             </div>
           </div>
-          <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center hover:shadow-lg transition-shadow">
+          <div class="rounded-lg shadow p-6 flex flex-col items-center hover:shadow-lg transition-shadow" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
             <div class="text-2xl font-bold text-green-700">
               {{ performance ? Math.round(performance.resolution_rate_percentage) : 0 }}%
             </div>
@@ -71,7 +71,7 @@
             <!-- Charts Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- FAQ Analytics -->
-              <div class="bg-white rounded-lg shadow p-6">
+              <div class="rounded-lg shadow p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
                 <h2 class="text-lg font-semibold text-indigo-700 mb-2">FAQ Analytics</h2>
                 <div v-if="faqs && faqs.faqs.length > 0" class="space-y-2">
                   <div v-for="(faq, index) in faqs.faqs.slice(0, 5)" :key="index" class="text-sm">
@@ -91,7 +91,7 @@
               </div>
 
               <!-- Performance Metrics -->
-              <div class="bg-white rounded-lg shadow p-6">
+              <div class="rounded-lg shadow p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
                 <h2 class="text-lg font-semibold text-indigo-700 mb-2">Performance Metrics</h2>
                 <div v-if="performance" class="space-y-3">
                   <div class="flex justify-between items-center">
@@ -112,7 +112,7 @@
             </div>
 
             <!-- Recent Queries Table -->
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="rounded-lg shadow p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-indigo-700">Top FAQs</h2>
                 <span class="text-sm text-gray-600">Last 30 days</span>
@@ -158,7 +158,7 @@
             </div>
 
             <!-- User Statistics by Role -->
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="rounded-lg shadow p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-indigo-700">Users by Role</h2>
                 <span class="text-sm text-gray-600">Total: {{ overview.total_users || 0 }}</span>
@@ -209,7 +209,7 @@
           <!-- Quick Actions & Stats -->
           <div class="flex flex-col gap-8">
             <!-- Sentiment Analysis -->
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="rounded-lg shadow p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
               <h2 class="text-lg font-semibold text-indigo-700 mb-4">Sentiment Analysis</h2>
               <div v-if="sentiment" class="space-y-3">
                 <div class="text-center mb-4">

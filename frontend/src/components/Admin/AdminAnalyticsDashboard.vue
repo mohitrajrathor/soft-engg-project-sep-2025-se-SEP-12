@@ -69,7 +69,7 @@
         <!-- Performance & Sentiment Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <!-- Performance Metrics -->
-          <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="rounded-xl shadow-lg p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
             <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
               <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
               Performance Metrics
@@ -101,7 +101,7 @@
           </div>
 
           <!-- Sentiment Analysis -->
-          <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="rounded-xl shadow-lg p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
             <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
               <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
               Sentiment Analysis
@@ -145,7 +145,7 @@
         </div>
 
         <!-- FAQs Section -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div class="rounded-xl shadow-lg p-6 mb-8" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-gray-900 flex items-center">
               <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
@@ -159,7 +159,8 @@
             <div
               v-for="(faq, index) in faqs.faqs"
               :key="index"
-              class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              class="p-4 rounded-lg transition-colors"
+              :style="{ background: 'var(--color-bg-section)', borderColor: 'var(--color-border)' }"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1">
@@ -188,7 +189,7 @@
         </div>
 
         <!-- Usage Statistics -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="rounded-xl shadow-lg p-6" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
           <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
             <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
             Usage Statistics
@@ -273,10 +274,10 @@ import { ref, onMounted, computed } from 'vue'
 import { analyticsAPI } from '@/api'
 
 // Metric Card Component (inline for simplicity)
-const MetricCard = {
+  const MetricCard = {
   props: ['title', 'value', 'subtitle', 'icon', 'color'],
   template: `
-    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+    <div class="rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow" :style="{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }">
       <div class="flex items-center justify-between mb-2">
         <div :class="'text-' + color + '-600'" class="text-3xl font-bold">{{ value || '0' }}</div>
       </div>
