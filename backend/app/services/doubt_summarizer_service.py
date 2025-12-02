@@ -44,13 +44,19 @@ class DoubtSummarizerService:
     def __init__(self):
         """Initialize LLM + JSON parser"""
         self.llm = None
-        self.parser = JsonOutputParser(pydantic_object=WeeklySummaryResponse)
+        self.parser = None
+
+        if not LANGCHAIN_AVAILABLE:
+            logger.warning("LangChain not installed. Doubt summarizer will not work.")
+            logger.warning("Install with: pip install langchain langchain-google-genai")
+            return
 
         if not settings.GOOGLE_API_KEY:
             logger.warning("⚠️ Google API Key missing — LLM disabled.")
             return
 
         try:
+            self.parser = JsonOutputParser(pydantic_object=WeeklySummaryResponse)
             self.llm = ChatGoogleGenerativeAI(
                 model=settings.GEMINI_MODEL,
                 google_api_key=settings.GOOGLE_API_KEY,
@@ -94,28 +100,63 @@ class DoubtSummarizerService:
     # -------------------------------------------------------------------------
     # Task 2 — Fetch Recent Messages
     # -------------------------------------------------------------------------
-    def get_recent_messages_for_course(self, db: Session, course_code: str, limit: int = 100) -> List[str]:
+    def get_recent_messages_for_course(
+        self, 
+        db: Session, 
+        course_code: str, 
+        limit: int = 100,
+        period: str = None,
+        source: str = None
+    ) -> List[str]:
         """
-        Fetch the most recent messages for a course.
+        Fetch the most recent messages for a course with optional period and source filters.
+        
+        Args:
+            period: 'daily', 'weekly', 'monthly', or None for all time
+            source: 'forum', 'email', 'chat', or None for all sources
         """
+        from datetime import datetime, timedelta
 
-        rows = (
+        query = (
             db.query(DoubtMessage.text)
             .join(DoubtUpload, DoubtMessage.upload_id == DoubtUpload.id)
             .filter(DoubtUpload.course_code == course_code)
-            .order_by(DoubtUpload.created_at.desc())
-            .limit(limit)
-            .all()
         )
+
+        # Apply period filter
+        if period:
+            now = datetime.utcnow()
+            if period == 'daily':
+                start_date = now - timedelta(days=1)
+            elif period == 'weekly':
+                start_date = now - timedelta(weeks=1)
+            elif period == 'monthly':
+                start_date = now - timedelta(days=30)
+            else:
+                start_date = None
+            
+            if start_date:
+                query = query.filter(DoubtUpload.created_at >= start_date)
+
+        # Apply source filter
+        if source and source != 'all':
+            query = query.filter(DoubtUpload.source == source)
+
+        rows = query.order_by(DoubtUpload.created_at.desc()).limit(limit).all()
 
         return [r[0] for r in rows]
 
     # -------------------------------------------------------------------------
     # Task 3 — LLM Analysis (Summary + Topics + Insights)
     # -------------------------------------------------------------------------
-    async def generate_summary_topics_insights(self, messages: List[str], course_code: str) -> Dict[str, Any]:
+    async def generate_summary_topics_insights(self, messages: List[str], course_code: str, include_stats: bool = False) -> Dict[str, Any]:
         """
         Sends messages to Gemini to generate structured summaries.
+        
+        Args:
+            messages: List of doubt message texts
+            course_code: Course identifier
+            include_stats: If True, caller should add stats separately
         """
 
         if not self.llm:
@@ -149,13 +190,125 @@ Return ONLY valid JSON with:
 
         try:
             formatted = "\n".join([f"- {m}" for m in messages])
-            return await chain.ainvoke({
+            result = await chain.ainvoke({
                 "course_code": course_code,
                 "doubts_text": formatted
             })
+            
+            # Calculate recurring issues: learning gaps mentioned by multiple students
+            if isinstance(result, dict) and 'learning_gaps' in result:
+                recurring_count = sum(1 for gap in result.get('learning_gaps', []) 
+                                     if isinstance(gap, dict) and gap.get('student_count', 0) > 1)
+                result['recurring_issues_count'] = recurring_count
+            
+            return result
         except Exception as e:
             logger.error(f"LLM Error: {e}")
             return {"error": str(e)}
+
+    # -------------------------------------------------------------------------
+    # Task 3.5 — Compute Enhanced Statistics
+    # -------------------------------------------------------------------------
+    def compute_summary_stats(self, db: Session, course_code: str, period: str = None, source: str = None) -> Dict[str, Any]:
+        """
+        Compute comprehensive statistics including message counts, unique uploads, and recurring issues.
+        """
+        from datetime import datetime, timedelta
+        from sqlalchemy import func, distinct
+
+        query = (
+            db.query(
+                func.count(DoubtMessage.id).label('total_messages'),
+                func.count(distinct(DoubtUpload.id)).label('unique_uploads')
+            )
+            .join(DoubtUpload, DoubtMessage.upload_id == DoubtUpload.id)
+            .filter(DoubtUpload.course_code == course_code)
+        )
+
+        # Apply period filter
+        if period:
+            now = datetime.utcnow()
+            if period == 'daily':
+                start_date = now - timedelta(days=1)
+            elif period == 'weekly':
+                start_date = now - timedelta(weeks=1)
+            elif period == 'monthly':
+                start_date = now - timedelta(days=30)
+            else:
+                start_date = None
+            
+            if start_date:
+                query = query.filter(DoubtUpload.created_at >= start_date)
+
+        # Apply source filter
+        if source and source != 'all':
+            query = query.filter(DoubtUpload.source == source)
+
+        result = query.first()
+
+        return {
+            'total_messages': result.total_messages if result else 0,
+            'unique_uploads': result.unique_uploads if result else 0
+        }
+
+    # -------------------------------------------------------------------------
+    # Task 4 — Get Source Breakdown
+    # -------------------------------------------------------------------------
+    def get_source_breakdown(self, db: Session, course_code: str, period: str = None) -> Dict[str, Any]:
+        """
+        Get breakdown of doubts by source (forum, email, chat) with counts and percentages.
+        """
+        from datetime import datetime, timedelta
+        from sqlalchemy import func
+
+        query = (
+            db.query(
+                DoubtUpload.source,
+                func.count(DoubtMessage.id).label('count')
+            )
+            .join(DoubtMessage, DoubtUpload.id == DoubtMessage.upload_id)
+            .filter(DoubtUpload.course_code == course_code)
+        )
+
+        # Apply period filter
+        if period:
+            now = datetime.utcnow()
+            if period == 'daily':
+                start_date = now - timedelta(days=1)
+            elif period == 'weekly':
+                start_date = now - timedelta(weeks=1)
+            elif period == 'monthly':
+                start_date = now - timedelta(days=30)
+            else:
+                start_date = None
+            
+            if start_date:
+                query = query.filter(DoubtUpload.created_at >= start_date)
+
+        results = query.group_by(DoubtUpload.source).all()
+
+        # Calculate totals and percentages
+        total = sum(r.count for r in results)
+        breakdown = {}
+        
+        for result in results:
+            source_name = result.source
+            count = result.count
+            percentage = round((count / total * 100), 1) if total > 0 else 0
+            breakdown[source_name] = {
+                "count": count,
+                "percentage": percentage
+            }
+
+        # Ensure all sources are present (even if 0)
+        for source in ['forum', 'email', 'chat']:
+            if source not in breakdown:
+                breakdown[source] = {"count": 0, "percentage": 0}
+
+        return {
+            "total": total,
+            "breakdown": breakdown
+        }
 
     # -------------------------------------------------------------------------
     # Empty State

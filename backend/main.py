@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from app.routers.doubt_summarizer_router import router as doubt_router
+from app.api.doubt_summarizer_router import router as doubt_router
 
 # Try to import LangChain (optional dependency)
 try:
@@ -194,10 +194,13 @@ app.include_router(
     tags=["Authentication"]
 )
 
-# Doubt Summarizer
+# Doubt Summarizer routes
 app.include_router(
-    doubt_router  
+    doubt_router,
+    prefix=f"{settings.API_PREFIX}/doubts",
+    tags=["Doubt Summarizer"]
 )
+
 
 # Chatbot routes
 app.include_router(
