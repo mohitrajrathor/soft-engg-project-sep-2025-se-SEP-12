@@ -14,18 +14,89 @@ import QuizList from '@/components/shared/assessment/QuizList.vue'
 
 
 export default [
-    { path: 'dashboard', name: 'TaDashboard', component: TADashboard },
-    {path: 'query-tracker', name: 'TaQueryTracker', component: QueryTracker},
-    { path: 'assessment-generator', name: 'TaAssessmentWorkspace', component: AssessmentWorkspace, props: () => ({ role:'ta' }) },
-    { path: 'quiz-list', name: 'TaQuizList', component: QuizList, props: () => ({ role:'ta' }) },
-    { path: 'quiz-details/:id', name: 'TaQuizDetails', component: QuizDetails, props: (route) => ({ role:'ta', id: route.params.id }) },
-    { path: 'slide-deck-creator', name: 'TaSlideDeckWorkspace', component: SlideDeckWorkspace, props: () => ({ role:'ta' })},
-    { path: 'slide-decks', name: 'TaSlideDeckViewer', component: SlideDeckViewer, props: () => ({ role:'ta' })},
-    { path: 'slide-deck/:id', name: 'TaSlideDeckDetail', component: SlideDeckDetail, props: (route) => ({ role:'ta', id: route.params.id })},
-    { path: 'slide-deck/:id/edit', name: 'TaSlideDeckEdit', component: SlideDeckEdit, props: (route) => ({ role:'ta', id: route.params.id })},
-    { path: 'doubt-summarizer', name: 'DoubtSummarizer', component: DoubtSummarizer },
-    { path: 'onboarding-mentor', name: 'OnboardingMentor', component: OnboardingMentor },
-    { path: 'resource', name: 'TaResoursesHub', component: TaResourseshub }, 
-    { path: 'profile', name: 'TaProfile', component: TaProfile },
-
+    { 
+      path: 'dashboard', 
+      name: 'TaDashboard', 
+      component: TADashboard,
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    {
+      path: 'query-tracker', 
+      name: 'TaQueryTracker', 
+      component: QueryTracker,
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'assessment-generator', 
+      name: 'TaAssessmentWorkspace', 
+      component: AssessmentWorkspace, 
+      props: () => ({ role:'ta' }),
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'quiz-list', 
+      name: 'TaQuizList', 
+      component: QuizList, 
+      props: () => ({ role:'ta' }),
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'quiz-details/:id', 
+      name: 'TaQuizDetails', 
+      component: QuizDetails, 
+      props: (route) => ({ role:'ta', id: route.params.id }),
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'slide-deck-creator', 
+      name: 'TaSlideDeckWorkspace', 
+      component: SlideDeckWorkspace, 
+      props: () => ({ role:'ta' }),
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'slide-decks', 
+      name: 'TaSlideDeckViewer', 
+      component: SlideDeckViewer, 
+      props: () => ({ role:'ta' }),
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'slide-deck/:id', 
+      name: 'TaSlideDeckDetail', 
+      component: SlideDeckDetail, 
+      props: (route) => ({ role:'ta', id: route.params.id }),
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'slide-deck/:id/edit', 
+      name: 'TaSlideDeckEdit', 
+      component: SlideDeckEdit, 
+      props: (route) => ({ role:'ta', id: route.params.id }),
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'doubt-summarizer', 
+      name: 'DoubtSummarizer', 
+      component: DoubtSummarizer,
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'onboarding-mentor', 
+      name: 'OnboardingMentor', 
+      component: OnboardingMentor,
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'resource', 
+      name: 'TaResoursesHub', 
+      component: TaResourseshub,
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    }, 
+    { 
+      path: 'profile', 
+      name: 'TaProfile', 
+      component: TaProfile,
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
 ]
