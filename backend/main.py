@@ -197,7 +197,7 @@ app.include_router(
 # Doubt Summarizer routes
 app.include_router(
     doubt_router,
-    prefix=f"{settings.API_PREFIX}/doubts",
+    prefix=f"{settings.API_PREFIX}/ta",
     tags=["Doubt Summarizer"]
 )
 
