@@ -50,14 +50,14 @@ const routes = [
   {
     path: '/unauthorized',
     name: 'Unauthorized',
-    component: () => import('../components/common/Unauthorized.vue'),
+    component: () => import('../components/shared/Unauthorized.vue'),
     meta: { requiresAuth: false }
   },
   // Catch-all 404 route
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('../components/common/NotFound.vue'),
+    component: () => import('../components/shared/NotFound.vue'),
     meta: { requiresAuth: false }
   }
 ]
