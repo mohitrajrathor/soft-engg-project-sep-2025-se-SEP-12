@@ -251,6 +251,33 @@ def populate_database():
                 print(f"  - Course already exists: {course_data['name']}")
 
         # ============================================================
+        # ASSIGN COURSES TO USERS
+        # ============================================================
+        print("\nAssigning courses to users...")
+        from app.models.user_course import UserCourse
+        
+        # Assign all students to a subset of courses
+        if all_students and created_courses:
+            for student in all_students:
+                # Each student gets 2-4 random courses
+                num_courses = min(random.randint(2, 4), len(created_courses))
+                assigned_courses = random.sample(created_courses, num_courses)
+                
+                for course in assigned_courses:
+                    existing = db.query(UserCourse).filter(
+                        UserCourse.user_id == student.id,
+                        UserCourse.course_id == course.id
+                    ).first()
+                    
+                    if not existing:
+                        user_course = UserCourse(user_id=student.id, course_id=course.id)
+                        db.add(user_course)
+                        print(f"  + Assigned {student.email} to {course.name}")
+        
+        # TAs are already assigned via signup (if they selected courses)
+        # Instructors are already assigned via signup (if they selected courses)
+
+        # ============================================================
         # CREATE ANNOUNCEMENTS (5 entries)
         # ============================================================
         print("\nCreating announcements...")

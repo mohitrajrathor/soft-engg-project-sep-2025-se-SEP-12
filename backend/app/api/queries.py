@@ -10,7 +10,7 @@ Provides endpoints for:
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status as http_status, Query as QueryParam
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, desc
 from typing import Optional, List
 from datetime import datetime
@@ -206,8 +206,8 @@ async def get_query(
 ):
     """Get specific query with responses."""
     try:
-        # Fetch query
-        query = db.query(Query).filter(Query.id == query_id).first()
+        # Fetch query with eager loading of responses
+        query = db.query(Query).options(joinedload(Query.responses)).filter(Query.id == query_id).first()
 
         if not query:
             raise HTTPException(
