@@ -1,6 +1,6 @@
 {
   "slide_generation": {
-    "model": "gemini-1.5-pro",
+    "model": "gemini-2.5-pro",
     "temperature": 0.7,
     "max_tokens": 4096,
     "content_limits": {
