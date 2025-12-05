@@ -315,27 +315,10 @@ Remember to personalize your response based on the user's conversation history a
 
         # Generate response
         response, conv_id = await chatbot_service.chat(
-            message=enhanced_message,
-            conversation_id=chat_request.conversation_id,
-            mode=chat_request.mode
-        )
-
-        # Get or create chat session for this conversation
-        # New conversation = new session, same conversation = same session
-        chat_session = get_or_create_chat_session(
-            db=db,
-            user=current_user,
-            conversation_id=conv_id,
-            request=http_request
-        )
-
-        # Update session with message and summary
-        update_chat_session_with_message(
-            db=db,
-            session=chat_session,
-            user_message=chat_request.message,  # Store original message, not enhanced
-            ai_response=response,
-            conversation_id=conv_id
+            message=request.message,
+            conversation_id=request.conversation_id,
+            mode=request.mode,
+            use_rag=request.use_rag
         )
 
         return ChatResponse(
@@ -380,7 +363,8 @@ async def chat_stream(
             async for chunk in chatbot_service.chat_stream(
                 message=request.message,
                 conversation_id=request.conversation_id,
-                mode=request.mode
+                mode=request.mode,
+                use_rag=request.use_rag
             ):
                 yield f"data: {chunk}\n\n"
 
