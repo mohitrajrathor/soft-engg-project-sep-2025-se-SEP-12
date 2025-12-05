@@ -303,6 +303,7 @@ jspm_packages/
 
 # dotenv environment variables file
 .env
+!.env
 
 # next.js build output
 .next
@@ -329,6 +330,7 @@ app.db
 *_backup.*
 .claude
 *.txt
+!requirements.txt
 
 # Test response files
 *_response.json

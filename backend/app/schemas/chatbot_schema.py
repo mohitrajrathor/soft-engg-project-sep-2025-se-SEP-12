@@ -91,6 +91,10 @@ class ChatRequest(BaseModel):
         max_length=1000,
         description="Additional context"
     )
+    use_rag: bool = Field(
+        default=True,
+        description="Whether to use RAG for this request"
+    )
 
 
 class ChatStreamRequest(BaseModel):

@@ -54,7 +54,8 @@ async def chat(
         response, conv_id = await chatbot_service.chat(
             message=request.message,
             conversation_id=request.conversation_id,
-            mode=request.mode
+            mode=request.mode,
+            use_rag=request.use_rag
         )
 
         return ChatResponse(
@@ -99,7 +100,8 @@ async def chat_stream(
             async for chunk in chatbot_service.chat_stream(
                 message=request.message,
                 conversation_id=request.conversation_id,
-                mode=request.mode
+                mode=request.mode,
+                use_rag=request.use_rag
             ):
                 yield f"data: {chunk}\n\n"
 
