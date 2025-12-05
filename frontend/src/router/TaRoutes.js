@@ -1,10 +1,9 @@
 import AssessmentWorkspace from '@/components/shared/assessment/AssessmentWorkspace.vue'
 import TADashboard from '@/components/TA/TADashboard.vue'
 import QueryTracker from '@/components/TA/QueryTracker.vue'
-import SlideDeckWorkspace from '@/components/shared/slideDeck/SlideDeckWorkspace.vue'
+import SlideDeckConfig from '@/components/shared/slideDeck/SlideDeckConfig.vue'
+import SlideDeckPreview from '@/components/shared/slideDeck/SlideDeckPreview.vue'
 import SlideDeckViewer from '@/components/shared/slideDeck/SlideDeckViewer.vue'
-import SlideDeckDetail from '@/components/shared/slideDeck/SlideDeckDetail.vue'
-import SlideDeckEdit from '@/components/shared/slideDeck/SlideDeckEdit.vue'
 import DoubtSummarizer from '../components/TA/DoubtSummarizer.vue'
 import OnboardingMentor from '../components/TA/OnboardingMentor.vue'
 import TaResourseshub from '@/components/TA/TaResourses_hub.vue'
@@ -49,9 +48,16 @@ export default [
     },
     { 
       path: 'slide-deck-creator', 
-      name: 'TaSlideDeckWorkspace', 
-      component: SlideDeckWorkspace, 
+      name: 'TaSlideDeckConfig', 
+      component: SlideDeckConfig, 
       props: () => ({ role:'ta' }),
+      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
+    },
+    { 
+      path: 'slide-deck-preview/:deckId?', 
+      name: 'TaSlideDeckPreview', 
+      component: SlideDeckPreview, 
+      props: (route) => ({ role: 'ta', deckId: route.params.deckId }),
       meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
     },
     { 
@@ -59,20 +65,6 @@ export default [
       name: 'TaSlideDeckViewer', 
       component: SlideDeckViewer, 
       props: () => ({ role:'ta' }),
-      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
-    },
-    { 
-      path: 'slide-deck/:id', 
-      name: 'TaSlideDeckDetail', 
-      component: SlideDeckDetail, 
-      props: (route) => ({ role:'ta', id: route.params.id }),
-      meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
-    },
-    { 
-      path: 'slide-deck/:id/edit', 
-      name: 'TaSlideDeckEdit', 
-      component: SlideDeckEdit, 
-      props: (route) => ({ role:'ta', id: route.params.id }),
       meta: { requiresAuth: true, allowedRoles: ['ta', 'instructor', 'admin'] }
     },
     { 

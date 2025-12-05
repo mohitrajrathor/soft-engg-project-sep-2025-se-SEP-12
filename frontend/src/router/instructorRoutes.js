@@ -1,13 +1,12 @@
 import AssessmentWorkspace from '../components/shared/assessment/AssessmentWorkspace.vue'
 import InstructorDashboard from '../components/instructor/InstructorDashboard.vue'
 import InstructorDiscussionSummaries from '../components/instructor/InstructorDiscussionSummaries.vue'
-import SlideDeckWorkspace from '../components/shared/slideDeck/SlideDeckWorkspace.vue'
+import SlideDeckConfig from '../components/shared/slideDeck/SlideDeckConfig.vue'
+import SlideDeckPreview from '../components/shared/slideDeck/SlideDeckPreview.vue'
 import InstructorProfile from '../components/instructor/InstructorProfile.vue'
 import QuizDetails from '../components/shared/assessment/QuizDetail.vue'
 import QuizList from '../components/shared/assessment/QuizList.vue'
 import SlideDeckViewer from '../components/shared/slideDeck/SlideDeckViewer.vue'
-import SlideDeckDetail from '../components/shared/slideDeck/SlideDeckDetail.vue'
-import SlideDeckEdit from '../components/shared/slideDeck/SlideDeckEdit.vue'
 
 export default {
   path: '/instructor',
@@ -34,30 +33,23 @@ export default {
     },
     { 
       path: 'slide-deck-generator', 
-      name: 'InstructorSlideDeckWorkspace', 
-      component: SlideDeckWorkspace, 
+      name: 'InstructorSlideDeckConfig', 
+      component: SlideDeckConfig, 
       props: () => ({ role:'instructor' }),
+      meta: { requiresAuth: true, allowedRoles: ['instructor', 'admin'] }
+    },
+    { 
+      path: 'slide-deck-preview/:deckId?', 
+      name: 'InstructorSlideDeckPreview', 
+      component: SlideDeckPreview, 
+      props: (route) => ({ role: 'instructor', deckId: route.params.deckId }),
       meta: { requiresAuth: true, allowedRoles: ['instructor', 'admin'] }
     },
     { 
       path: 'slide-decks', 
-      name: 'SlideDeckViewer', 
+      name: 'InstructorSlideDeckViewer', 
       component: SlideDeckViewer, 
       props: () => ({ role:'instructor' }),
-      meta: { requiresAuth: true, allowedRoles: ['instructor', 'admin'] }
-    },
-    { 
-      path: 'slide-deck/:id', 
-      name: 'SlideDeckDetail', 
-      component: SlideDeckDetail, 
-      props: (route) => ({ role:'instructor', id: route.params.id }),
-      meta: { requiresAuth: true, allowedRoles: ['instructor', 'admin'] }
-    },
-    { 
-      path: 'slide-deck/:id/edit', 
-      name: 'SlideDeckEdit', 
-      component: SlideDeckEdit, 
-      props: (route) => ({ role:'instructor', id: route.params.id }),
       meta: { requiresAuth: true, allowedRoles: ['instructor', 'admin'] }
     },
     { 
