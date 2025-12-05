@@ -14,14 +14,34 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
-from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
+from app.api.doubt_summarizer_router import router as doubt_router
+
+# Try to import LangChain (optional dependency)
+try:
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    LANGCHAIN_AVAILABLE = True
+except ImportError:
+    LANGCHAIN_AVAILABLE = False
+    ChatGoogleGenerativeAI = None
 
 from app.core.config import settings
 from app.core.db import init_db
 from app.api.auth import auth_router
 from app.api.chatbot import chatbot_router
-
+from app.api.knowledge import router as knowledge_router
+from app.api.dashboard import router as dashboard_router
+from app.api.tasks import router as tasks_router
+from app.api.seed import router as seed_router
+from app.api.seed_enhanced import router as seed_enhanced_router
+from app.api.queries import router as queries_router
+from app.api.course_router import router as course_router
+from app.api.tag_router import router as tag_router
+from app.api.quiz_router import router as quiz_router
+from app.api.slide_deck_router import router as slide_deck_router
+from app.api.analytics import router as analytics_router
+from app.api.instructor_analytics import router as instructor_analytics_router
+from app.api import video_router
 
 # ============================================================================
 # Application Lifecycle Management
@@ -43,17 +63,10 @@ async def lifespan(app: FastAPI):
     init_db()
     print("Database initialized")
 
-
-    # Initialize Google LLM 
-    app.state.llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        temperature=0.7
-    )
-
     yield
 
     # Shutdown: Cleanup (if needed)
-    print("👋 Shutting down AURA API...")
+    print("Shutting down AURA API...")
 
 
 # ============================================================================
@@ -92,30 +105,30 @@ Most endpoints require authentication using JWT Bearer tokens.
 
 ### Features
 
-#### 🔐 Authentication & Authorization
+#### Authentication & Authorization
 - JWT-based authentication with refresh tokens
 - Role-based access control
 - Secure password hashing with Argon2
 
-#### ❓ Query Management
+#### Query Management
 - Students can post doubts/questions
 - TAs/Instructors can respond and resolve queries
 - Priority levels and status tracking
 - Query analytics and statistics
 
-#### 📚 Resource Management
+#### Resource Management
 - Upload and share educational materials
 - Multiple resource types (videos, PDFs, links, etc.)
 - Access control (public, course-specific, private)
 - Download and view tracking
 
-#### 📢 Announcements
+#### Announcements
 - Institution-wide and course-specific announcements
 - Target specific user roles
 - Urgent/deadline notifications
 - Pin important announcements
 
-#### 👤 User Profiles
+#### User Profiles
 - Extended user information
 - Academic details and interests
 - Activity statistics
@@ -181,20 +194,107 @@ app.include_router(
     tags=["Authentication"]
 )
 
+# Doubt Summarizer routes
+app.include_router(
+    doubt_router,
+    prefix=f"{settings.API_PREFIX}/ta",
+    tags=["Doubt Summarizer"]
+)
+
+
 # Chatbot routes
 app.include_router(
     chatbot_router,
-    prefix=settings.API_PREFIX,
+    prefix=f"{settings.API_PREFIX}/chatbot",
     tags=["Chatbot"]
 )
 
+# Knowledge Base routes
+app.include_router(
+    knowledge_router,
+    prefix=settings.API_PREFIX
+)
+
+# Dashboard & Analytics routes
+app.include_router(
+    dashboard_router,
+    prefix=settings.API_PREFIX
+)
+
+# Background Tasks routes
+app.include_router(
+    tasks_router,
+    prefix=settings.API_PREFIX
+)
+
+# Seed Data routes (for development/testing)
+app.include_router(
+    seed_router,
+    prefix=settings.API_PREFIX
+)
+
+# Enhanced Seed Data routes (for comprehensive testing)
+app.include_router(
+    seed_enhanced_router,
+    prefix=settings.API_PREFIX
+)
+
+# Queries routes
+app.include_router(
+    queries_router,
+    prefix=settings.API_PREFIX
+)
+
+# Analytics routes (Admin dashboard)
+app.include_router(
+    analytics_router,
+    prefix=settings.API_PREFIX
+)
+
+# Instructor Analytics routes (Discussion summaries, sentiment)
+app.include_router(
+    instructor_analytics_router,
+    prefix=settings.API_PREFIX
+)
+
+# Course routes
+app.include_router(
+    course_router,
+    prefix=f"{settings.API_PREFIX}/courses",
+    tags=["Courses"]
+)
+
+# Tag routes
+app.include_router(
+    tag_router,
+    prefix=f"{settings.API_PREFIX}/tags",
+    tags=["Tags"]
+)
+
+# Quiz routes
+app.include_router(
+    quiz_router,
+    prefix=f"{settings.API_PREFIX}/quizzes",
+    tags=["Quizzes"]
+)
+
+# Slide Deck routes
+app.include_router(
+    slide_deck_router,
+    prefix=f"{settings.API_PREFIX}/slide-decks",
+    tags=["Slide Decks"]
+)
+# Video Summary routes
+app.include_router(
+    video_router.router, 
+    prefix="/api/video", 
+    tags=["Video"])
+
 # TODO: Add more routers as they are implemented
-# from app.api.queries import queries_router
 # from app.api.resources import resources_router
 # from app.api.announcements import announcements_router
 # from app.api.profiles import profiles_router
 #
-# app.include_router(queries_router, prefix=settings.API_PREFIX, tags=["Queries"])
 # app.include_router(resources_router, prefix=settings.API_PREFIX, tags=["Resources"])
 # app.include_router(announcements_router, prefix=settings.API_PREFIX, tags=["Announcements"])
 # app.include_router(profiles_router, prefix=settings.API_PREFIX, tags=["Profiles"])
@@ -273,18 +373,18 @@ if __name__ == "__main__":
 
     env_display = "Development" if settings.DEBUG else "Production"
     print(f"""
-    ╔═══════════════════════════════════════════════════════════════╗
-    ║                                                               ║
-    ║   🎓 AURA - Academic Unified Response Assistant 🎓           ║
-    ║                                                               ║
-    ║   Version: {settings.APP_VERSION:<50} ║
-    ║   Environment: {env_display:<44} ║
-    ║                                                               ║
-    ║   📚 API Documentation: http://localhost:8000/docs           ║
-    ║   📖 ReDoc: http://localhost:8000/redoc                      ║
-    ║   🏥 Health Check: http://localhost:8000/health              ║
-    ║                                                               ║
-    ╚═══════════════════════════════════════════════════════════════╝
+    ================================================================
+
+       AURA - Academic Unified Response Assistant
+
+       Version: {settings.APP_VERSION:<50}
+       Environment: {env_display:<44}
+
+       API Documentation: http://localhost:8000/docs
+       ReDoc: http://localhost:8000/redoc
+       Health Check: http://localhost:8000/health
+
+    ================================================================
     """)
 
     uvicorn.run(

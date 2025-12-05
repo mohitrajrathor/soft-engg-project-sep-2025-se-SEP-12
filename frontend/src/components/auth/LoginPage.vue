@@ -2,12 +2,12 @@
   <div class="login-wrapper">
     <div class="login-box">
 
-      <!-- 🔹 Left Section -->
+      <!--  Left Section -->
       <div class="left-section">
         <div class="text-content">
           <h1>Welcome to AURA</h1>
           <p class="lead">
-            Your personalized academic assistant — track, analyze, and enhance your learning journey.
+            Your personalized academic assistant for track, analyze, and enhance your learning journey.
           </p>
           <p class="small">
             Designed for IITM BS students.
@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <!-- 🔹 Right Section -->
+      <!-- Right Section -->
       <div class="right-section">
         <div class="form-content">
           <div class="text-end mb-3">
@@ -164,7 +164,7 @@ export default {
 </script>
 
 <style scoped>
-/* ✅ Page background */
+/* Page background */
 .login-wrapper {
   background: url('/src/assets/login.jpg') no-repeat center center / cover;
   height: 100dvh;
@@ -173,7 +173,7 @@ export default {
   align-items: center;
 }
 
-/* ✅ Main login box */
+/* Main login box */
 .login-box {
   display: flex;
   flex-direction: row;
@@ -185,7 +185,7 @@ export default {
   box-shadow: 0 8px 35px rgba(0, 0, 0, 0.3);
 }
 
-/* ✅ Left Section */
+/* Left Section */
 .left-section {
   width: 50%;
   background: url('/src/assets/background.png') no-repeat center center / cover;
@@ -223,7 +223,7 @@ export default {
   color: #424242;
 }
 
-/* ✅ Right Section */
+/* Right Section */
 .right-section {
   width: 50%;
   display: flex;
@@ -237,7 +237,7 @@ export default {
   max-width: 360px;
 }
 
-/* ✅ Buttons */
+/* Buttons */
 .btn-gradient {
   background: linear-gradient(135deg, #1976d2, #004ba0);
   border: none;
@@ -252,7 +252,7 @@ export default {
   transform: scale(1.03);
 }
 
-/* ✅ Inputs */
+/* Inputs */
 input.form-control {
   padding: 0.9rem 1.1rem;
   border: 1px solid #cfd8dc;
@@ -264,12 +264,12 @@ input.form-control:focus {
   box-shadow: 0 0 10px rgba(25, 118, 210, 0.3);
 }
 
-/* ✅ Prevent auto shrink on zoom */
+/* Prevent auto shrink on zoom */
 * {
   flex-shrink: 0;
 }
 
-/* ✅ Responsive for small screens */
+/* Responsive for small screens */
 @media (max-width: 992px) {
   .login-box {
     flex-direction: column;

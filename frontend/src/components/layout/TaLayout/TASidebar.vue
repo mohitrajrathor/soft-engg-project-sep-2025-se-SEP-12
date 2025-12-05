@@ -12,7 +12,8 @@ const mainNav = [
   { name: 'Resource Hub', path: '/ta/resource', icon: 'bi-question-circle' },
   {name: 'Onboarding Mentor', path: '/ta/onboarding-mentor', icon: 'bi-people-fill' },
   {name: 'Assessment Generator', path: '/ta/assessment-generator', icon: 'bi-file-earmark-text' },
-  {name: 'Slide Deck Creator', path: '/ta/slide-deck-creator', icon: 'bi-file-slides' },
+  { name: 'Slides Workspace', path: '/ta/slide-deck-creator', icon: 'bi-file-slides' },
+  { name: 'My Slide Decks', path: '/ta/slide-decks', icon: 'bi-collection-play' },
   { name: 'Profile', path: '/ta/profile', icon: 'bi-gear' },
 ]
 
@@ -37,7 +38,7 @@ function signOut() {
     <!-- Main nav -->
     <ul class="nav nav-pills flex-column mb-auto">
       <li v-for="item in mainNav" :key="item.path">
-        <RouterLink :to="item.path" class="nav-link text-white" active-class="active-link">
+        <RouterLink :to="item.path" class="nav-link" active-class="active-link" style="color: white !important;">
           <i :class="`${item.icon} me-2`"></i> {{ item.name }}
         </RouterLink>
       </li>
@@ -49,7 +50,7 @@ function signOut() {
     <!-- <p class="text-secondary text-uppercase small mb-2">Quick Actions</p>
     <ul class="nav nav-pills flex-column mb-auto">
       <li v-for="action in quickActions" :key="action.path">
-        <RouterLink :to="action.path" class="nav-link text-white" active-class="active-link">
+        <RouterLink :to="action.path" class="nav-link" active-class="active-link" style="color: white !important;">
           <i :class="`${action.icon} me-2`"></i> {{ action.name }}
         </RouterLink>
       </li>
@@ -66,10 +67,15 @@ function signOut() {
 </template>
 
 <style scoped>
+.nav-link {
+  color: white !important;
+}
 .nav-link:hover {
   background-color: #1b263b !important;
+  color: white !important;
 }
 .active-link {
   background-color: #1b263b !important;
+  color: white !important;
 }
 </style>

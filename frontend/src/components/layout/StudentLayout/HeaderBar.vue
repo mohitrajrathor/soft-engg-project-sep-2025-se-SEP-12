@@ -1,8 +1,8 @@
 <template>
   <div class="header-section">
 
-    <!-- 🔹 Top Box -->
-    <div class="top-box d-flex justify-content-between align-items-center p-3 bg-white rounded shadow-sm mb-2">
+    <!--  Top Box -->
+    <div class="top-box d-flex justify-content-between align-items-center p-3 rounded shadow-sm mb-2">
       <div class="d-flex align-items-center">
         <i class="bi bi-search text-muted me-2"></i>
         <input
@@ -31,7 +31,7 @@
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
             <img :src="profileImage" alt="Profile" class="rounded-circle me-2" width="36" height="36" />
-            <span class="fw-semibold text-dark">TA</span>
+            <span class="fw-semibold text-dark"> Student </span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle me-2"></i>Profile</a></li>
@@ -63,20 +63,22 @@ export default {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: #f8f9fa;
+  background-color: var(--card-bg);
   padding-bottom: 0.5rem;
 }
 
 .top-box, .bottom-box {
-  border: 1px solid #e1e5eb;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
 }
 
 .shadow-sm {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 6px var(--card-shadow);
 }
 
 .hover-shadow:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--card-shadow);
   transition: all 0.2s ease;
 }
 

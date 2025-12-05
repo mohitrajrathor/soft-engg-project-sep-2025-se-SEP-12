@@ -118,6 +118,25 @@ class UserUpdate(BaseModel):
 # ----------- Response Schemas -----------
 
 
+class UserSimpleResponse(BaseModel):
+    """
+    A simplified user schema for nested responses.
+
+    This schema is useful for embedding creator/user information within
+    other API responses without exposing sensitive details.
+
+    Attributes:
+        id: User's unique identifier
+        email: User's email address
+        full_name: User's full name
+    """
+    id: int
+    email: EmailStr
+    full_name: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class UserResponse(BaseModel):
     """
     Schema for user data in API responses.

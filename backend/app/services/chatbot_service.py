@@ -38,11 +38,11 @@ class ChatbotService:
         self.vector_store = None
 
         if not LANGCHAIN_AVAILABLE:
-            print("⚠️  Install: pip install langchain langchain-google-genai")
+            print("[WARNING] Install: pip install langchain langchain-google-genai")
             return
 
         if not settings.GOOGLE_API_KEY:
-            print("⚠️  Add GOOGLE_API_KEY to .env file")
+            print("[WARNING] Add GOOGLE_API_KEY to .env file")
             return
 
         try:
@@ -63,7 +63,7 @@ class ChatbotService:
                 print(f"⚠️  Vector Store initialization failed: {e}")
                 
         except Exception as e:
-            print(f"❌ Failed to initialize Gemini: {e}")
+            print(f"[ERROR] Failed to initialize Gemini: {e}")
 
     async def chat(
         self,
@@ -89,7 +89,7 @@ class ChatbotService:
 
         if not self.llm:
             return (
-                "⚠️ Chatbot not configured. Please add GOOGLE_API_KEY to .env and install dependencies.",
+                "[WARNING] Chatbot not configured. Please add GOOGLE_API_KEY to .env and install dependencies.",
                 conversation_id
             )
 
@@ -203,7 +203,7 @@ class ChatbotService:
             Response chunks as they're generated
         """
         if not self.llm:
-            yield "⚠️ Chatbot not configured. Add GOOGLE_API_KEY to .env"
+            yield "[WARNING] Chatbot not configured. Add GOOGLE_API_KEY to .env"
             return
 
         try:

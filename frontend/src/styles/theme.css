@@ -1,0 +1,418 @@
+/* src/styles/theme.css */
+
+/* ============================================================================
+   Light Theme (Default)
+   ============================================================================ */
+:root,
+[data-theme='light'] {
+  /* Page/Main Background */
+  --page-bg: #ffffff;
+  
+  /* Primary Colors - Light Neutral/White */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #f0f2f5;
+  --bg-hover: #e9ecef;
+  
+  /* Text Colors - Dark for Light BG */
+  --text-primary: #1a1a1a;
+  --text-secondary: #495057;
+  --text-tertiary: #6c757d;
+  --text-muted: #adb5bd;
+  
+  /* Border Colors */
+  --border-light: #e9ecef;
+  --border-default: #dee2e6;
+  --border-dark: #ced4da;
+  
+  /* Component Specific */
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --card-border: #e9ecef;
+  
+  /* Accent Colors */
+  --accent-blue: #0066cc;
+  --accent-green: #0d9488;
+  --accent-red: #dc2626;
+  --accent-yellow: #f59e0b;
+  --accent-purple: #8b5cf6;
+  
+  /* Interactive */
+  --input-bg: #ffffff;
+  --input-border: #dee2e6;
+  --input-focus: #0066cc;
+  --input-text: #1a1a1a;
+  
+  /* Status Colors */
+  --success-bg: #dcfce7;
+  --success-text: #166534;
+  --warning-bg: #fef3c7;
+  --warning-text: #92400e;
+  --error-bg: #fee2e2;
+  --error-text: #991b1b;
+  --info-bg: #dbeafe;
+  --info-text: #0c4a6e;
+}
+
+/* ============================================================================
+   Dark Theme (Monochrome)
+   ============================================================================ */
+[data-theme='dark'] {
+  /* Page/Main Background - Deep Dark */
+  --page-bg: #0f0f0f;
+  
+  /* Primary Colors - Dark Monochrome */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2f2f2f;
+  --bg-hover: #3a3a3a;
+  
+  /* Text Colors - Light for Dark BG */
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-tertiary: #b0b0b0;
+  --text-muted: #808080;
+  
+  /* Border Colors */
+  --border-light: #3a3a3a;
+  --border-default: #4a4a4a;
+  --border-dark: #5a5a5a;
+  
+  /* Component Specific */
+  --sidebar-bg: #0d0d0d;
+  --sidebar-text: #ffffff;
+  --card-bg: #1a1a1a;
+  --card-shadow: rgba(0, 0, 0, 0.8);
+  --card-border: #3a3a3a;
+  
+  /* Accent Colors - Adjusted for Dark Mode */
+  --accent-blue: #60a5fa;
+  --accent-green: #14b8a6;
+  --accent-red: #f87171;
+  --accent-yellow: #fbbf24;
+  --accent-purple: #a78bfa;
+  
+  /* Interactive */
+  --input-bg: #242424;
+  --input-border: #4a4a4a;
+  --input-focus: #60a5fa;
+  --input-text: #ffffff;
+  
+  /* Status Colors - Dark Mode Variants */
+  --success-bg: #064e3b;
+  --success-text: #86efac;
+  --warning-bg: #78350f;
+  --warning-text: #fde047;
+  --error-bg: #7f1d1d;
+  --error-text: #fca5a5;
+  --info-bg: #0c2d4a;
+  --info-text: #7dd3fc;
+}
+
+/* ============================================================================
+   Base Styles with CSS Variables
+   ============================================================================ */
+
+body {
+  background-color: var(--page-bg);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Main content area - Apply page background */
+main {
+  background-color: var(--page-bg);
+  color: var(--text-primary);
+}
+
+/* Cards */
+.bg-white,
+[class*="bg-white"] {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Rounded containers - ensure they get card styling */
+.rounded-2xl,
+.rounded-xl,
+.rounded-lg {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Text Colors */
+.text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-600 {
+  color: var(--text-tertiary) !important;
+}
+
+.text-gray-500,
+.text-gray-400,
+.text-gray-300 {
+  color: var(--text-muted) !important;
+}
+
+.text-gray-800,
+.text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+/* Convenience utilities mapped to theme variables */
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.bg-section { background-color: var(--bg-secondary) !important; }
+
+/* Borders */
+.border {
+  border-color: var(--border-default) !important;
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--input-focus) !important;
+  outline: none;
+}
+
+input:readonly {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Buttons - Status Variants */
+.bg-blue-100 {
+  background-color: var(--info-bg) !important;
+}
+
+.text-blue-700 {
+  color: var(--info-text) !important;
+}
+
+.text-blue-600 {
+  color: var(--accent-blue) !important;
+}
+
+.bg-green-50 {
+  background-color: var(--success-bg) !important;
+}
+
+.text-green-700 {
+  color: var(--success-text) !important;
+}
+
+.text-green-600 {
+  color: var(--accent-green) !important;
+}
+
+.bg-red-50 {
+  background-color: var(--error-bg) !important;
+}
+
+.text-red-700 {
+  color: var(--error-text) !important;
+}
+
+.text-red-600 {
+  color: var(--accent-red) !important;
+}
+
+/* Yellow/Warning */
+.text-yellow-600 {
+  color: var(--accent-yellow) !important;
+}
+
+/* Purple */
+.text-purple-600 {
+  color: var(--accent-purple) !important;
+}
+
+/* Emerald/Teal */
+.text-emerald-600 {
+  color: var(--accent-green) !important;
+}
+
+/* Hover States */
+.hover\:bg-gray-50:hover,
+.hover\:bg-blue-50:hover,
+.hover\:bg-green-50:hover {
+  background-color: var(--bg-tertiary) !important;
+}
+
+/* Shadows - Adjusted for Dark Mode */
+.shadow,
+.shadow-lg,
+.shadow-xl {
+  background-color: var(--card-bg) !important;
+  box-shadow: 0 0 10px var(--card-shadow) !important;
+  color: var(--text-primary) !important;
+}
+
+.hover\:shadow-lg:hover,
+.hover\:shadow-xl:hover {
+  box-shadow: 0 0 15px var(--card-shadow) !important;
+}
+
+/* Specific Component Overrides */
+.nav-pills .nav-link,
+.nav-link {
+  color: var(--text-secondary) !important;
+  background-color: transparent;
+}
+
+.nav-pills .nav-link.active,
+.nav-link.active {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Sidebar Styling - Keep Consistent */
+.sidebar,
+[class*="sidebar"],
+[class*="SideBar"] {
+  background-color: var(--sidebar-bg) !important;
+  color: var(--sidebar-text) !important;
+}
+
+/* Header/Top Bar */
+header,
+.header {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-default) !important;
+}
+
+/* Code/Pre */
+pre,
+code {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border-default) !important;
+}
+
+/* Containers and Divs with specific styles */
+div.rounded-2xl,
+div.rounded-xl,
+div.rounded-lg {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Form containers */
+form {
+  background-color: transparent;
+  color: var(--text-primary) !important;
+}
+
+form label,
+form .label {
+  color: var(--text-primary) !important;
+}
+
+/* Spinner colors for dark mode */
+[data-theme='dark'] .border-blue-600 {
+  border-color: var(--accent-blue) !important;
+}
+
+[data-theme='dark'] .border-green-600 {
+  border-color: var(--accent-green) !important;
+}
+
+/* Label styling */
+label {
+  color: var(--text-primary) !important;
+}
+
+/* Placeholder text */
+::placeholder {
+  color: var(--text-muted) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Button styling for dark mode */
+.btn-light {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+}
+
+.btn-light:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+.btn-outline-primary {
+  color: var(--accent-blue) !important;
+  border-color: var(--accent-blue) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--accent-blue) !important;
+  color: white !important;
+}
+
+/* Dropdown styling */
+.dropdown-menu {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+}
+
+.dropdown-item {
+  color: var(--text-primary) !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dropdown-divider {
+  border-color: var(--border-default) !important;
+}
+
+/* Form control styling */
+.form-control {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
+}
+
+.form-control:focus {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-focus) !important;
+  box-shadow: none !important;
+}
+
+/* Smooth transition for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Disable transitions on page load */
+.no-transition * {
+  transition: none !important;
+}

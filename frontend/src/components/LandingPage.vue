@@ -26,12 +26,14 @@
           <div class="flex items-center space-x-4">
             <button 
             @click="goToLogin"
-            class="px-4 py-2 text-blue-600 font-medium hover:text-blue-700">
+            class="px-4 py-2 font-medium hover:text-blue-700"
+            style="color: #2563eb !important;">
               Sign In
             </button>
             <button
               @click="goToRegister"
-              class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition duration-200"
+              class="px-6 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 font-medium transition duration-200"
+              style="color: #2563eb !important;"
             >
               Get Started
             </button>
@@ -49,11 +51,13 @@
         <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
           Your AI-Powered Academic Support System for IITM Students, TAs, Instructors, and Administrators
         </p>
-        <p class="text-lg text-gray-500 mb-10 max-w-2xl mx-auto">
+        <p class="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
           Revolutionizing academic support through intelligent assistance, personalized learning, and seamless communication
         </p>
         <button
-          class="px-8 py-4 bg-blue-600 text-white rounded-lg text-lg font-medium hover:bg-blue-700 shadow-lg"
+          @click="goToRegister"
+          class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-medium shadow-lg transition duration-200"
+          style="color: #2563eb !important;"
         >
           Explore Aura
         </button>
@@ -248,17 +252,18 @@ onMounted(() => {
 })
 
 // =================== COMPONENT ===================
+import { h } from 'vue'
 const FeatureCard = {
   props: ['icon', 'title', 'description', 'color'],
-  template: `
-    <div class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
-      <div :class="['w-12 h-12 rounded-lg flex items-center justify-center mb-4', color]">
-        <i :data-lucide="icon" class="lucide"></i>
-      </div>
-      <h3 class="text-xl font-bold text-gray-900 mb-3">{{ title }}</h3>
-      <p class="text-gray-600">{{ description }}</p>
-    </div>
-  `
+  render() {
+    return h('div', { class: 'bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow' }, [
+      h('div', { class: ['w-12 h-12 rounded-lg flex items-center justify-center mb-4', this.color] }, [
+        h('i', { 'data-lucide': this.icon, class: 'lucide' })
+      ]),
+      h('h3', { class: 'text-xl font-bold text-gray-900 mb-3' }, this.title),
+      h('p', { class: 'text-gray-600' }, this.description)
+    ])
+  }
 }
 </script>
 

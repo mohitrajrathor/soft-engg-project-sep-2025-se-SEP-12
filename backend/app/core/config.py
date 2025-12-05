@@ -157,15 +157,28 @@ class Settings(BaseSettings):
         default="noreply@aura.edu",
         description="From email address"
     )
+    EMAILS_FROM_NAME: str = Field(
+        default="AURA - Academic Assistant",
+        description="From email name"
+    )
+    SMTP_TLS: bool = Field(
+        default=True,
+        description="Use TLS for SMTP connection"
+    )
+    SMTP_SSL: bool = Field(
+        default=False,
+        description="Use SSL for SMTP connection"
+    )
 
     # AI/LLM Settings (Gemini)
     GOOGLE_API_KEY: str = Field(
-        default="AIzaSyCqqg0e35Xvmy2wPtLvMCUHIK4e_nhHBeI",
+        # default="AIzaSyCqqg0e35Xvmy2wPtLvMCUHIK4e_nhHBeI",
+        default="AIzaSyBXIM9HupbQckbghhRkHgMpfnf69U47w00",
         description="Google Gemini API Key (get from https://makersuite.google.com/app/apikey)"
     )
     GEMINI_MODEL: str = Field(
-        default="gemini-1.5-flash",
-        description="Gemini model to use (gemini-pro, gemini-1.5-flash, gemini-1.5-pro)"
+        default="gemini-2.5-flash",
+        description="Gemini model to use (gemini-2.5-flash, gemini-2.5-pro, gemini-flash-latest, gemini-pro-latest)"
     )
     GEMINI_TEMPERATURE: float = Field(
         default=0.7,

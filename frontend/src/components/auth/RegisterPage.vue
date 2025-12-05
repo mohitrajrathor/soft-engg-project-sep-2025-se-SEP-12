@@ -15,7 +15,7 @@
         </div>
 
         <!-- Right Side -->
-        <div class="col-lg-6 col-md-7 form-section d-flex flex-column justify-content-center align-items-center bg-white">
+        <div class="col-lg-6 col-md-7 form-section d-flex flex-column justify-content-center align-items-center" :style="{ background: 'var(--color-bg-card)', borderLeft: '1px solid var(--color-border)' }">
           <div class="form-container p-4 p-md-5 w-100" style="max-width: 420px;">
             <div class="text-end mb-3">
               <small class="text-muted">
@@ -24,8 +24,8 @@
               </small>
             </div>
 
-            <h3 class="fw-bold mb-2 text-primary text-center">Create your account</h3>
-            <p class="text-muted mb-4 text-center">Get started with premium features</p>
+            <h3 class="fw-bold mb-2 text-center" :style="{ color: 'var(--color-text-primary)' }">Create your account</h3>
+            <p class="mb-4 text-center" :style="{ color: 'var(--color-text-secondary)' }">Get started with premium features</p>
 
             <!-- Error Message -->
           <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -199,7 +199,7 @@ export default {
 <style scoped>
 .signup-wrapper {
   background: url('/src/assets/login.jpg') no-repeat center center / cover;
-  min-height: 100dvh; /* ✅ adjusts better with zoom and browser bars */
+  min-height: 100dvh; /* adjusts better with zoom and browser bars */
   width: 100%;
   overflow: hidden;
 }

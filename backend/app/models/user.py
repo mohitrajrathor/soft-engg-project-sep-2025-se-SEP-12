@@ -78,6 +78,7 @@ class User(Base):
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    last_login = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")
@@ -86,6 +87,9 @@ class User(Base):
     resources = relationship("Resource", back_populates="created_by", cascade="all, delete-orphan")
     announcements = relationship("Announcement", back_populates="created_by", cascade="all, delete-orphan")
     query_responses = relationship("QueryResponse", back_populates="user", cascade="all, delete-orphan")
+    quizzes_created = relationship("Quiz", back_populates="creator", cascade="all, delete-orphan")
+    quiz_attempts = relationship("QuizAttempt", back_populates="user", cascade="all, delete-orphan")
+    slide_decks_created = relationship("SlideDeck", back_populates="creator", cascade="all, delete-orphan")
 
     def set_password(self, password: str) -> None:
         """
