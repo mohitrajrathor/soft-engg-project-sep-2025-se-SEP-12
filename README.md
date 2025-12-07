@@ -7,7 +7,7 @@
 
 **AURA** is an intelligent platform designed to streamline academic support. It provides students with an AI-powered chat interface to get instant help on their coursework, while offering powerful summarization and analytics tools for Teaching Assistants (TAs) and instructors.
 
-## ✨ Features
+##  Features
 
 - **🤖 AI-Powered Student Chat**: Students can ask questions and receive instant, context-aware answers from an AI assistant powered by Google Gemini.
 - **📊 Doubt Summarization**: TAs can generate insightful summaries of student doubts over various periods (daily, weekly, monthly).
