@@ -10,11 +10,11 @@
 ##  Features
 
 - **AI-Powered Student Chat**: Students can ask questions and receive instant, context-aware answers from an AI assistant powered by Google Gemini.
-- ** Doubt Summarization**: TAs can generate insightful summaries of student doubts over various periods (daily, weekly, monthly).
-- ** Email & PDF Export**: Summaries can be exported as a formatted PDF and sent directly to an email address.
-- ** Role-Based Access**: Separate interfaces and functionalities for students and TAs.
-- ** Theming**: A modern UI with both light and dark modes.
-- ** High-Performance Backend**: Built with FastAPI, ensuring a fast and scalable API.
+- **Doubt Summarization**: TAs can generate insightful summaries of student doubts over various periods (daily, weekly, monthly).
+- **Email & PDF Export**: Summaries can be exported as a formatted PDF and sent directly to an email address.
+- **Role-Based Access**: Separate interfaces and functionalities for students and TAs.
+- **Theming**: A modern UI with both light and dark modes.
+- **High-Performance Backend**: Built with FastAPI, ensuring a fast and scalable API.
 
 ##  Tech Stack
 
