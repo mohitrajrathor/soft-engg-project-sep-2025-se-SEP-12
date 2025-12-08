@@ -174,6 +174,7 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str = Field(
         default="AIzaSyBFw3rXmpqtrcZU5v2btSe-0rz-e9N5jxI",
         description="Google Gemini API Key (get from https://makersuite.google.com/app/apikey)"
+        
     )
     GEMINI_MODEL: str = Field(
         default="gemini-2.5-flash",
