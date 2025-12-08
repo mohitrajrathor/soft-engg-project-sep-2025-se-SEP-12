@@ -7,16 +7,16 @@
 
 **AURA** is an intelligent platform designed to streamline academic support. It provides students with an AI-powered chat interface to get instant help on their coursework, while offering powerful summarization and analytics tools for Teaching Assistants (TAs) and instructors.
 
-## ✨ Features
+##  Features
 
-- **🤖 AI-Powered Student Chat**: Students can ask questions and receive instant, context-aware answers from an AI assistant powered by Google Gemini.
-- **📊 Doubt Summarization**: TAs can generate insightful summaries of student doubts over various periods (daily, weekly, monthly).
-- **📧 Email & PDF Export**: Summaries can be exported as a formatted PDF and sent directly to an email address.
-- **🔐 Role-Based Access**: Separate interfaces and functionalities for students and TAs.
-- **🎨 Theming**: A modern UI with both light and dark modes.
-- **⚡ High-Performance Backend**: Built with FastAPI, ensuring a fast and scalable API.
+- **AI-Powered Student Chat**: Students can ask questions and receive instant, context-aware answers from an AI assistant powered by Google Gemini.
+- **Doubt Summarization**: TAs can generate insightful summaries of student doubts over various periods (daily, weekly, monthly).
+- **Email & PDF Export**: Summaries can be exported as a formatted PDF and sent directly to an email address.
+- **Role-Based Access**: Separate interfaces and functionalities for students and TAs.
+- **Theming**: A modern UI with both light and dark modes.
+- **High-Performance Backend**: Built with FastAPI, ensuring a fast and scalable API.
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Area         | Technology                                                                                             |
 |--------------|--------------------------------------------------------------------------------------------------------|
@@ -26,7 +26,7 @@
 | **AI/LLM**   | Google Gemini                                                                |
 | **Emailing** | fastapi-mail                                                 |
 
-## 🚀 Getting Started
+##  Getting Started
 
 Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
 
@@ -104,7 +104,7 @@ yarn dev
 
 The frontend application will be available at `http://localhost:5173` (or another port if 5173 is in use).
 
-## ⚙️ Configuration
+##  Configuration
 
 Create a `.env` file in the `backend/` directory. This file stores sensitive credentials and environment-specific settings.
 
@@ -135,9 +135,9 @@ SMTP_TLS=True
 SMTP_SSL=False
 ```
 
-> **⚠️ Important:** Never commit your `.env` file to version control. The `.gitignore` file is already configured to ignore it. For more details on setting up email, refer to `EMAIL_CONFIGURATION.md`.
+> ** Important:** Never commit your `.env` file to version control. The `.gitignore` file is already configured to ignore it. For more details on setting up email, refer to `EMAIL_CONFIGURATION.md`.
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
