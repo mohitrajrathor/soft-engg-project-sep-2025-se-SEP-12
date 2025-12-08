@@ -103,8 +103,9 @@
                 <!-- Document -->
                 <div v-if="res.resource_type === 'document' && res.file_name" class="text-sm card-subtext">
                   📄
-                  <a :href="getResourceUrl(res)" target="_blank" class="underline hover:text-blue-600">{{ res.file_name
-                    }}</a>
+                  <a href="#" @click.prevent="downloadFile(res)" class="underline hover:text-blue-600">
+                    {{ res.file_name }}
+                  </a>
                 </div>
 
                 <!-- Image -->
@@ -272,6 +273,8 @@ import HeaderBar from '@/components/layout/StudentLayout/HeaderBar.vue'
 import RightPanel from '@/components/layout/StudentLayout/RightPanel.vue'
 import { getMyCoures } from '@/api/courses'
 import * as studentResourcesAPI from '@/api/studentResources'
+// At the top of your script
+import api from '@/api/axios' // <--- ADD THIS LINE
 
 import algorithms from '@/assets/algorithms.jpg'
 import systems from '@/assets/systems.jpg'
@@ -428,6 +431,33 @@ export default {
       }
       return null;
     },
+
+    // Add this inside your methods object
+    async downloadFile(resource) {
+      try {
+        const url = this.getResourceUrl(resource);
+        if (!url) return;
+
+        // Use api.get to send your Auth Token with the request
+        const response = await api.get(url, { responseType: 'blob' });
+
+        // Create a fake link to force the browser to download the file
+        const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.setAttribute('download', resource.file_name || 'download');
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up
+        link.remove();
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error('Download failed:', error);
+        alert('Could not download file. You might not be authenticated.');
+      }
+    },
+
     async deleteResource(resourceId) {
       if (!confirm('Are you sure you want to delete this resource?')) {
         return;
