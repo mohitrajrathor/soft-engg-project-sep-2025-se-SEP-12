@@ -172,7 +172,7 @@ class Settings(BaseSettings):
 
     # AI/LLM Settings (Gemini)
     GOOGLE_API_KEY: str = Field(
-        default="AIzaSyBFw3rXmpqtrcZU5v2btSe-0rz-e9N5jxI",
+        default="google-api-key",
         description="Google Gemini API Key (get from https://makersuite.google.com/app/apikey)"
         
     )
